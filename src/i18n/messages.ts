@@ -95,6 +95,9 @@ export interface Messages {
     fileOperations: string;
     processManagement: string;
     helpSection: string;
+    systemStatus: string;
+    hudExplanation: string;
+    threatLevel: string;
     commands: {
       ls: string;
       cd: string;
@@ -122,7 +125,7 @@ export const messages: { en: Messages; ja: Messages } = {
       title: 'Unix Command Learning Roguelike v0.1.0',
       subtitle: '═══ SYSTEM INITIALIZATION ═══',
       description1: 'CLASSIFIED BRIEFING - CLEARANCE LEVEL: OMEGA\n\nThe year is 2087. The Ω(Omega)-Cluster, humanity\'s most advanced quantum computing network, has suffered a catastrophic system breach. Corrupted processes are spreading like a digital plague, threatening to collapse the entire infrastructure that keeps our civilization running.\n\nYou are Agent-7 (Agent Seven), an elite maintenance operative trained in ancient Unix protocols - skills thought obsolete until now.',
-      description2: '🚨 MISSION BRIEFING:\nCorrupted entities have infiltrated the filesystem layers. Your neural interface has been calibrated to translate system commands into direct environmental manipulation. Every Unix command you execute will reshape reality within the digital realm.\n\nTime is running out. The corruption spreads with each passing cycle.',
+      description2: '🚨 MISSION BRIEFING:\nCorrupted entities have infiltrated the filesystem layers. Your neural interface has been calibrated to translate system commands into direct environmental manipulation. Every Unix command you execute will reshape reality within the digital realm.\n\n🖥️ HUD INTERFACE: Your neural HUD (Heads-Up Display) projects critical survival metrics directly into your field of vision:\n• HP: System Integrity (health)\n• EP: CPU Quota (energy for commands)\n• THR: Threat Level (corruption intensity)\n• Current digital location path\n\n⚠️ WARNING: Higher threat levels spawn more dangerous entities and destabilize the environment. Monitor your HUD constantly and eliminate corrupted processes to reduce the threat.\n\nTime is running out. The corruption spreads with each passing cycle.',
       helpHint: '💡 Neural link established. Type "help" to access your command protocols.',
       exitHint: '⚠️ Emergency extraction: Type "exit" or "quit" to abort mission.'
     },
@@ -164,7 +167,7 @@ export const messages: { en: Messages; ja: Messages } = {
       },
       findCorrupted: {
         title: 'Find Corrupted Files',
-        description: 'The log mentions a corrupted file. Go back to zone1 with "cd .." then use "find -name corrupted.tmp" to locate it.',
+        description: 'The log mentions a corrupted file. Go back to zone1 with "cd .." (where ".." means parent directory - one level up) then use "find -name corrupted.tmp" to locate it.',
         hint: 'First type: cd .. then type: find -name corrupted.tmp'
       },
       makeExecutable: {
@@ -214,9 +217,12 @@ export const messages: { en: Messages; ja: Messages } = {
       fileOperations: 'File Operations:',
       processManagement: 'Process Management:',
       helpSection: 'Help:',
+      systemStatus: 'System Status:',
+      hudExplanation: 'HUD Display: Your neural interface projects vital stats - HP (System Integrity), EP (CPU Quota), THR (Threat Level), and current location. Monitor these carefully to survive the digital realm.',
+      threatLevel: 'THR (Threat Level): Indicates system corruption intensity. Higher levels mean more dangerous entities and unstable environment. Reduce threat by eliminating corrupted processes and cleaning infected files.',
       commands: {
         ls: 'List directory contents (shows files and folders)',
-        cd: 'Change directory',
+        cd: 'Change directory (use "cd .." to go up one level, ".." = parent directory)',
         pwd: 'Print working directory',
         cat: 'Display file contents (read and show entire file)',
         head: 'Display first lines of file',
@@ -246,7 +252,7 @@ Type 'help' for available commands.`
       title: 'ShellQuest v0.1.0',
       subtitle: '═══ システム初期化 ═══',
       description1: '機密ブリーフィング - クリアランスレベル：OMEGA\n\n西暦2087年。人類最高峰の量子計算ネットワーク「Ω（オメガ）クラスタ」に致命的なシステム侵害が発生した。破損したプロセスがデジタルペストのように蔓延し、我々の文明を支える全インフラの崩壊が迫っている。\n\n君はエージェント-7（セブン）、古代のUnixプロトコルを修得したエリートメンテナンス工作員だ。今まで時代遅れとされていたそのスキルが、今こそ必要とされている。',
-      description2: '🚨 ミッション概要：\n破損したエンティティがファイルシステム層に侵入している。君の神経インターフェースは、システムコマンドを直接的な環境操作に変換するよう調整済みだ。実行するUnixコマンドの全てが、デジタル領域内の現実を再構成する。\n\n時間は限られている。汚染は刻々と拡散している。',
+      description2: '🚨 ミッション概要：\n破損したエンティティがファイルシステム層に侵入している。君の神経インターフェースは、システムコマンドを直接的な環境操作に変換するよう調整済みだ。実行するUnixコマンドの全てが、デジタル領域内の現実を再構成する。\n\n🖥️ HUDインターフェース：神経HUD（ヘッドアップディスプレイ）が重要な生存指標を視野に直接投影する：\n• HP：システム整合性（体力）\n• EP：CPUクォータ（コマンド実行エネルギー）\n• THR：脅威レベル（汚染強度）\n• 現在のデジタル位置パス\n\n⚠️ 警告：脅威レベルが高いほど危険なエンティティが出現し、環境が不安定化する。HUDを常時監視し、破損プロセスの排除により脅威を軽減せよ。\n\n時間は限られている。汚染は刻々と拡散している。',
       helpHint: '💡 神経リンク確立。コマンドプロトコルにアクセスするには「help」と入力。',
       exitHint: '⚠️ 緊急脱出：ミッション中止は「exit」または「quit」。'
     },
@@ -288,7 +294,7 @@ Type 'help' for available commands.`
       },
       findCorrupted: {
         title: '破損ファイルの検索',
-        description: 'ログに破損ファイルの記載があります。「cd ..」でzone1に戻り、「find -name corrupted.tmp」を使用して場所を特定してください。',
+        description: 'ログに破損ファイルの記載があります。「cd ..」（「..」は親ディレクトリ、つまり一つ上の階層を意味します）でzone1に戻り、「find -name corrupted.tmp」を使用して場所を特定してください。',
         hint: 'まず入力: cd .. 次に入力: find -name corrupted.tmp'
       },
       makeExecutable: {
@@ -338,9 +344,12 @@ Type 'help' for available commands.`
       fileOperations: 'ファイル操作：',
       processManagement: 'プロセス管理：',
       helpSection: 'ヘルプ：',
+      systemStatus: 'システム状態：',
+      hudExplanation: 'HUD表示：神経インターフェースにより重要な統計が投影される - HP（システム整合性）、EP（CPUクォータ）、THR（脅威レベル）、現在位置。デジタル領域での生存にはこれらの監視が不可欠。',
+      threatLevel: 'THR（脅威レベル）：システムの汚染度を示します。レベルが高いほど危険なエンティティが存在し、環境が不安定になります。破損したプロセスの排除と感染ファイルの除去により脅威を軽減できます。',
       commands: {
         ls: 'ディレクトリ内容をリスト（ファイルとフォルダを表示）',
-        cd: 'ディレクトリを変更',
+        cd: 'ディレクトリを変更（「cd ..」で一つ上の階層へ移動、「..」は親ディレクトリ）',
         pwd: '現在のディレクトリを表示',
         cat: 'ファイル内容を表示（ファイル全体を読み込み表示）',
         head: 'ファイルの最初の行を表示',
