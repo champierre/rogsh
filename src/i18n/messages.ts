@@ -120,16 +120,16 @@ export const messages: { en: Messages; ja: Messages } = {
   en: {
     welcome: {
       title: 'Unix Command Learning Roguelike v0.1.0',
-      subtitle: '',
-      description1: 'You are a maintenance agent in the Ω-Cluster.',
-      description2: 'Navigate the filesystem dungeon using Unix commands.',
-      helpHint: 'Type "help" for available commands.',
-      exitHint: 'Type "exit" or "quit" to leave the game.'
+      subtitle: '═══ SYSTEM INITIALIZATION ═══',
+      description1: 'CLASSIFIED BRIEFING - CLEARANCE LEVEL: OMEGA\n\nThe year is 2087. The Ω(Omega)-Cluster, humanity\'s most advanced quantum computing network, has suffered a catastrophic system breach. Corrupted processes are spreading like a digital plague, threatening to collapse the entire infrastructure that keeps our civilization running.\n\nYou are Agent-7 (Agent Seven), an elite maintenance operative trained in ancient Unix protocols - skills thought obsolete until now.',
+      description2: '🚨 MISSION BRIEFING:\nCorrupted entities have infiltrated the filesystem layers. Your neural interface has been calibrated to translate system commands into direct environmental manipulation. Every Unix command you execute will reshape reality within the digital realm.\n\nTime is running out. The corruption spreads with each passing cycle.',
+      helpHint: '💡 Neural link established. Type "help" to access your command protocols.',
+      exitHint: '⚠️ Emergency extraction: Type "exit" or "quit" to abort mission.'
     },
     tutorial: {
       welcome: {
         title: 'Welcome to ShellQuest',
-        description: 'You are a maintenance agent in the Ω-Cluster. Your mission is to clean corrupted processes and restore system stability.\n\nFirst, let\'s explore your current location. Type "ls" (list) to see all files and directories here.',
+        description: 'You are a maintenance agent in the Ω(Omega)-Cluster. Your mission is to clean corrupted processes and restore system stability.\n\nFirst, let\'s explore your current location. Type "ls" (list) to see all files and directories here.',
         hint: 'Type: ls'
       },
       exploreDetailed: {
@@ -174,7 +174,7 @@ export const messages: { en: Messages; ja: Messages } = {
       },
       complete: {
         title: 'Tutorial Complete!',
-        description: 'Excellent! You\'ve learned the basics:\n- Navigation (ls, cd)\n- File reading (cat)\n- Process management (ps, kill)\n- File search (find)\n- Permissions (chmod)\n\nYou\'re ready to continue exploring the Ω-Cluster!',
+        description: 'Excellent! You\'ve learned the basics:\n- Navigation (ls, cd)\n- File reading (cat)\n- Process management (ps, kill)\n- File search (find)\n- Permissions (chmod)\n\nYou\'re ready to continue exploring the Ω(Omega)-Cluster!',
         hint: ''
       }
     },
@@ -244,16 +244,16 @@ Type 'help' for available commands.`
   ja: {
     welcome: {
       title: 'ShellQuest v0.1.0',
-      subtitle: '',
-      description1: 'あなたはΩクラスタのメンテナンスエージェントです。',
-      description2: 'Unixコマンドを使用してファイルシステムダンジョンを探索してください。',
-      helpHint: '使用可能なコマンドを見るには「help」と入力してください。',
-      exitHint: 'ゲームを終了するには「exit」または「quit」と入力してください。'
+      subtitle: '═══ システム初期化 ═══',
+      description1: '機密ブリーフィング - クリアランスレベル：OMEGA\n\n西暦2087年。人類最高峰の量子計算ネットワーク「Ω（オメガ）クラスタ」に致命的なシステム侵害が発生した。破損したプロセスがデジタルペストのように蔓延し、我々の文明を支える全インフラの崩壊が迫っている。\n\n君はエージェント-7（セブン）、古代のUnixプロトコルを修得したエリートメンテナンス工作員だ。今まで時代遅れとされていたそのスキルが、今こそ必要とされている。',
+      description2: '🚨 ミッション概要：\n破損したエンティティがファイルシステム層に侵入している。君の神経インターフェースは、システムコマンドを直接的な環境操作に変換するよう調整済みだ。実行するUnixコマンドの全てが、デジタル領域内の現実を再構成する。\n\n時間は限られている。汚染は刻々と拡散している。',
+      helpHint: '💡 神経リンク確立。コマンドプロトコルにアクセスするには「help」と入力。',
+      exitHint: '⚠️ 緊急脱出：ミッション中止は「exit」または「quit」。'
     },
     tutorial: {
       welcome: {
         title: 'ShellQuestへようこそ',
-        description: 'あなたはΩクラスタのメンテナンスエージェントです。腐敗したプロセスを除去し、システムの安定性を回復することがミッションです。\n\nまず、現在の場所を探索しましょう。「ls」（list：リスト）と入力して、ここにあるすべてのファイルとディレクトリを表示してください。',
+        description: 'あなたはΩ（オメガ）クラスタのメンテナンスエージェントです。腐敗したプロセスを除去し、システムの安定性を回復することがミッションです。\n\nまず、現在の場所を探索しましょう。「ls」（list：リスト）と入力して、ここにあるすべてのファイルとディレクトリを表示してください。',
         hint: '入力: ls'
       },
       exploreDetailed: {
@@ -298,7 +298,7 @@ Type 'help' for available commands.`
       },
       complete: {
         title: 'チュートリアル完了！',
-        description: '素晴らしい！基本を習得しました：\n- ナビゲーション（ls、cd）\n- ファイル読み取り（cat）\n- プロセス管理（ps、kill）\n- ファイル検索（find）\n- パーミッション（chmod）\n\nΩクラスタの探索を続ける準備ができました！',
+        description: '素晴らしい！基本を習得しました：\n- ナビゲーション（ls、cd）\n- ファイル読み取り（cat）\n- プロセス管理（ps、kill）\n- ファイル検索（find）\n- パーミッション（chmod）\n\nΩ（オメガ）クラスタの探索を続ける準備ができました！',
         hint: ''
       }
     },
