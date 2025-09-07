@@ -15,6 +15,7 @@ export class CommandParser {
   private processManager: ProcessManager;
   private availableCommands: Set<string>;
   private locale: 'ja' | 'en';
+  private gameInstance: any; // Will be set by the Game class
 
   constructor(filesystem: VirtualFileSystem, processManager: ProcessManager, locale: 'ja' | 'en' = 'en') {
     this.filesystem = filesystem;
@@ -23,8 +24,8 @@ export class CommandParser {
     
     // Start with basic commands for tutorial
     this.availableCommands = new Set([
-      'ls', 'cd', 'pwd', 'cat', 'head', 'ps', 'kill', 
-      'find', 'grep', 'chmod', 'help', 'man', 'clear'
+      'ls', 'cd', 'pwd', 'cat', 'rm', 'help', 'clear',
+      'quest', 'debug', 'debug-quest', 'debug-skip'
     ]);
   }
 
@@ -52,24 +53,20 @@ export class CommandParser {
           return this.pwd();
         case 'cat':
           return this.cat(args);
-        case 'head':
-          return this.head(args);
-        case 'ps':
-          return this.ps(args);
-        case 'kill':
-          return this.kill(args, gameState);
-        case 'find':
-          return this.find(args);
-        case 'grep':
-          return this.grep(args);
-        case 'chmod':
-          return this.chmod(args);
+        case 'rm':
+          return this.rm(args);
         case 'help':
           return this.help();
-        case 'man':
-          return this.man(args);
         case 'clear':
           return { output: '\x1Bc', success: true, energyCost: 0 };
+        case 'quest':
+          return this.quest(gameState);
+        case 'debug':
+          return this.debug();
+        case 'debug-quest':
+          return this.debugQuest(args, gameState);
+        case 'debug-skip':
+          return this.debugSkip(gameState);
         default:
           return {
             output: chalk.red(`Command not implemented: ${command}`),
@@ -202,216 +199,83 @@ export class CommandParser {
     };
   }
 
-  private head(args: string[]): CommandResult {
-    const lines = 10; // Default head lines
-    
+
+  private rm(args: string[]): CommandResult {
     if (args.length === 0) {
       return {
-        output: chalk.red('head: missing operand'),
+        output: chalk.red('rm: missing operand'),
         success: false,
         energyCost: 1
       };
     }
 
-    const file = this.filesystem.getFile(args[0]);
+    const filename = args[0];
+    const file = this.filesystem.getFile(filename);
+    
     if (!file) {
       return {
-        output: chalk.red(`head: ${args[0]}: No such file`),
+        output: chalk.red(`rm: cannot remove '${filename}': No such file or directory`),
         success: false,
         energyCost: 2
       };
     }
 
-    const content = file.content || '';
-    const contentLines = content.split('\n').slice(0, lines).join('\n');
+    if (file.type === 'directory') {
+      return {
+        output: chalk.red(`rm: cannot remove '${filename}': Is a directory`),
+        success: false,
+        energyCost: 1
+      };
+    }
 
-    return {
-      output: contentLines,
-      success: true,
-      energyCost: 2
-    };
-  }
-
-  private ps(args: string[]): CommandResult {
-    const processes = this.processManager.listProcesses();
-    let output = chalk.bold('PID  TYPE            THRT  CMD\n');
-
-    for (const proc of processes) {
-      const typeColor = proc.type === 'ZombieProcess' ? chalk.gray :
-                       proc.type === 'LogLeech' ? chalk.yellow :
-                       proc.type === 'ForkSprite' ? chalk.magenta :
-                       proc.type === 'System' ? chalk.green : chalk.white;
+    // Remove the file
+    const success = this.filesystem.deleteFile(filename);
+    
+    if (success) {
+      let output = chalk.green(`[OK] File '${filename}' removed successfully`);
       
-      output += `${proc.pid.toString().padEnd(4)} ${typeColor(proc.type.padEnd(15))} `;
-      output += `${proc.threatLevel.toString().padEnd(5)} ${proc.cmd}\n`;
-    }
-
-    return {
-      output,
-      success: true,
-      energyCost: 3
-    };
-  }
-
-  private kill(args: string[], gameState: GameState): CommandResult {
-    if (args.length === 0) {
+      // Add special messages for enemy files
+      if (filename === 'virus.exe' || filename === 'malware.dat') {
+        output += chalk.cyan(`\n[MISSION UPDATE] Hostile file eliminated! Zone 1 is more secure.`);
+        
+        // Reduce threat level when enemy files are removed
+        if (file.threatLevel) {
+          output += chalk.green(`\nThreat level reduced by ${file.threatLevel}`);
+        }
+      }
+      
       return {
-        output: chalk.red('kill: missing operand'),
-        success: false,
-        energyCost: 1
-      };
-    }
-
-    const pid = parseInt(args[0]);
-    if (isNaN(pid)) {
-      return {
-        output: chalk.red(`kill: ${args[0]}: invalid process id`),
-        success: false,
-        energyCost: 1
-      };
-    }
-
-    const result = this.processManager.killProcess(pid);
-    if (result.success) {
-      return {
-        output: chalk.green(`[OK] ${result.processType} terminated. Threat -${result.threatReduction} (now ${gameState.threatLevel - result.threatReduction})`),
+        output,
         success: true,
-        energyCost: 4
+        energyCost: 3
       };
     } else {
       return {
-        output: chalk.red(`kill: (${pid}) - No such process`),
+        output: chalk.red(`rm: cannot remove '${filename}': Permission denied`),
         success: false,
         energyCost: 2
       };
     }
-  }
-
-  private find(args: string[]): CommandResult {
-    const nameIndex = args.indexOf('-name');
-    if (nameIndex === -1 || nameIndex === args.length - 1) {
-      return {
-        output: chalk.red('find: -name option requires an argument'),
-        success: false,
-        energyCost: 1
-      };
-    }
-
-    const pattern = args[nameIndex + 1];
-    const files = this.filesystem.findFiles(pattern);
-    
-    let output = '';
-    for (const file of files) {
-      output += `${file.name}`;
-      if (file.isCorrupted) output += chalk.red(' [CORRUPTED]');
-      output += '\n';
-    }
-
-    return {
-      output: output || `find: no files matching '${pattern}'`,
-      success: true,
-      energyCost: 5
-    };
-  }
-
-  private grep(args: string[]): CommandResult {
-    if (args.length < 2) {
-      return {
-        output: chalk.red('grep: missing pattern or file'),
-        success: false,
-        energyCost: 1
-      };
-    }
-
-    const pattern = args[0];
-    const filename = args[1];
-    
-    const file = this.filesystem.getFile(filename);
-    if (!file) {
-      return {
-        output: chalk.red(`grep: ${filename}: No such file`),
-        success: false,
-        energyCost: 2
-      };
-    }
-
-    const lines = (file.content || '').split('\n');
-    const matches = lines.filter(line => line.includes(pattern));
-    
-    const output = matches.map(line => {
-      const highlighted = line.replace(
-        new RegExp(pattern, 'g'),
-        chalk.red.bold(pattern)
-      );
-      return highlighted;
-    }).join('\n');
-
-    return {
-      output: output || `grep: no matches for '${pattern}'`,
-      success: true,
-      energyCost: 3
-    };
-  }
-
-  private chmod(args: string[]): CommandResult {
-    if (args.length < 2) {
-      return {
-        output: chalk.red('chmod: missing operand'),
-        success: false,
-        energyCost: 1
-      };
-    }
-
-    const mode = args[0];
-    const filename = args[1];
-
-    if (mode === '+x') {
-      const success = this.filesystem.updateFilePermissions(filename, {
-        owner: { read: true, write: true, execute: true }
-      });
-
-      if (success) {
-        return {
-          output: chalk.green(`[OK] Made ${filename} executable`),
-          success: true,
-          energyCost: 2
-        };
-      } else {
-        return {
-          output: chalk.red(`chmod: ${filename}: No such file`),
-          success: false,
-          energyCost: 1
-        };
-      }
-    }
-
-    return {
-      output: chalk.red(`chmod: invalid mode: ${mode}`),
-      success: false,
-      energyCost: 1
-    };
   }
 
   private help(): CommandResult {
     const msg = messages[this.locale];
     const output = chalk.bold(`${msg.help.title}\n\n`) +
       chalk.green(`${msg.help.navigation}\n`) +
-      `  ls [-la]        - ${msg.help.commands.ls}\n` +
+      `  ls [-a]         - ${msg.help.commands.ls}\n` +
       `  cd <dir>        - ${msg.help.commands.cd}\n` +
       `  pwd             - ${msg.help.commands.pwd}\n\n` +
       chalk.green(`${msg.help.fileOperations}\n`) +
       `  cat <file>      - ${msg.help.commands.cat}\n` +
-      `  head <file>     - ${msg.help.commands.head}\n` +
-      `  find -name <p>  - ${msg.help.commands.find}\n` +
-      `  grep <p> <file> - ${msg.help.commands.grep}\n` +
-      `  chmod +x <file> - ${msg.help.commands.chmod}\n\n` +
-      chalk.green(`${msg.help.processManagement}\n`) +
-      `  ps              - ${msg.help.commands.ps}\n` +
-      `  kill <pid>      - ${msg.help.commands.kill}\n\n` +
+      `  rm <file>       - ${msg.help.commands.rm}\n\n` +
       chalk.green(`${msg.help.helpSection}\n`) +
       `  help            - ${msg.help.commands.help}\n` +
-      `  man <command>   - ${msg.help.commands.man}\n` +
-      `  clear           - ${msg.help.commands.clear}\n`;
+      `  clear           - ${msg.help.commands.clear}\n` +
+      `  quest           - ${msg.help.commands.quest}\n\n` +
+      chalk.green(`Debug Commands:\n`) +
+      `  debug           - ${msg.help.commands.debug}\n` +
+      `  debug-quest <id> - ${msg.help.commands['debug-quest']}\n` +
+      `  debug-skip      - ${msg.help.commands['debug-skip']}\n`;
 
     return {
       output,
@@ -420,38 +284,6 @@ export class CommandParser {
     };
   }
 
-  private man(args: string[]): CommandResult {
-    if (args.length === 0) {
-      return {
-        output: chalk.red('What manual page do you want?'),
-        success: false,
-        energyCost: 0
-      };
-    }
-
-    const command = args[0];
-    const manuals: Record<string, string> = {
-      ls: 'NAME\n    ls - list directory contents\n\nSYNOPSIS\n    ls [OPTION]... [FILE]...\n\nDESCRIPTION\n    List information about files and directories.\n\nOPTIONS\n    -a    show hidden files\n    -l    use long listing format\n\nGAME TIP\n    Use ls -la to reveal hidden threats and corrupted files.',
-      cd: 'NAME\n    cd - change directory\n\nSYNOPSIS\n    cd [DIRECTORY]\n\nDESCRIPTION\n    Change the current directory to DIRECTORY.\n    If no argument given, changes to root (/).\n\nGAME TIP\n    Navigate carefully - unexplored directories may contain threats.',
-      ps: 'NAME\n    ps - report process status\n\nSYNOPSIS\n    ps\n\nDESCRIPTION\n    Display information about active processes.\n\nGAME TIP\n    Monitor threat levels - high threat processes should be terminated quickly.',
-      kill: 'NAME\n    kill - terminate processes\n\nSYNOPSIS\n    kill PID\n\nDESCRIPTION\n    Send termination signal to process with given PID.\n\nGAME TIP\n    Killing processes reduces threat level and consumes energy.'
-    };
-
-    const manual = manuals[command];
-    if (!manual) {
-      return {
-        output: chalk.red(`No manual entry for ${command}`),
-        success: false,
-        energyCost: 0
-      };
-    }
-
-    return {
-      output: manual,
-      success: true,
-      energyCost: 0
-    };
-  }
 
   private formatPermissions(perms: any): string {
     const format = (p: any) => 
@@ -466,5 +298,92 @@ export class CommandParser {
 
   getAvailableCommands(): string[] {
     return Array.from(this.availableCommands);
+  }
+
+  setGameInstance(gameInstance: any): void {
+    this.gameInstance = gameInstance;
+  }
+
+  private quest(gameState: GameState): CommandResult {
+    const msg = messages[this.locale];
+    
+    if (!this.gameInstance) {
+      return {
+        output: chalk.red('Quest system not available'),
+        success: false,
+        energyCost: 0
+      };
+    }
+
+    const currentQuest = this.gameInstance.getCurrentQuest();
+    
+    if (currentQuest) {
+      return {
+        output: `${chalk.cyan.bold(`[進行中のクエスト]`)}\n${chalk.yellow.bold(currentQuest.title)}\n${currentQuest.description}\n\n${chalk.green('目標:')}\n${currentQuest.objectives.map((obj: string, i: number) => `  ${i + 1}. ${obj}`).join('\n')}`,
+        success: true,
+        energyCost: 0
+      };
+    } else {
+      return {
+        output: chalk.blue(msg.quests.noActiveQuest),
+        success: true,
+        energyCost: 0
+      };
+    }
+  }
+
+  private debug(): CommandResult {
+    const msg = messages[this.locale];
+    return {
+      output: chalk.yellow(`${msg.debug.debugMode}\n${msg.debug.questList}`),
+      success: true,
+      energyCost: 0
+    };
+  }
+
+  private debugQuest(args: string[], gameState: GameState): CommandResult {
+    const msg = messages[this.locale];
+    
+    if (!this.gameInstance) {
+      return {
+        output: chalk.red('Quest system not available'),
+        success: false,
+        energyCost: 0
+      };
+    }
+
+    if (args.length === 0) {
+      return {
+        output: chalk.yellow(msg.debug.questList),
+        success: true,
+        energyCost: 0
+      };
+    }
+
+    const questId = args[0];
+    const success = this.gameInstance.startQuest(questId);
+    
+    if (success) {
+      return {
+        output: chalk.green(msg.debug.questStarted.replace('{questId}', questId)),
+        success: true,
+        energyCost: 0
+      };
+    } else {
+      return {
+        output: chalk.red(msg.debug.invalidQuest),
+        success: false,
+        energyCost: 0
+      };
+    }
+  }
+
+  private debugSkip(gameState: GameState): CommandResult {
+    const msg = messages[this.locale];
+    return {
+      output: chalk.green(msg.debug.questSkipped),
+      success: true,
+      energyCost: 0
+    };
   }
 }

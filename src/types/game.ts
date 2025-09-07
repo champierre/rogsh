@@ -35,7 +35,7 @@ export type ProcessType =
   | 'System';
 
 export interface GameEvent {
-  type: 'combat' | 'discovery' | 'system' | 'tutorial';
+  type: 'combat' | 'discovery' | 'system' | 'tutorial' | 'quest';
   message: string;
   severity: 'info' | 'warning' | 'error' | 'success';
   timestamp: Date;

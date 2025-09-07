@@ -70,46 +70,85 @@ export class VirtualFileSystem {
     cluster.subdirectories.set('zone1', zone1);
     zone1.parent = cluster;
     
+    // Create zone2 structure (initially hidden)
+    const zone2 = this.createDirectory('zone2', '/srv/cluster/zone2');
+    cluster.subdirectories.set('zone2', zone2);
+    zone2.parent = cluster;
+    
+    // Create directories in zone2
+    const zone2_data = this.createDirectory('data', '/srv/cluster/zone2/data');
+    const zone2_cache = this.createDirectory('cache', '/srv/cluster/zone2/cache');
+    const zone2_system = this.createDirectory('system', '/srv/cluster/zone2/system');
+    
+    zone2.subdirectories.set('data', zone2_data);
+    zone2.subdirectories.set('cache', zone2_cache);
+    zone2.subdirectories.set('system', zone2_system);
+    
+    zone2_data.parent = zone2;
+    zone2_cache.parent = zone2;
+    zone2_system.parent = zone2;
+    
+    // Add zone2 files
+    zone2.files.set('README.txt', this.createFile(
+      'README.txt',
+      'file',
+      `ZONE 2 STATUS REPORT
+====================
+
+Agent-7, welcome to Zone 2 operations area.
+
+CURRENT THREAT ASSESSMENT:
+- Multiple corrupted processes detected
+- System stability at 67%
+- Advanced malware signatures present
+
+OBJECTIVES:
+- Investigate data corruption in /data directory
+- Neutralize hostile processes
+- Restore system integrity above 85%
+
+Zone 2 contains more sophisticated threats.
+Proceed with enhanced caution protocols.`
+    ));
+    
+    // Add corrupted files in zone2
+    zone2_data.files.set('corrupt.db', this.createFile(
+      'corrupt.db',
+      'file',
+      `[DATABASE CORRUPTION DETECTED]
+CRITICAL: Core data compromised
+This file contains infected database entries.
+Advanced removal protocols required.`,
+      { isCorrupted: true, threatLevel: 7 }
+    ));
+    
+    zone2_cache.files.set('malware.cache', this.createFile(
+      'malware.cache',
+      'file',
+      `[MALWARE CACHE DETECTED]
+WARNING: Persistent threat vector
+Automated replication system active
+Requires immediate elimination.`,
+      { isCorrupted: true, threatLevel: 6 }
+    ));
+    
     // Create tutorial directories in zone1
-    const bin = this.createDirectory('bin', '/srv/cluster/zone1/bin');
     const logs = this.createDirectory('logs', '/srv/cluster/zone1/logs');
-    const auth = this.createDirectory('auth', '/srv/cluster/zone1/auth');
     const tmp = this.createDirectory('tmp', '/srv/cluster/zone1/tmp');
     
-    zone1.subdirectories.set('bin', bin);
     zone1.subdirectories.set('logs', logs);
-    zone1.subdirectories.set('auth', auth);
     zone1.subdirectories.set('tmp', tmp);
     
-    bin.parent = zone1;
     logs.parent = zone1;
-    auth.parent = zone1;
     tmp.parent = zone1;
     
     // Add tutorial files
-    zone1.files.set('README.zone', this.createFile(
-      'README.zone',
+    zone1.files.set('README.txt', this.createFile(
+      'README.txt',
       'file',
       messages[this.locale].zones.readme
     ));
     
-    // Add files to bin directory
-    bin.files.set('cleanup.sh', this.createFile(
-      'cleanup.sh',
-      'file',
-      `#!/bin/bash
-# Cleanup script for zone maintenance
-echo "Cleaning temporary files..."
-rm -f /tmp/*.tmp
-echo "Cleanup complete!"`,
-      {
-        permissions: {
-          owner: { read: true, write: true, execute: false },
-          group: { read: true, write: false, execute: false },
-          other: { read: false, write: false, execute: false }
-        }
-      }
-    ));
     
     // Add log files
     logs.files.set('system.log', this.createFile(
@@ -127,26 +166,35 @@ echo "Cleanup complete!"`,
       'file',
       `[ERROR] Failed to cleanup temporary files
 [ERROR] Process 114 not responding
-[ERROR] Corruption detected in tmp/corrupted.tmp`
+[ERROR] Corruption detected in tmp/virus.exe`
     ));
     
-    // Add corrupted file in tmp
-    tmp.files.set('corrupted.tmp', this.createFile(
-      'corrupted.tmp',
+    // Create hidden directory in logs
+    const hiddenDir = this.createDirectory('.hidden', '/srv/cluster/zone1/logs/.hidden');
+    logs.subdirectories.set('.hidden', hiddenDir);
+    hiddenDir.parent = logs;
+    
+    // Move malware.dat to hidden directory
+    hiddenDir.files.set('malware.dat', this.createFile(
+      'malware.dat',
       'file',
-      `@#$%^&*()_+{}|:"<>?~corrupted data~@#$%^&*()`,
-      { isCorrupted: true, threatLevel: 3 }
+      `[MALICIOUS DATA FILE]
+THREAT LEVEL: HIGH
+This file contains dangerous payloads.
+Eliminate using rm command.`,
+      { isCorrupted: true, threatLevel: 4 }
     ));
     
-    // Add auth files
-    auth.files.set('.creds.enc', this.createFile(
-      '.creds.enc',
+    // Add enemy files for tutorial mission
+    tmp.files.set('virus.exe', this.createFile(
+      'virus.exe',
       'file',
-      `-----BEGIN PGP MESSAGE-----
-[Encrypted credentials]
------END PGP MESSAGE-----`,
-      { isHidden: true }
+      `[HOSTILE FILE - VIRUS DETECTED]
+This file is corrupting the system!
+Remove immediately to secure Zone 1.`,
+      { isCorrupted: true, threatLevel: 5 }
     ));
+    
     
     // Set current directory to zone1 for tutorial
     this.currentDirectory = zone1;
