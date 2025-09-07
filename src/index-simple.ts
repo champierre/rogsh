@@ -1,77 +1,69 @@
 #!/usr/bin/env node
 
-import readline from 'readline';
 import chalk from 'chalk';
 import { Game } from './core/game.js';
+import * as readline from 'readline/promises';
+import { stdin as input, stdout as output } from 'process';
 
 class ShellQuest {
   private game: Game;
   private rl: readline.Interface;
+  private isRunning: boolean = true;
 
   constructor() {
     this.game = new Game();
-    this.rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-      prompt: this.game.getPrompt(),
-      terminal: true,
-      historySize: 100
+    this.rl = readline.createInterface({ 
+      input, 
+      output,
+      terminal: true
     });
-
-    // Set raw mode for better input handling
-    if (process.stdin.isTTY) {
-      process.stdin.setRawMode(false);
-    }
   }
 
   async start(): Promise<void> {
     this.displayWelcome();
     this.displayTutorial();
     
-    // Ensure stdin is properly configured
-    process.stdin.resume();
-    process.stdin.setEncoding('utf8');
-    
-    this.rl.prompt();
+    while (this.isRunning) {
+      try {
+        // Display prompt and get input
+        const prompt = this.game.getPrompt();
+        const input = await this.rl.question(prompt);
+        
+        // Handle exit commands
+        if (input.trim() === 'exit' || input.trim() === 'quit') {
+          this.exit();
+          break;
+        }
 
-    this.rl.on('line', async (input: string) => {
-      // Clear any trailing characters
-      const cleanInput = input.trim();
-      
-      if (cleanInput === 'exit' || cleanInput === 'quit') {
-        this.exit();
-        return;
+        // Process command
+        const output = await this.game.processCommand(input.trim());
+        
+        // Display output
+        if (output) {
+          console.log(output);
+        }
+
+        // Display any events
+        const event = this.game.getLastEvent();
+        if (event && event.type === 'tutorial') {
+          console.log(event.message);
+        }
+
+        // Check if game is over
+        if (this.game.getState().isGameOver) {
+          this.displayGameOver();
+          this.exit();
+          break;
+        }
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          // Handle Ctrl+C
+          this.exit();
+          break;
+        }
+        console.error(chalk.red('Error:'), error);
       }
-
-      // Process command
-      const output = await this.game.processCommand(cleanInput);
-      
-      // Display output
-      if (output) {
-        console.log(output);
-      }
-
-      // Display any events
-      const event = this.game.getLastEvent();
-      if (event && event.type === 'tutorial') {
-        console.log(event.message);
-      }
-
-      // Check if game is over
-      if (this.game.getState().isGameOver) {
-        this.displayGameOver();
-        this.exit();
-        return;
-      }
-
-      // Update and display prompt
-      this.rl.setPrompt(this.game.getPrompt());
-      this.rl.prompt();
-    });
-
-    this.rl.on('SIGINT', () => {
-      this.exit();
-    });
+    }
   }
 
   private displayWelcome(): void {
@@ -128,10 +120,16 @@ class ShellQuest {
 
   private exit(): void {
     console.log(chalk.cyan('\nExiting ShellQuest. Goodbye!\n'));
+    this.isRunning = false;
     this.rl.close();
-    process.exit(0);
   }
 }
+
+// Handle Ctrl+C
+process.on('SIGINT', () => {
+  console.log(chalk.cyan('\n\nExiting ShellQuest. Goodbye!\n'));
+  process.exit(0);
+});
 
 // Start the game
 const game = new ShellQuest();
