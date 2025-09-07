@@ -129,17 +129,17 @@ export const messages: { en: Messages; ja: Messages } = {
     tutorial: {
       welcome: {
         title: 'Welcome to ShellQuest',
-        description: 'You are a maintenance agent in the Ω-Cluster. Your mission is to clean corrupted processes and restore system stability.\n\nFirst, let\'s explore your current location. Type "ls" to list files.',
+        description: 'You are a maintenance agent in the Ω-Cluster. Your mission is to clean corrupted processes and restore system stability.\n\nFirst, let\'s explore your current location. Type "ls" (list) to see all files and directories here.',
         hint: 'Type: ls'
       },
       exploreDetailed: {
         title: 'Detailed Exploration',
-        description: 'Good! You can see several directories. Now use "ls -la" to see hidden files and detailed information.',
+        description: 'Good! You can see several directories. Now use "ls -la" (list with long format and all files) to see hidden files (starting with .) and detailed information like permissions and file sizes.',
         hint: 'Type: ls -la'
       },
       readReadme: {
         title: 'Understanding Objectives',
-        description: 'Let\'s read the zone objectives. Use "cat README.zone" to display the file contents.',
+        description: 'Let\'s read the zone objectives. Use "cat README.zone" (concatenate/display) to read and show the entire contents of the README.zone file.',
         hint: 'Type: cat README.zone'
       },
       checkProcesses: {
@@ -215,10 +215,10 @@ export const messages: { en: Messages; ja: Messages } = {
       processManagement: 'Process Management:',
       helpSection: 'Help:',
       commands: {
-        ls: 'List directory contents',
+        ls: 'List directory contents (shows files and folders)',
         cd: 'Change directory',
         pwd: 'Print working directory',
-        cat: 'Display file contents',
+        cat: 'Display file contents (read and show entire file)',
         head: 'Display first lines of file',
         find: 'Find files matching pattern',
         grep: 'Search pattern in file',
@@ -243,7 +243,7 @@ Type 'help' for available commands.`
   },
   ja: {
     welcome: {
-      title: 'Unix コマンド学習ローグライク v0.1.0',
+      title: 'ShellQuest v0.1.0',
       subtitle: '',
       description1: 'あなたはΩクラスタのメンテナンスエージェントです。',
       description2: 'Unixコマンドを使用してファイルシステムダンジョンを探索してください。',
@@ -253,17 +253,17 @@ Type 'help' for available commands.`
     tutorial: {
       welcome: {
         title: 'ShellQuestへようこそ',
-        description: 'あなたはΩクラスタのメンテナンスエージェントです。腐敗したプロセスを除去し、システムの安定性を回復することがミッションです。\n\nまず、現在の場所を探索しましょう。「ls」と入力してファイルをリストしてください。',
+        description: 'あなたはΩクラスタのメンテナンスエージェントです。腐敗したプロセスを除去し、システムの安定性を回復することがミッションです。\n\nまず、現在の場所を探索しましょう。「ls」（list：リスト）と入力して、ここにあるすべてのファイルとディレクトリを表示してください。',
         hint: '入力: ls'
       },
       exploreDetailed: {
         title: '詳細な探索',
-        description: 'よくできました！いくつかのディレクトリが見えますね。「ls -la」を使用して隠しファイルと詳細情報を表示してみましょう。',
+        description: 'よくできました！いくつかのディレクトリが見えますね。「ls -la」（list with long format and all：詳細形式ですべて）を使用して隠しファイル（.で始まる）と権限やファイルサイズなどの詳細情報を表示してみましょう。',
         hint: '入力: ls -la'
       },
       readReadme: {
         title: '目標の理解',
-        description: 'ゾーンの目標を読みましょう。「cat README.zone」を使用してファイルの内容を表示してください。',
+        description: 'ゾーンの目標を読みましょう。「cat README.zone」（concatenate/display：連結・表示）を使用してREADME.zoneファイルの全内容を読み取り表示してください。',
         hint: '入力: cat README.zone'
       },
       checkProcesses: {
@@ -339,10 +339,10 @@ Type 'help' for available commands.`
       processManagement: 'プロセス管理：',
       helpSection: 'ヘルプ：',
       commands: {
-        ls: 'ディレクトリ内容をリスト',
+        ls: 'ディレクトリ内容をリスト（ファイルとフォルダを表示）',
         cd: 'ディレクトリを変更',
         pwd: '現在のディレクトリを表示',
-        cat: 'ファイル内容を表示',
+        cat: 'ファイル内容を表示（ファイル全体を読み込み表示）',
         head: 'ファイルの最初の行を表示',
         find: 'パターンに一致するファイルを検索',
         grep: 'ファイル内でパターンを検索',
