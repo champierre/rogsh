@@ -1,6 +1,7 @@
 import { VirtualFileSystem } from './filesystem.js';
 import { ProcessManager } from './processes.js';
 import { GameState } from '../types/game.js';
+import { messages } from '../i18n/messages.js';
 import chalk from 'chalk';
 
 export interface CommandResult {
@@ -13,10 +14,12 @@ export class CommandParser {
   private filesystem: VirtualFileSystem;
   private processManager: ProcessManager;
   private availableCommands: Set<string>;
+  private locale: 'ja' | 'en';
 
-  constructor(filesystem: VirtualFileSystem, processManager: ProcessManager) {
+  constructor(filesystem: VirtualFileSystem, processManager: ProcessManager, locale: 'ja' | 'en' = 'en') {
     this.filesystem = filesystem;
     this.processManager = processManager;
+    this.locale = locale;
     
     // Start with basic commands for tutorial
     this.availableCommands = new Set([
@@ -31,8 +34,9 @@ export class CommandParser {
     const args = parts.slice(1);
 
     if (!this.availableCommands.has(command)) {
+      const msg = messages[this.locale];
       return {
-        output: chalk.red(`Command not found: ${command}. Type 'help' for available commands.`),
+        output: chalk.red(`${msg.commands.notFound}: ${command}. Type 'help' for available commands.`),
         success: false,
         energyCost: 1
       };
@@ -389,24 +393,25 @@ export class CommandParser {
   }
 
   private help(): CommandResult {
-    const output = chalk.bold('Available Commands:\n\n') +
-      chalk.green('Navigation:\n') +
-      '  ls [-la]        - List directory contents\n' +
-      '  cd <dir>        - Change directory\n' +
-      '  pwd             - Print working directory\n\n' +
-      chalk.green('File Operations:\n') +
-      '  cat <file>      - Display file contents\n' +
-      '  head <file>     - Display first lines of file\n' +
-      '  find -name <p>  - Find files matching pattern\n' +
-      '  grep <p> <file> - Search pattern in file\n' +
-      '  chmod +x <file> - Make file executable\n\n' +
-      chalk.green('Process Management:\n') +
-      '  ps              - List processes\n' +
-      '  kill <pid>      - Terminate process\n\n' +
-      chalk.green('Help:\n') +
-      '  help            - Show this help\n' +
-      '  man <command>   - Show command manual\n' +
-      '  clear           - Clear screen\n';
+    const msg = messages[this.locale];
+    const output = chalk.bold(`${msg.help.title}\n\n`) +
+      chalk.green(`${msg.help.navigation}\n`) +
+      `  ls [-la]        - ${msg.help.commands.ls}\n` +
+      `  cd <dir>        - ${msg.help.commands.cd}\n` +
+      `  pwd             - ${msg.help.commands.pwd}\n\n` +
+      chalk.green(`${msg.help.fileOperations}\n`) +
+      `  cat <file>      - ${msg.help.commands.cat}\n` +
+      `  head <file>     - ${msg.help.commands.head}\n` +
+      `  find -name <p>  - ${msg.help.commands.find}\n` +
+      `  grep <p> <file> - ${msg.help.commands.grep}\n` +
+      `  chmod +x <file> - ${msg.help.commands.chmod}\n\n` +
+      chalk.green(`${msg.help.processManagement}\n`) +
+      `  ps              - ${msg.help.commands.ps}\n` +
+      `  kill <pid>      - ${msg.help.commands.kill}\n\n` +
+      chalk.green(`${msg.help.helpSection}\n`) +
+      `  help            - ${msg.help.commands.help}\n` +
+      `  man <command>   - ${msg.help.commands.man}\n` +
+      `  clear           - ${msg.help.commands.clear}\n`;
 
     return {
       output,

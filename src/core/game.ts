@@ -2,6 +2,8 @@ import { GameState, GameEvent, TutorialStep } from '../types/game.js';
 import { VirtualFileSystem } from './filesystem.js';
 import { ProcessManager } from './processes.js';
 import { CommandParser } from './commands.js';
+import { messages } from '../i18n/messages.js';
+import { getLocale } from '../i18n/locale.js';
 import chalk from 'chalk';
 
 export class Game {
@@ -13,11 +15,13 @@ export class Game {
   private tutorialSteps: TutorialStep[];
   private currentTutorialStep: number;
   private isTutorialMode: boolean;
+  private locale: 'ja' | 'en';
 
   constructor() {
-    this.filesystem = new VirtualFileSystem();
+    this.locale = getLocale();
+    this.filesystem = new VirtualFileSystem(this.locale);
     this.processManager = new ProcessManager();
-    this.commandParser = new CommandParser(this.filesystem, this.processManager);
+    this.commandParser = new CommandParser(this.filesystem, this.processManager, this.locale);
     this.events = [];
     this.tutorialSteps = this.createTutorialSteps();
     this.currentTutorialStep = 0;
@@ -41,76 +45,77 @@ export class Game {
   }
 
   private createTutorialSteps(): TutorialStep[] {
+    const msg = messages[this.locale];
     return [
       {
         id: 'welcome',
-        title: 'Welcome to ShellQuest',
-        description: 'You are a maintenance agent in the Ω-Cluster. Your mission is to clean corrupted processes and restore system stability.\n\nFirst, let\'s explore your current location. Type "ls" to list files.',
+        title: msg.tutorial.welcome.title,
+        description: msg.tutorial.welcome.description,
         expectedCommand: 'ls',
-        hint: 'Type: ls'
+        hint: msg.tutorial.welcome.hint
       },
       {
         id: 'explore_detailed',
-        title: 'Detailed Exploration',
-        description: 'Good! You can see several directories. Now use "ls -la" to see hidden files and detailed information.',
+        title: msg.tutorial.exploreDetailed.title,
+        description: msg.tutorial.exploreDetailed.description,
         expectedCommand: 'ls -la',
-        hint: 'Type: ls -la'
+        hint: msg.tutorial.exploreDetailed.hint
       },
       {
         id: 'read_readme',
-        title: 'Understanding Objectives',
-        description: 'Let\'s read the zone objectives. Use "cat README.zone" to display the file contents.',
+        title: msg.tutorial.readReadme.title,
+        description: msg.tutorial.readReadme.description,
         expectedCommand: 'cat README.zone',
-        hint: 'Type: cat README.zone'
+        hint: msg.tutorial.readReadme.hint
       },
       {
         id: 'check_processes',
-        title: 'Process Monitoring',
-        description: 'There are hostile processes running. Use "ps" to list all processes.',
+        title: msg.tutorial.checkProcesses.title,
+        description: msg.tutorial.checkProcesses.description,
         expectedCommand: 'ps',
-        hint: 'Type: ps'
+        hint: msg.tutorial.checkProcesses.hint
       },
       {
         id: 'kill_zombie',
-        title: 'Terminate Threat',
-        description: 'The ZombieProcess (PID 114) is a threat. Use "kill 114" to terminate it.',
+        title: msg.tutorial.killZombie.title,
+        description: msg.tutorial.killZombie.description,
         expectedCommand: 'kill 114',
-        hint: 'Type: kill 114'
+        hint: msg.tutorial.killZombie.hint
       },
       {
         id: 'explore_logs',
-        title: 'Investigate Logs',
-        description: 'Good work! Now navigate to the logs directory. Use "cd logs" to change directory.',
+        title: msg.tutorial.exploreLogs.title,
+        description: msg.tutorial.exploreLogs.description,
         expectedCommand: 'cd logs',
-        hint: 'Type: cd logs'
+        hint: msg.tutorial.exploreLogs.hint
       },
       {
         id: 'check_errors',
-        title: 'Check Error Log',
-        description: 'Let\'s see what errors are occurring. Use "cat error.log" to read the error log.',
+        title: msg.tutorial.checkErrors.title,
+        description: msg.tutorial.checkErrors.description,
         expectedCommand: 'cat error.log',
-        hint: 'Type: cat error.log'
+        hint: msg.tutorial.checkErrors.hint
       },
       {
         id: 'find_corrupted',
-        title: 'Find Corrupted Files',
-        description: 'The log mentions a corrupted file. Go back to zone1 with "cd .." then use "find -name corrupted.tmp" to locate it.',
+        title: msg.tutorial.findCorrupted.title,
+        description: msg.tutorial.findCorrupted.description,
         expectedCommand: 'find -name corrupted.tmp',
-        hint: 'First type: cd .. then type: find -name corrupted.tmp'
+        hint: msg.tutorial.findCorrupted.hint
       },
       {
         id: 'make_executable',
-        title: 'Prepare Cleanup Script',
-        description: 'Navigate to bin directory with "cd bin" and make cleanup.sh executable with "chmod +x cleanup.sh".',
+        title: msg.tutorial.makeExecutable.title,
+        description: msg.tutorial.makeExecutable.description,
         expectedCommand: 'chmod +x cleanup.sh',
-        hint: 'First: cd bin, then: chmod +x cleanup.sh'
+        hint: msg.tutorial.makeExecutable.hint
       },
       {
         id: 'tutorial_complete',
-        title: 'Tutorial Complete!',
-        description: 'Excellent! You\'ve learned the basics:\n- Navigation (ls, cd)\n- File reading (cat)\n- Process management (ps, kill)\n- File search (find)\n- Permissions (chmod)\n\nYou\'re ready to continue exploring the Ω-Cluster!',
+        title: msg.tutorial.complete.title,
+        description: msg.tutorial.complete.description,
         expectedCommand: '',
-        hint: ''
+        hint: msg.tutorial.complete.hint
       }
     ];
   }
@@ -189,7 +194,7 @@ export class Game {
         this.isTutorialMode = false;
         this.addEvent({
           type: 'tutorial',
-          message: chalk.green.bold('\n🎉 Tutorial Complete! You are now free to explore.'),
+          message: chalk.green.bold(`\n${messages[this.locale].game.tutorialComplete}`),
           severity: 'success',
           timestamp: new Date()
         });
@@ -224,11 +229,13 @@ export class Game {
   }
 
   private checkGameOver(): void {
+    const msg = messages[this.locale];
+    
     if (this.state.hp <= 0) {
       this.state.isGameOver = true;
       this.addEvent({
         type: 'system',
-        message: chalk.red.bold('SYSTEM PANIC: Integrity critical. Game Over.'),
+        message: chalk.red.bold(msg.game.systemPanic),
         severity: 'error',
         timestamp: new Date()
       });
@@ -238,7 +245,7 @@ export class Game {
       this.state.isGameOver = true;
       this.addEvent({
         type: 'system',
-        message: chalk.red.bold('DISK FULL: System unresponsive. Game Over.'),
+        message: chalk.red.bold(msg.game.diskFull),
         severity: 'error',
         timestamp: new Date()
       });
@@ -248,7 +255,7 @@ export class Game {
       this.state.isGameOver = true;
       this.addEvent({
         type: 'system',
-        message: chalk.red.bold('THREAT CRITICAL: System compromised. Game Over.'),
+        message: chalk.red.bold(msg.game.threatCritical),
         severity: 'error',
         timestamp: new Date()
       });

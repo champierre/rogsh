@@ -2,6 +2,8 @@
 
 import chalk from 'chalk';
 import { Game } from './core/game.js';
+import { messages } from './i18n/messages.js';
+import { getLocale } from './i18n/locale.js';
 import * as readline from 'readline/promises';
 import { stdin as input, stdout as output } from 'process';
 
@@ -9,8 +11,10 @@ class ShellQuest {
   private game: Game;
   private rl: readline.Interface;
   private isRunning: boolean = true;
+  private locale: 'ja' | 'en';
 
   constructor() {
+    this.locale = getLocale();
     this.game = new Game();
     this.rl = readline.createInterface({ 
       input, 
@@ -88,11 +92,12 @@ class ShellQuest {
 ╚═══════════════════════════════════════════════════════╝
 `));
     
-    console.log(chalk.gray('Unix Command Learning Roguelike v0.1.0\n'));
-    console.log(chalk.yellow('You are a maintenance agent in the Ω-Cluster.'));
-    console.log(chalk.yellow('Navigate the filesystem dungeon using Unix commands.\n'));
-    console.log(chalk.green('Type "help" for available commands.'));
-    console.log(chalk.green('Type "exit" or "quit" to leave the game.\n'));
+    const msg = messages[this.locale];
+    console.log(chalk.gray(`${msg.welcome.title}\n`));
+    console.log(chalk.yellow(msg.welcome.description1));
+    console.log(chalk.yellow(`${msg.welcome.description2}\n`));
+    console.log(chalk.green(msg.welcome.helpHint));
+    console.log(chalk.green(`${msg.welcome.exitHint}\n`));
   }
 
   private displayTutorial(): void {
@@ -105,21 +110,24 @@ class ShellQuest {
 
   private displayGameOver(): void {
     const state = this.game.getState();
+    const msg = messages[this.locale];
+    
     console.log(chalk.red.bold('\n════════════════════════════════'));
-    console.log(chalk.red.bold('           GAME OVER            '));
+    console.log(chalk.red.bold(`           ${msg.game.gameOver}            `));
     console.log(chalk.red.bold('════════════════════════════════\n'));
     
-    console.log(chalk.white('Final Statistics:'));
-    console.log(chalk.gray(`  Turns Survived: ${state.turnCount}`));
-    console.log(chalk.gray(`  Knowledge Gained: ${state.knowledge}`));
-    console.log(chalk.gray(`  Final Threat Level: ${state.threatLevel}`));
-    console.log(chalk.gray(`  Depth Reached: ${state.currentDepth}\n`));
+    console.log(chalk.white(`${msg.game.finalStats}:`));
+    console.log(chalk.gray(`  ${msg.game.turnsSurvived}: ${state.turnCount}`));
+    console.log(chalk.gray(`  ${msg.game.knowledgeGained}: ${state.knowledge}`));
+    console.log(chalk.gray(`  ${msg.game.finalThreatLevel}: ${state.threatLevel}`));
+    console.log(chalk.gray(`  ${msg.game.depthReached}: ${state.currentDepth}\n`));
     
-    console.log(chalk.yellow('Thank you for playing ShellQuest!\n'));
+    console.log(chalk.yellow(`${msg.game.thankYou}\n`));
   }
 
   private exit(): void {
-    console.log(chalk.cyan('\nExiting ShellQuest. Goodbye!\n'));
+    const msg = messages[this.locale];
+    console.log(chalk.cyan(`\n${msg.game.exitMessage}\n`));
     this.isRunning = false;
     this.rl.close();
   }
@@ -127,7 +135,8 @@ class ShellQuest {
 
 // Handle Ctrl+C
 process.on('SIGINT', () => {
-  console.log(chalk.cyan('\n\nExiting ShellQuest. Goodbye!\n'));
+  const msg = messages[getLocale()];
+  console.log(chalk.cyan(`\n\n${msg.game.exitMessage}\n`));
   process.exit(0);
 });
 

@@ -1,10 +1,13 @@
 import { VirtualDirectory, VirtualFile, FilePermissions, FileType } from '../types/filesystem.js';
+import { messages } from '../i18n/messages.js';
 
 export class VirtualFileSystem {
   private root: VirtualDirectory;
   private currentDirectory: VirtualDirectory;
+  private locale: 'ja' | 'en';
 
-  constructor() {
+  constructor(locale: 'ja' | 'en' = 'en') {
+    this.locale = locale;
     this.root = this.createDirectory('/', '/');
     this.currentDirectory = this.root;
     this.initializeFilesystem();
@@ -87,14 +90,7 @@ export class VirtualFileSystem {
     zone1.files.set('README.zone', this.createFile(
       'README.zone',
       'file',
-      `Zone1 Tutorial Objective:
-- Learn basic navigation with ls and cd
-- Discover the corrupted.tmp file
-- Terminate the zombie process
-- Reduce threat level below 5
-- Secure the cleanup.sh script
-
-Type 'help' for available commands.`
+      messages[this.locale].zones.readme
     ));
     
     // Add files to bin directory
