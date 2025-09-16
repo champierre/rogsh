@@ -12,20 +12,32 @@ class ShellQuest {
   private rl: readline.Interface;
   private isRunning: boolean = true;
   private locale: 'ja' | 'en';
+  private isDevelopmentMode: boolean;
 
   constructor() {
     this.locale = getLocale();
+    this.isDevelopmentMode = process.argv.includes('--skip-intro') ||
+                            process.argv.includes('--dev') ||
+                            process.env.NODE_ENV === 'development';
     this.game = new Game();
-    this.rl = readline.createInterface({ 
-      input, 
+    this.rl = readline.createInterface({
+      input,
       output,
       terminal: true
     });
   }
 
   async start(): Promise<void> {
-    this.displayWelcome();
-    this.displayTutorial();
+    if (!this.isDevelopmentMode) {
+      await this.displayWelcome();
+    } else {
+      // Show minimal welcome for dev mode
+      console.clear();
+      console.log(chalk.cyan.bold('ShellQuest - Development Mode'));
+      console.log(chalk.gray('(演出スキップ済み)\n'));
+    }
+
+    await this.displayTutorial();
     
     while (this.isRunning) {
       try {
@@ -40,17 +52,24 @@ class ShellQuest {
         }
 
         // Process command
-        const output = await this.game.processCommand(input.trim());
-        
+        const result = await this.game.processCommand(input.trim());
+
         // Display output
-        if (output) {
-          console.log(output);
+        if (result.output) {
+          console.log(result.output);
+        }
+
+        // Check if we should exit (zone2 reached)
+        if (result.shouldExit) {
+          this.exit();
+          break;
         }
 
         // Display any events
         const event = this.game.getLastEvent();
         if (event && event.type === 'tutorial') {
-          console.log(event.message);
+          // Display tutorial event in same format as displayTutorial
+          await this.displayTutorialEvent();
         }
 
         // Check if game is over
@@ -70,7 +89,7 @@ class ShellQuest {
     }
   }
 
-  private displayWelcome(): void {
+  private async displayWelcome(): Promise<void> {
     console.clear();
     console.log(chalk.cyan.bold(`
 ╔═══════════════════════════════════════════════════════╗
@@ -93,18 +112,158 @@ class ShellQuest {
 `));
     
     const msg = messages[this.locale];
-    console.log(chalk.gray(`${msg.welcome.title}\n`));
-    console.log(chalk.yellow(msg.welcome.description1));
-    console.log(chalk.yellow(`${msg.welcome.description2}\n`));
+    console.log(chalk.cyan(`${msg.welcome.title}\n`));
+    
+    // Wait for Enter before starting the briefing
+    await this.waitForEnter();
+    
+    // Split description1 into paragraphs and display gradually
+    const paragraphs = msg.welcome.description1.split('\n\n');
+    
+    // Display title with dramatic build-up effect
+    const [title, ...story] = paragraphs;
+    
+    // Build-up effect with dots
+    console.log();
+    await this.sleep(500);
+    process.stdout.write(chalk.cyan('システム初期化中'));
+    for (let i = 0; i < 3; i++) {
+      await this.sleep(500);
+      process.stdout.write(chalk.cyan('.'));
+    }
+    await this.sleep(500);
+    console.log();
+    console.log();
+    
+    // Display security level warning
+    await this.sleep(800);
+    console.log(chalk.cyan.bold('警告: 最高機密情報'));
+    await this.sleep(1200);
+    console.log();
+    
+    // Display the title with dramatic effect
+    for (let char of title) {
+      process.stdout.write(chalk.cyan.bold(char));
+      await this.sleep(50); // Slower reveal for title
+    }
+    console.log();
+    console.log();
+    await this.waitForEnter();
+    
+    // Display each paragraph with typewriter effect and wait for Enter
+    for (let i = 0; i < story.length; i++) {
+      // Add suspenseful lead-in for each paragraph
+      await this.sleep(500);
+      console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+      await this.sleep(300);
+      
+      await this.typewriterEffect(story[i], chalk.cyan, 35);
+      console.log();
+      
+      // Wait for Enter after each paragraph
+      await this.waitForEnter();
+    }
+    
+    // Dramatic pause before mission briefing
+    console.log();
+    await this.sleep(500);
+    console.log(chalk.cyan('>>> ミッション詳細をロード中 <<<'));
+    await this.sleep(1500);
+    console.log();
+    
+    // Display description2 with typewriter effect
+    await this.typewriterEffect(msg.welcome.description2, chalk.cyan, 25);
+    console.log();
+    
     console.log(chalk.green(msg.welcome.helpHint));
     console.log(chalk.green(`${msg.welcome.exitHint}\n`));
   }
+  
+  private async waitForEnter(): Promise<void> {
+    console.log();
+    console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+    
+    const msg = this.locale === 'ja' ?
+      chalk.cyan.bold('       ▶▶▶  Enterキーを押して続ける  ◀◀◀       ') :
+      chalk.cyan.bold('       ▶▶▶  Press Enter to continue  ◀◀◀       ');
+    
+    console.log(msg);
+    console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+    
+    // Wait for Enter key press
+    await this.rl.question('');
+    
+    // Clear the "Press Enter" message (5 lines up and clear them)
+    process.stdout.write('\x1b[5A\x1b[J');
+  }
+  
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
-  private displayTutorial(): void {
+  private async typewriterEffect(text: string, chalkFn: any, speed: number = 30): Promise<void> {
+    const lines = text.split('\n');
+    for (const line of lines) {
+      // Regular typewriter effect for all text
+      for (let i = 0; i < line.length; i++) {
+        process.stdout.write(chalkFn(line[i]));
+        await this.sleep(speed);
+      }
+      console.log(); // New line after each line
+    }
+  }
+
+  private async displayTutorial(): Promise<void> {
     const tutorial = this.game.getTutorialMessage();
     if (tutorial) {
-      console.log(tutorial);
+      await this.waitForEnter();
+
+      // Display description with typewriter effect - handle multi-paragraph descriptions
       console.log();
+      const paragraphs = tutorial.description.split('\n\n');
+      for (const paragraph of paragraphs) {
+        if (paragraph.trim()) {
+          const speed = this.isDevelopmentMode ? 5 : 25;
+          await this.typewriterEffect(paragraph.trim(), chalk.cyan, speed);
+          console.log();
+        }
+      }
+
+      // Display hint with typewriter effect in cyan if present
+      if (tutorial.hint) {
+        await this.sleep(300);
+        console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+        const hintSpeed = this.isDevelopmentMode ? 5 : 30;
+        await this.typewriterEffect(`       ▶▶▶  ${tutorial.hint}  ◀◀◀       `, chalk.cyan.bold, hintSpeed);
+        console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+        console.log();
+      }
+    }
+  }
+
+  private async displayTutorialEvent(): Promise<void> {
+    const tutorial = this.game.getTutorialMessage();
+    if (tutorial) {
+      // Display description with typewriter effect - handle multi-paragraph descriptions
+      console.log();
+      const paragraphs = tutorial.description.split('\n\n');
+      for (const paragraph of paragraphs) {
+        if (paragraph.trim()) {
+          const speed = this.isDevelopmentMode ? 5 : 25;
+          await this.typewriterEffect(paragraph.trim(), chalk.cyan, speed);
+          console.log();
+        }
+      }
+
+      // Display hint with typewriter effect in cyan if present
+      if (tutorial.hint) {
+        await this.sleep(300);
+        console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+        const hintSpeed = this.isDevelopmentMode ? 5 : 30;
+        await this.typewriterEffect(`       ▶▶▶  ${tutorial.hint}  ◀◀◀       `, chalk.cyan.bold, hintSpeed);
+        console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+        console.log();
+      }
     }
   }
 

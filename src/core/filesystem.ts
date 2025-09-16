@@ -5,6 +5,8 @@ export class VirtualFileSystem {
   private root: VirtualDirectory;
   private currentDirectory: VirtualDirectory;
   private locale: 'ja' | 'en';
+  private zone2: VirtualDirectory | null = null;
+  private deletedHostileFiles: Set<string> = new Set();
 
   constructor(locale: 'ja' | 'en' = 'en') {
     this.locale = locale;
@@ -53,43 +55,31 @@ export class VirtualFileSystem {
   }
 
   private initializeFilesystem(): void {
-    // Create /srv/cluster/zone1 structure for tutorial
-    const srv = this.createDirectory('srv', '/srv');
-    const cluster = this.createDirectory('cluster', '/srv/cluster');
-    const zone1 = this.createDirectory('zone1', '/srv/cluster/zone1');
-    
-    // Add directories to root
-    this.root.subdirectories.set('srv', srv);
-    srv.parent = this.root;
-    
-    // Add cluster to srv
-    srv.subdirectories.set('cluster', cluster);
-    cluster.parent = srv;
-    
-    // Add zone1 to cluster
-    cluster.subdirectories.set('zone1', zone1);
-    zone1.parent = cluster;
-    
-    // Create zone2 structure (initially hidden)
-    const zone2 = this.createDirectory('zone2', '/srv/cluster/zone2');
-    cluster.subdirectories.set('zone2', zone2);
-    zone2.parent = cluster;
-    
+    // Create zone1 structure directly under root
+    const zone1 = this.createDirectory('zone1', '/zone1');
+
+    // Add zone1 to root
+    this.root.subdirectories.set('zone1', zone1);
+    zone1.parent = this.root;
+
+    // Create zone2 structure but don't add to root yet (unlocked when hostile files are deleted)
+    this.zone2 = this.createDirectory('zone2', '/zone2');
+
     // Create directories in zone2
-    const zone2_data = this.createDirectory('data', '/srv/cluster/zone2/data');
-    const zone2_cache = this.createDirectory('cache', '/srv/cluster/zone2/cache');
-    const zone2_system = this.createDirectory('system', '/srv/cluster/zone2/system');
-    
-    zone2.subdirectories.set('data', zone2_data);
-    zone2.subdirectories.set('cache', zone2_cache);
-    zone2.subdirectories.set('system', zone2_system);
-    
-    zone2_data.parent = zone2;
-    zone2_cache.parent = zone2;
-    zone2_system.parent = zone2;
-    
+    const zone2_data = this.createDirectory('data', '/zone2/data');
+    const zone2_cache = this.createDirectory('cache', '/zone2/cache');
+    const zone2_system = this.createDirectory('system', '/zone2/system');
+
+    this.zone2.subdirectories.set('data', zone2_data);
+    this.zone2.subdirectories.set('cache', zone2_cache);
+    this.zone2.subdirectories.set('system', zone2_system);
+
+    zone2_data.parent = this.zone2;
+    zone2_cache.parent = this.zone2;
+    zone2_system.parent = this.zone2;
+
     // Add zone2 files
-    zone2.files.set('README.txt', this.createFile(
+    this.zone2.files.set('README.txt', this.createFile(
       'README.txt',
       'file',
       `ZONE 2 STATUS REPORT
@@ -110,7 +100,7 @@ OBJECTIVES:
 Zone 2 contains more sophisticated threats.
 Proceed with enhanced caution protocols.`
     ));
-    
+
     // Add corrupted files in zone2
     zone2_data.files.set('corrupt.db', this.createFile(
       'corrupt.db',
@@ -121,7 +111,7 @@ This file contains infected database entries.
 Advanced removal protocols required.`,
       { isCorrupted: true, threatLevel: 7 }
     ));
-    
+
     zone2_cache.files.set('malware.cache', this.createFile(
       'malware.cache',
       'file',
@@ -133,8 +123,8 @@ Requires immediate elimination.`,
     ));
     
     // Create tutorial directories in zone1
-    const logs = this.createDirectory('logs', '/srv/cluster/zone1/logs');
-    const tmp = this.createDirectory('tmp', '/srv/cluster/zone1/tmp');
+    const logs = this.createDirectory('logs', '/zone1/logs');
+    const tmp = this.createDirectory('tmp', '/zone1/tmp');
     
     zone1.subdirectories.set('logs', logs);
     zone1.subdirectories.set('tmp', tmp);
@@ -170,7 +160,7 @@ Requires immediate elimination.`,
     ));
     
     // Create hidden directory in logs
-    const hiddenDir = this.createDirectory('.hidden', '/srv/cluster/zone1/logs/.hidden');
+    const hiddenDir = this.createDirectory('.hidden', '/zone1/logs/.hidden');
     logs.subdirectories.set('.hidden', hiddenDir);
     hiddenDir.parent = logs;
     
@@ -196,8 +186,8 @@ Remove immediately to secure Zone 1.`,
     ));
     
     
-    // Set current directory to zone1 for tutorial
-    this.currentDirectory = zone1;
+    // Start at root directory
+    this.currentDirectory = this.root;
   }
 
   getCurrentDirectory(): VirtualDirectory {
@@ -282,12 +272,12 @@ Remove immediately to secure Zone 1.`,
     const items: Array<VirtualFile | { name: string; type: 'directory' }> = [];
 
     // Add subdirectories
-    for (const [name, subdir] of targetDir.subdirectories) {
+    for (const [name, _subdir] of targetDir.subdirectories) {
       items.push({ name, type: 'directory' });
     }
 
     // Add files
-    for (const [name, file] of targetDir.files) {
+    for (const [_name, file] of targetDir.files) {
       items.push(file);
     }
 
@@ -376,6 +366,34 @@ Remove immediately to secure Zone 1.`,
   }
 
   deleteFile(filename: string): boolean {
-    return this.currentDirectory.files.delete(filename);
+    const file = this.currentDirectory.files.get(filename);
+    const success = this.currentDirectory.files.delete(filename);
+
+    // Track hostile file deletions
+    if (success && file && (filename === 'virus.exe' || filename === 'malware.dat')) {
+      this.deletedHostileFiles.add(filename);
+
+      // Check if both hostile files have been deleted
+      if (this.deletedHostileFiles.has('virus.exe') && this.deletedHostileFiles.has('malware.dat')) {
+        this.unlockZone2();
+      }
+    }
+
+    return success;
+  }
+
+  unlockZone2(): void {
+    if (this.zone2 && !this.root.subdirectories.has('zone2')) {
+      this.root.subdirectories.set('zone2', this.zone2);
+      this.zone2.parent = this.root;
+    }
+  }
+
+  isZone2Unlocked(): boolean {
+    return this.root.subdirectories.has('zone2');
+  }
+
+  areAllHostileFilesDeleted(): boolean {
+    return this.deletedHostileFiles.has('virus.exe') && this.deletedHostileFiles.has('malware.dat');
   }
 }

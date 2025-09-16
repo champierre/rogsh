@@ -1,5 +1,4 @@
 import { VirtualFileSystem } from './filesystem.js';
-import { ProcessManager } from './processes.js';
 import { GameState } from '../types/game.js';
 import { messages } from '../i18n/messages.js';
 import chalk from 'chalk';
@@ -8,28 +7,24 @@ export interface CommandResult {
   output: string;
   success: boolean;
   energyCost: number;
+  shouldExit?: boolean;
 }
 
 export class CommandParser {
   private filesystem: VirtualFileSystem;
-  private processManager: ProcessManager;
   private availableCommands: Set<string>;
   private locale: 'ja' | 'en';
-  private gameInstance: any; // Will be set by the Game class
-
-  constructor(filesystem: VirtualFileSystem, processManager: ProcessManager, locale: 'ja' | 'en' = 'en') {
+  constructor(filesystem: VirtualFileSystem, locale: 'ja' | 'en' = 'en') {
     this.filesystem = filesystem;
-    this.processManager = processManager;
     this.locale = locale;
     
     // Start with basic commands for tutorial
     this.availableCommands = new Set([
-      'ls', 'cd', 'pwd', 'cat', 'rm', 'help', 'clear',
-      'quest', 'debug', 'debug-quest', 'debug-skip'
+      'ls', 'cd', 'pwd', 'cat', 'rm', 'help', 'clear'
     ]);
   }
 
-  async execute(input: string, gameState: GameState): Promise<CommandResult> {
+  async execute(input: string, _gameState: GameState): Promise<CommandResult> {
     const parts = input.trim().split(/\s+/);
     const command = parts[0];
     const args = parts.slice(1);
@@ -59,14 +54,6 @@ export class CommandParser {
           return this.help();
         case 'clear':
           return { output: '\x1Bc', success: true, energyCost: 0 };
-        case 'quest':
-          return this.quest(gameState);
-        case 'debug':
-          return this.debug();
-        case 'debug-quest':
-          return this.debugQuest(args, gameState);
-        case 'debug-skip':
-          return this.debugSkip(gameState);
         default:
           return {
             output: chalk.red(`Command not implemented: ${command}`),
@@ -102,8 +89,9 @@ export class CommandParser {
           const file = item as any;
           const perms = this.formatPermissions(file.permissions);
           const size = file.size.toString().padStart(5);
-          const color = file.isCorrupted ? chalk.red : 
+          const color = file.isCorrupted ? chalk.red :
                         file.name.endsWith('.sh') ? chalk.green :
+                        file.name === 'README.txt' ? chalk.yellow :
                         file.isHidden ? chalk.gray : chalk.white;
           output += `${perms} agent cluster ${size} ${color(file.name)}`;
           if (file.isCorrupted) output += chalk.red(' [CORRUPTED]');
@@ -115,8 +103,9 @@ export class CommandParser {
           output += chalk.blue(`${item.name}/  `);
         } else {
           const file = item as any;
-          const color = file.isCorrupted ? chalk.red : 
+          const color = file.isCorrupted ? chalk.red :
                         file.name.endsWith('.sh') ? chalk.green :
+                        file.name === 'README.txt' ? chalk.yellow :
                         file.isHidden ? chalk.gray : chalk.white;
           output += color(file.name) + '  ';
         }
@@ -135,9 +124,19 @@ export class CommandParser {
   private cd(args: string[]): CommandResult {
     const path = args[0] || '/';
     const success = this.filesystem.changeDirectory(path);
-    
+
     if (success) {
-      const newPath = this.filesystem.pwd();
+      // Check if we moved to zone2
+      const currentPath = this.filesystem.pwd();
+      if (currentPath === '/zone2') {
+        return {
+          output: this.generateToBeContinuedScreen(),
+          success: true,
+          energyCost: 1,
+          shouldExit: true
+        };
+      }
+
       return {
         output: '',
         success: true,
@@ -236,11 +235,22 @@ export class CommandParser {
       
       // Add special messages for enemy files
       if (filename === 'virus.exe' || filename === 'malware.dat') {
-        output += chalk.cyan(`\n[MISSION UPDATE] Hostile file eliminated! Zone 1 is more secure.`);
-        
+        output += chalk.green(`\n[MISSION UPDATE] Hostile file eliminated! Zone 1 is more secure.`);
+
         // Reduce threat level when enemy files are removed
         if (file.threatLevel) {
           output += chalk.green(`\nThreat level reduced by ${file.threatLevel}`);
+        }
+
+        // Check if zone2 is now unlocked
+        if (this.filesystem.areAllHostileFilesDeleted()) {
+          if (this.locale === 'ja') {
+            output += chalk.cyan(`\n\n[システムアラート] 全ての敵対ファイルを排除完了！Zone 2ゲートウェイが起動しました！`);
+            output += chalk.cyan(`\n\n「cd /」でルートディレクトリに移動してください。`);
+          } else {
+            output += chalk.cyan(`\n\n[SYSTEM ALERT] All hostile files eliminated! Zone 2 gateway activated!`);
+            output += chalk.cyan(`\n\nUse "cd /" to return to root directory.`);
+          }
         }
       }
       
@@ -270,12 +280,7 @@ export class CommandParser {
       `  rm <file>       - ${msg.help.commands.rm}\n\n` +
       chalk.green(`${msg.help.helpSection}\n`) +
       `  help            - ${msg.help.commands.help}\n` +
-      `  clear           - ${msg.help.commands.clear}\n` +
-      `  quest           - ${msg.help.commands.quest}\n\n` +
-      chalk.green(`Debug Commands:\n`) +
-      `  debug           - ${msg.help.commands.debug}\n` +
-      `  debug-quest <id> - ${msg.help.commands['debug-quest']}\n` +
-      `  debug-skip      - ${msg.help.commands['debug-skip']}\n`;
+      `  clear           - ${msg.help.commands.clear}\n`;
 
     return {
       output,
@@ -296,94 +301,29 @@ export class CommandParser {
     this.availableCommands.add(command);
   }
 
+
   getAvailableCommands(): string[] {
     return Array.from(this.availableCommands);
   }
 
-  setGameInstance(gameInstance: any): void {
-    this.gameInstance = gameInstance;
-  }
+  private generateToBeContinuedScreen(): string {
+    let output = '\n\n';
 
-  private quest(gameState: GameState): CommandResult {
-    const msg = messages[this.locale];
-    
-    if (!this.gameInstance) {
-      return {
-        output: chalk.red('Quest system not available'),
-        success: false,
-        energyCost: 0
-      };
-    }
-
-    const currentQuest = this.gameInstance.getCurrentQuest();
-    
-    if (currentQuest) {
-      return {
-        output: `${chalk.cyan.bold(`[進行中のクエスト]`)}\n${chalk.yellow.bold(currentQuest.title)}\n${currentQuest.description}\n\n${chalk.green('目標:')}\n${currentQuest.objectives.map((obj: string, i: number) => `  ${i + 1}. ${obj}`).join('\n')}`,
-        success: true,
-        energyCost: 0
-      };
+    if (this.locale === 'ja') {
+      output += chalk.cyan.bold('TO BE CONTINUED\n\n');
+      output += chalk.cyan('Zone 2の冒険は今後のアップデートで公開予定！\n');
+      output += chalk.cyan('ゲームをプレイしていただき、\n');
+      output += chalk.cyan('ありがとうございました！\n\n');
     } else {
-      return {
-        output: chalk.blue(msg.quests.noActiveQuest),
-        success: true,
-        energyCost: 0
-      };
-    }
-  }
-
-  private debug(): CommandResult {
-    const msg = messages[this.locale];
-    return {
-      output: chalk.yellow(`${msg.debug.debugMode}\n${msg.debug.questList}`),
-      success: true,
-      energyCost: 0
-    };
-  }
-
-  private debugQuest(args: string[], gameState: GameState): CommandResult {
-    const msg = messages[this.locale];
-    
-    if (!this.gameInstance) {
-      return {
-        output: chalk.red('Quest system not available'),
-        success: false,
-        energyCost: 0
-      };
+      output += chalk.cyan.bold('TO BE CONTINUED\n\n');
+      output += chalk.cyan('Zone 2 adventures coming in future updates!\n');
+      output += chalk.cyan('Thank you for playing\n');
+      output += chalk.cyan('ShellQuest!\n\n');
     }
 
-    if (args.length === 0) {
-      return {
-        output: chalk.yellow(msg.debug.questList),
-        success: true,
-        energyCost: 0
-      };
-    }
-
-    const questId = args[0];
-    const success = this.gameInstance.startQuest(questId);
-    
-    if (success) {
-      return {
-        output: chalk.green(msg.debug.questStarted.replace('{questId}', questId)),
-        success: true,
-        energyCost: 0
-      };
-    } else {
-      return {
-        output: chalk.red(msg.debug.invalidQuest),
-        success: false,
-        energyCost: 0
-      };
-    }
+    return output;
   }
 
-  private debugSkip(gameState: GameState): CommandResult {
-    const msg = messages[this.locale];
-    return {
-      output: chalk.green(msg.debug.questSkipped),
-      success: true,
-      energyCost: 0
-    };
-  }
+
+
 }

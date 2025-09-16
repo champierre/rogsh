@@ -7,89 +7,84 @@ export interface Messages {
     helpHint: string;
     exitHint: string;
   };
-  tutorial: {
+  zone1: {
     welcome: {
-      title: string;
       description: string;
       hint: string;
     };
     exploreDetailed: {
-      title: string;
+      description: string;
+      hint: string;
+    };
+    confirmLocation: {
       description: string;
       hint: string;
     };
     readReadme: {
-      title: string;
       description: string;
       hint: string;
     };
     navigateToTmp: {
-      title: string;
       description: string;
       hint: string;
     };
-    removeVirus: {
-      title: string;
+    confirmTmpLocation: {
       description: string;
       hint: string;
     };
     returnToZone1: {
-      title: string;
       description: string;
       hint: string;
     };
     navigateToLogs: {
-      title: string;
+      description: string;
+      hint: string;
+    };
+    confirmBackToZone1: {
       description: string;
       hint: string;
     };
     scanForHidden: {
-      title: string;
+      description: string;
+      hint: string;
+    };
+    confirmLogsLocation: {
       description: string;
       hint: string;
     };
     enterHiddenDir: {
-      title: string;
       description: string;
       hint: string;
     };
     removeMalware: {
-      title: string;
+      description: string;
+      hint: string;
+    };
+    confirmHiddenLocation: {
       description: string;
       hint: string;
     };
     checkProcesses: {
-      title: string;
       description: string;
       hint: string;
     };
-    killZombie: {
-      title: string;
+    deleteFinalMalware: {
       description: string;
       hint: string;
     };
     exploreLogs: {
-      title: string;
-      description: string;
-      hint: string;
-    };
-    checkErrors: {
-      title: string;
-      description: string;
-      hint: string;
-    };
-    findCorrupted: {
-      title: string;
-      description: string;
-      hint: string;
-    };
-    makeExecutable: {
-      title: string;
       description: string;
       hint: string;
     };
     complete: {
-      title: string;
+      description: string;
+      hint: string;
+    };
+    moveToRoot: {
+      description: string;
+      hint: string;
+    };
+    confirmRootLocation: {
       description: string;
       hint: string;
     };
@@ -123,8 +118,6 @@ export interface Messages {
     diskFull: string;
     threatCritical: string;
     tutorialComplete: string;
-    zone2Access: string;
-    zone2Navigation: string;
   };
   help: {
     title: string;
@@ -143,34 +136,6 @@ export interface Messages {
       rm: string;
       help: string;
       clear: string;
-      quest: string;
-      debug: string;
-      'debug-quest': string;
-      'debug-skip': string;
-    };
-  };
-  debug: {
-    questList: string;
-    questStarted: string;
-    questSkipped: string;
-    invalidQuest: string;
-    debugMode: string;
-  };
-  quests: {
-    questAvailable: string;
-    questComplete: string;
-    noActiveQuest: string;
-    first: {
-      title: string;
-      description: string;
-      objectives: string[];
-      completion: string;
-    };
-    deeperCorruption: {
-      title: string;
-      description: string;
-      objectives: string[];
-      completion: string;
     };
   };
   zones: {
@@ -188,91 +153,86 @@ export const messages: { en: Messages; ja: Messages } = {
       helpHint: '💡 Neural link established. Type "help" to access your command protocols.',
       exitHint: '⚠️ Emergency extraction: Type "exit" or "quit" to abort mission.'
     },
-    tutorial: {
+    zone1: {
       welcome: {
-        title: 'Welcome to ShellQuest',
         description: 'You are a maintenance agent in the Ω(Omega)-Cluster. Your mission is to clean corrupted processes and restore system stability.\n\nFirst, let\'s explore your current location. Type "ls" (list) to see all files and directories here.',
         hint: 'Type: ls'
       },
       exploreDetailed: {
-        title: 'Detailed Exploration',
-        description: 'Good! You can see several directories. Now use "ls -la" (list with long format and all files) to see hidden files (starting with .) and detailed information like permissions and file sizes.',
-        hint: 'Type: ls -la'
+        description: 'Good! You can see Zone 1. This is the training area.\n\nUse "cd zone1" (change directory) to enter Zone 1.',
+        hint: 'Type: cd zone1'
+      },
+      confirmLocation: {
+        description: 'You\'ve entered Zone 1! After moving to a directory, check the files within that directory to understand the situation. Type "ls" to see what files and directories are available in this zone.',
+        hint: 'Type: ls'
       },
       readReadme: {
-        title: 'Understanding Objectives',
-        description: 'Let\'s read the mission briefing. Use "cat README.txt" (concatenate/display) to read and show the entire contents of the README.txt file.',
+        description: 'Excellent! You found the README.txt file. This file contains mission details. Use "cat README.txt" (concatenate/display) to read the mission briefing.',
         hint: 'Type: cat README.txt'
       },
       navigateToTmp: {
-        title: 'Navigate to Target Directory',
-        description: 'Perfect! You can see the enemy file locations in the mission briefing. First, navigate to the tmp directory where virus.exe is located. Use "cd tmp" (change directory).',
+        description: 'Perfect! You\'ve read the mission details. According to README.txt, virus.exe is in the tmp directory. Use "cd tmp" (change directory) to move to the tmp directory.',
         hint: 'Type: cd tmp'
       },
-      removeVirus: {
-        title: 'Eliminate First Target',
-        description: 'Great! You\'re now in the tmp directory. You should see the virus.exe file. Use "rm virus.exe" (remove) to eliminate this hostile file.',
-        hint: 'Type: rm virus.exe'
+      confirmTmpLocation: {
+        description: 'You\'ve entered the tmp directory! After moving to a directory, check the files within that directory to understand the situation. Use "ls" to see the contents of this directory and find the virus.exe file.',
+        hint: 'Type: ls'
       },
       returnToZone1: {
-        title: 'Return to Base Directory',
-        description: 'Excellent! First target eliminated. Now return to the zone1 directory. Use "cd .." (where .. means parent directory) to go back up one level.',
-        hint: 'Type: cd ..'
+        description: 'Perfect! You found the virus.exe file. This is the hostile file. Use "rm virus.exe" (remove) to eliminate this file.',
+        hint: 'Type: rm virus.exe'
       },
       navigateToLogs: {
-        title: 'Navigate to Second Target',
+        description: 'Excellent! First target eliminated. Now return to zone1 directory. Use "cd .." (where .. means parent directory) to go back up one level.',
+        hint: 'Type: cd ..'
+      },
+      confirmBackToZone1: {
+        description: 'You\'re back in zone1! After moving to a directory, check the files within that directory to understand the situation. Use "ls" to see available directories. You should see the logs directory.',
+        hint: 'Type: ls'
+      },
+      scanForHidden: {
         description: 'Good! Now navigate to the logs directory where the second enemy file is hidden. Use "cd logs".',
         hint: 'Type: cd logs'
       },
-      scanForHidden: {
-        title: 'Advanced Scanning Required',
-        description: 'You\'re in the logs directory, but the target is concealed. According to intel, you need to use advanced scanning. Use "ls -a" to reveal hidden files and directories (those starting with a dot).',
-        hint: 'Type: ls -a'
+      confirmLogsLocation: {
+        description: 'You\'ve entered the logs directory! After moving to a directory, check the files within that directory to understand the situation. Use "ls" to see the contents of this directory.',
+        hint: 'Type: ls'
       },
       enterHiddenDir: {
-        title: 'Enter Hidden Directory',
+        description: 'You\'ve checked the logs directory contents. However, the target is concealed. Use "ls -a" to reveal hidden files and directories (those starting with a dot).',
+        hint: 'Type: ls -a'
+      },
+      removeMalware: {
         description: 'Excellent! You found the hidden directory ".hidden". Navigate into it to locate the final target. Use "cd .hidden".',
         hint: 'Type: cd .hidden'
       },
-      removeMalware: {
-        title: 'Eliminate Final Target',
+      confirmHiddenLocation: {
+        description: 'You\'ve entered the hidden directory! After moving to a directory, check the files within that directory to understand the situation. Use "ls" to see what\'s in this directory.',
+        hint: 'Type: ls'
+      },
+      checkProcesses: {
+        description: 'Perfect! You found the malware.dat file. This is the final target. Use "rm malware.dat" to eliminate the final hostile file and complete your mission.',
+        hint: 'Type: rm malware.dat'
+      },
+      deleteFinalMalware: {
         description: 'Perfect! You\'re now in the hidden directory. Use "rm malware.dat" to eliminate the final hostile file and complete your mission.',
         hint: 'Type: rm malware.dat'
       },
-      checkProcesses: {
-        title: 'Process Monitoring',
-        description: 'There are hostile processes running. Use "ps" to list all processes.',
-        hint: 'Type: ps'
-      },
-      killZombie: {
-        title: 'Terminate Threat',
-        description: 'The ZombieProcess (PID 114) is a threat. Use "kill 114" to terminate it.',
-        hint: 'Type: kill 114'
-      },
       exploreLogs: {
-        title: 'Investigate Logs',
         description: 'Good work! Now navigate to the logs directory. Use "cd logs" to change directory.',
         hint: 'Type: cd logs'
       },
-      checkErrors: {
-        title: 'Check Error Log',
-        description: 'Let\'s see what errors are occurring. Use "cat error.log" to read the error log.',
-        hint: 'Type: cat error.log'
-      },
-      findCorrupted: {
-        title: 'Find Corrupted Files',
-        description: 'The log mentions a corrupted file. Go back to zone1 with "cd .." (where ".." means parent directory - one level up) then use "find -name corrupted.tmp" to locate it.',
-        hint: 'First type: cd .. then type: find -name corrupted.tmp'
-      },
-      makeExecutable: {
-        title: 'Prepare Cleanup Script',
-        description: 'Navigate to bin directory with "cd bin" and make cleanup.sh executable with "chmod +x cleanup.sh".',
-        hint: 'First: cd bin, then: chmod +x cleanup.sh'
-      },
       complete: {
-        title: 'Tutorial Complete!',
-        description: 'Excellent! You\'ve learned the basics:\n- Navigation (ls, cd)\n- File reading (cat)\n- Process management (ps, kill)\n- File search (find)\n- Permissions (chmod)\n\nYou\'re ready to continue exploring the Ω(Omega)-Cluster!\n\n📋 NEW QUEST AVAILABLE - Type "quest" to view your first real mission.',
-        hint: ''
+        description: 'Excellent! You\'ve mastered the basics:\n- Navigation (ls, cd)\n- File reading (cat)\n- File removal (rm)\n\nYou\'re ready to continue exploring the Ω(Omega)-Cluster!',
+        hint: 'Use cd / to move to the root directory'
+      },
+      moveToRoot: {
+        description: 'You\'re back at the root directory! First, let\'s check the current situation.',
+        hint: 'Type ls to see the contents of the current directory'
+      },
+      confirmRootLocation: {
+        description: 'Perfect! The zone2 directory has been unlocked. It\'s time to enter zone2.',
+        hint: 'Type cd zone2 to move to zone2'
       }
     },
     commands: {
@@ -303,9 +263,7 @@ export const messages: { en: Messages; ja: Messages } = {
       systemPanic: 'SYSTEM PANIC: Integrity critical. Game Over.',
       diskFull: 'DISK FULL: System unresponsive. Game Over.',
       threatCritical: 'THREAT CRITICAL: System compromised. Game Over.',
-      tutorialComplete: '🎉 Tutorial Complete! You are now free to explore.',
-      zone2Access: 'SYSTEM UPDATE: Zone 2 access granted!',
-      zone2Navigation: '▶ ARIA: "Outstanding work, Agent-7! Zone 1 is now secure."\n\n▶ SYSTEM VOICE: "Zone 2 coordinates unlocked. Navigate to /srv/cluster/zone2 for next mission phase."\n\n▶ ARIA: "Be advised: Zone 2 contains more advanced threats. Use \'cd ..\' to go up, then \'cd zone2\' to enter Zone 2."'
+      tutorialComplete: '🎉 Tutorial Complete! You are now free to explore.'
     },
     help: {
       title: 'Available Commands:',
@@ -323,47 +281,7 @@ export const messages: { en: Messages; ja: Messages } = {
         cat: 'Display file contents (read and show entire file)',
         rm: 'Remove/delete files',
         help: 'Show this help',
-        clear: 'Clear screen',
-        quest: 'Show current quest status and objectives',
-        debug: 'Debug commands: debug-quest <id>, debug-skip',
-        'debug-quest': 'Start specific quest (debug): debug-quest first|deeperCorruption',
-        'debug-skip': 'Skip current tutorial/quest (debug mode)'
-      }
-    },
-    debug: {
-      questList: '🔧 DEBUG: Available quests: first, deeperCorruption',
-      questStarted: '🔧 DEBUG: Quest started - {questId}',
-      questSkipped: '🔧 DEBUG: Current phase skipped',
-      invalidQuest: '🔧 DEBUG: Invalid quest ID. Use: first, deeperCorruption',
-      debugMode: '🔧 DEBUG MODE ACTIVE - Additional commands available'
-    },
-    quests: {
-      questAvailable: '📋 NEW QUEST AVAILABLE - Type "quest" to view objectives',
-      questComplete: '✅ QUEST COMPLETED - Well done, Agent-7!',
-      noActiveQuest: '📋 No active quest. Continue exploring the Ω(Omega)-Cluster.',
-      first: {
-        title: '🔍 SECTOR RECONNAISSANCE',
-        description: '▶ ARIA: "Agent-7, tutorial phase complete. Your first real mission begins now."\n\n▶ SYSTEM VOICE: "Primary objective: Conduct deep reconnaissance of Zone-2. Intelligence suggests advanced corruption vectors have manifested."\n\n▶ ARIA: "Navigate to Zone-2, assess the threat level, and neutralize any hostile entities. The cluster\'s stability depends on your success."',
-        objectives: [
-          'Navigate to Zone-2 (/srv/cluster/zone2)',
-          'Scan for corrupted processes (ps)',
-          'Eliminate all hostile entities',
-          'Locate and analyze system logs',
-          'Reduce threat level below 3'
-        ],
-        completion: '▶ SYSTEM VOICE: "Sector reconnaissance complete. Outstanding work, Agent-7."\n\n▶ ARIA: "Zone-2 secured! Your tactical assessment has provided valuable intelligence. The corruption patterns are more complex than anticipated..."'
-      },
-      deeperCorruption: {
-        title: '⚠️ DEEP CORRUPTION PROTOCOL',
-        description: '▶ ARIA: "Agent-7, we\'ve detected anomalous readings from the system core. The corruption is evolving."\n\n▶ SYSTEM VOICE: "ALERT: Advanced threat signatures detected. Implement deep corruption protocol immediately."\n\n▶ ARIA: "This is unlike anything we\'ve encountered. The corruption has developed defensive mechanisms. Proceed with extreme caution."',
-        objectives: [
-          'Investigate system core (/srv/cluster/core)',
-          'Identify mutation vectors',
-          'Deploy advanced countermeasures',
-          'Purge root corruption sources',
-          'Restore system integrity to 90%+'
-        ],
-        completion: '▶ SYSTEM VOICE: "Deep corruption protocol successful. System integrity restored."\n\n▶ ARIA: "Incredible work, Agent-7. You\'ve uncovered the source of the corruption. The Ω-Cluster is stable... for now."'
+        clear: 'Clear screen'
       }
     },
     zones: {
@@ -395,96 +313,91 @@ Complete your mission to secure Zone 1.`
     welcome: {
       title: 'ShellQuest v0.1.0',
       subtitle: '═══ システム初期化 ═══',
-      description1: '機密ブリーフィング - クリアランスレベル：OMEGA\n\n西暦2087年。人類最高峰の量子計算ネットワーク「Ω（オメガ）クラスタ」に致命的なシステム侵害が発生した。破損したプロセスがデジタルペストのように蔓延し、我々の文明を支える全インフラの崩壊が迫っている。\n\n君はエージェント-7（セブン）、古代のUnixプロトコルを修得したエリートメンテナンス工作員だ。今まで時代遅れとされていたそのスキルが、今こそ必要とされている。',
-      description2: '🚨 ミッション概要：\n破損したエンティティがファイルシステム層に侵入している。君の神経インターフェースは、システムコマンドを直接的な環境操作に変換するよう調整済みだ。実行するUnixコマンドの全てが、デジタル領域内の現実を再構成する。\n\n🖥️ HUDインターフェース：神経HUD（ヘッドアップディスプレイ）が重要な生存指標を視野に直接投影する：\n• HP：システム整合性（体力）\n• EP：CPUクォータ（コマンド実行エネルギー）\n• THR：脅威レベル（汚染強度）\n• 現在のデジタル位置パス\n\n⚠️ 警告：脅威レベルが高いほど危険なエンティティが出現し、環境が不安定化する。HUDを常時監視し、破損プロセスの排除により脅威を軽減せよ。\n\n時間は限られている。汚染は刻々と拡散している。',
-      helpHint: '💡 神経リンク確立。コマンドプロトコルにアクセスするには「help」と入力。',
-      exitHint: '⚠️ 緊急脱出：ミッション中止は「exit」または「quit」。'
+      description1: '機密ブリーフィング - クリアランスレベル：OMEGA\n\n西暦2087年。人類最高峰の量子計算ネットワーク「Ω（オメガ）クラスタ」に致命的なシステム侵害が発生した。破損したプロセスがデジタル癌のように蔓延し、我々の文明を支える全インフラの崩壊が迫っている。\n\n君はエージェント-7（セブン）、古代のUnixプロトコルを修得したエリートメンテナンス工作員だ。今まで時代遅れとされていたそのスキルが、今こそ必要とされている。',
+      description2: 'ミッション概要：\n破損したエンティティがファイルシステム層に侵入している。君の神経インターフェースは、システムコマンドを直接的な環境操作に変換するよう調整済みだ。実行するUnixコマンドの全てが、デジタル領域内の現実を再構成する。\n\nHUDインターフェース：神経HUD（ヘッドアップディスプレイ）が重要な生存指標を視野に直接投影する：\n- HP：システム整合性（体力）\n- EP：CPUクォータ（コマンド実行エネルギー）\n- THR：脅威レベル（汚染強度）\n- 現在のデジタル位置パス\n\n警告：脅威レベルが高いほど危険なエンティティが出現し、環境が不安定化する。HUDを常時監視し、破損プロセスの排除により脅威を軽減せよ。\n\n時間は限られている。汚染は刻々と拡散している。',
+      helpHint: '神経リンク確立。コマンドプロトコルにアクセスするには「help」と入力。',
+      exitHint: '緊急脱出：ミッション中止は「exit」または「quit」。'
     },
-    tutorial: {
+    zone1: {
       welcome: {
-        title: 'ShellQuestへようこそ',
-        description: 'あなたはΩ（オメガ）クラスタのメンテナンスエージェントです。腐敗したプロセスを除去し、システムの安定性を回復することがミッションです。\n\nまず、現在の場所を探索しましょう。「ls」（list：リスト）と入力して、ここにあるすべてのファイルとディレクトリを表示してください。',
+        description: 'あなたはΩ（オメガ）クラスタのルートディレクトリにいます。\n\nまず、現在地のディレクトリを確認しましょう。「ls」（list：リスト）と入力して、利用可能なゾーンを表示してください。',
         hint: '入力: ls'
       },
       exploreDetailed: {
-        title: '詳細な探索',
-        description: 'よくできました！いくつかのディレクトリが見えますね。「ls -la」（list with long format and all：詳細形式ですべて）を使用して隠しファイル（.で始まる）と権限やファイルサイズなどの詳細情報を表示してみましょう。',
-        hint: '入力: ls -la'
+        description: 'よくできました！Zone 1が見えます。これは訓練エリアです。\n\n「cd zone1」（change directory：ディレクトリ変更）と入力してZone 1に入りましょう。',
+        hint: '入力: cd zone1'
+      },
+      confirmLocation: {
+        description: 'Zone 1に入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」と入力して、このゾーンにあるファイルとディレクトリを表示してください。',
+        hint: '入力: ls'
       },
       readReadme: {
-        title: '目標の理解',
-        description: 'ミッションブリーフィングを読みましょう。「cat README.txt」（concatenate/display：連結・表示）を使用してREADME.txtファイルの全内容を読み取り表示してください。',
+        description: '素晴らしい！README.txtファイルが見つかりました。このファイルにはミッションの詳細が記載されています。「cat README.txt」（concatenate/display：連結・表示）を使用してミッションの詳細を確認しましょう。',
         hint: '入力: cat README.txt'
       },
       navigateToTmp: {
-        title: 'ターゲットディレクトリへ移動',
-        description: '完璧です！ミッションブリーフィングで敵ファイルの位置を確認できました。まず、virus.exeが存在するtmpディレクトリに移動してください。「cd tmp」（change directory：ディレクトリ変更）を使用してください。',
+        description: '完璧です！ミッション詳細を確認しました。README.txtに書かれている通り、virus.exeがtmpディレクトリにあります。「cd tmp」（change directory：ディレクトリ変更）でtmpディレクトリに移動しましょう。',
         hint: '入力: cd tmp'
       },
-      removeVirus: {
-        title: '第一ターゲットの排除',
-        description: '素晴らしい！tmpディレクトリにいます。virus.exeファイルが見えるはずです。「rm virus.exe」（remove：削除）を使用してこの敵対ファイルを排除してください。',
-        hint: '入力: rm virus.exe'
+      confirmTmpLocation: {
+        description: 'tmpディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」でこのディレクトリの内容を確認してみましょう。virus.exeファイルがあるかどうか見つけてください。',
+        hint: '入力: ls'
       },
       returnToZone1: {
-        title: 'ベースディレクトリに戻る',
+        description: '完璧です！virus.exeファイルが見つかりました。これが敵対ファイルです。「rm virus.exe」（remove：削除）を使用してこのファイルを排除してください。',
+        hint: '入力: rm virus.exe'
+      },
+      navigateToLogs: {
         description: '優秀です！第一ターゲットを排除しました。zone1ディレクトリに戻りましょう。「cd ..」（..は親ディレクトリ）を使用して一つ上のレベルに戻ってください。',
         hint: '入力: cd ..'
       },
-      navigateToLogs: {
-        title: '第二ターゲットへ移動',
+      confirmBackToZone1: {
+        description: 'zone1に戻りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」で利用可能なディレクトリを確認してください。logsディレクトリが見えるはずです。',
+        hint: '入力: ls'
+      },
+      scanForHidden: {
         description: 'よくできました！次に第二の敵ファイルが隠されているlogsディレクトリに移動してください。「cd logs」を使用してください。',
         hint: '入力: cd logs'
       },
-      scanForHidden: {
-        title: '高度スキャン必要',
-        description: 'logsディレクトリにいますが、ターゲットは隠蔽されています。情報によると高度スキャンが必要です。「ls -a」を使用して隠しファイルとディレクトリ（ドットで始まるもの）を表示してください。',
-        hint: '入力: ls -a'
+      confirmLogsLocation: {
+        description: 'logsディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」で内容を確認してみてください。',
+        hint: '入力: ls'
       },
       enterHiddenDir: {
-        title: '隠しディレクトリに入る',
+        description: 'logsディレクトリの内容を確認しました。しかし、ターゲットは隠蔽されています。「ls -a」を使用して隠しファイルとディレクトリ（ドットで始まるもの）を表示してください。',
+        hint: '入力: ls -a'
+      },
+      removeMalware: {
         description: '素晴らしい！隠しディレクトリ「.hidden」を発見しました。その中に移動して最終ターゲットを見つけてください。「cd .hidden」を使用してください。',
         hint: '入力: cd .hidden'
       },
-      removeMalware: {
-        title: '最終ターゲットの排除',
+      confirmHiddenLocation: {
+        description: '隠しディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」でこのディレクトリに何があるか確認してください。',
+        hint: '入力: ls'
+      },
+      checkProcesses: {
+        description: '完璧です！malware.datファイルが見つかりました。これが最終ターゲットです。「rm malware.dat」を使用して最終の敵対ファイルを排除し、ミッションを完了してください。',
+        hint: '入力: rm malware.dat'
+      },
+      deleteFinalMalware: {
         description: '完璧です！隠しディレクトリにいます。「rm malware.dat」を使用して最終の敵対ファイルを排除し、ミッションを完了してください。',
         hint: '入力: rm malware.dat'
       },
-      checkProcesses: {
-        title: 'プロセスの監視',
-        description: '敵対的なプロセスが実行されています。「ps」を使用してすべてのプロセスをリストしてください。',
-        hint: '入力: ps'
-      },
-      killZombie: {
-        title: '脅威の終了',
-        description: 'ZombieProcess（PID 114）は脅威です。「kill 114」を使用して終了させてください。',
-        hint: '入力: kill 114'
-      },
       exploreLogs: {
-        title: 'ログの調査',
         description: 'よくできました！次にlogsディレクトリに移動しましょう。「cd logs」を使用してディレクトリを変更してください。',
         hint: '入力: cd logs'
       },
-      checkErrors: {
-        title: 'エラーログの確認',
-        description: 'どのようなエラーが発生しているか見てみましょう。「cat error.log」を使用してエラーログを読んでください。',
-        hint: '入力: cat error.log'
-      },
-      findCorrupted: {
-        title: '破損ファイルの検索',
-        description: 'ログに破損ファイルの記載があります。「cd ..」（「..」は親ディレクトリ、つまり一つ上の階層を意味します）でzone1に戻り、「find -name corrupted.tmp」を使用して場所を特定してください。',
-        hint: 'まず入力: cd .. 次に入力: find -name corrupted.tmp'
-      },
-      makeExecutable: {
-        title: 'クリーンアップスクリプトの準備',
-        description: '「cd bin」でbinディレクトリに移動し、「chmod +x cleanup.sh」でcleanup.shを実行可能にしてください。',
-        hint: 'まず: cd bin、次に: chmod +x cleanup.sh'
-      },
       complete: {
-        title: 'チュートリアル完了！',
         description: '素晴らしい！基本を習得しました：\n- ナビゲーション（ls、cd）\n- ファイル読み取り（cat）\n- ファイル削除（rm）\n\nΩ（オメガ）クラスタの探索を続ける準備ができました！',
-        hint: ''
+        hint: '入力: cd /'
+      },
+      moveToRoot: {
+        description: 'ルートディレクトリに戻りました！まず現在の状況を確認しましょう。',
+        hint: '入力: ls'
+      },
+      confirmRootLocation: {
+        description: '完璧です！zone2ディレクトリが開放されています。いよいよzone2に進入する時です。',
+        hint: '入力: cd zone2'
       }
     },
     commands: {
@@ -515,9 +428,7 @@ Complete your mission to secure Zone 1.`
       systemPanic: 'システムパニック：整合性がクリティカル。ゲームオーバー。',
       diskFull: 'ディスクフル：システムが応答しません。ゲームオーバー。',
       threatCritical: '脅威クリティカル：システムが侵害されました。ゲームオーバー。',
-      tutorialComplete: '🎉 チュートリアル完了！自由に探索できるようになりました。',
-      zone2Access: 'システム更新：ゾーン2アクセス許可！',
-      zone2Navigation: '▶ ARIA：「見事な働きです、エージェント-7（セブン）！ゾーン1は安全になりました。」\n\n▶ システム音声：「ゾーン2座標がアンロック。次のミッション段階のため /srv/cluster/zone2 に移動してください。」\n\n▶ ARIA：「注意：ゾーン2には更に高度な脅威が存在します。\'cd ..\'で上に行き、その後\'cd zone2\'でゾーン2に入ってください。」'
+      tutorialComplete: '🎉 チュートリアル完了！自由に探索できるようになりました。'
     },
     help: {
       title: '使用可能なコマンド：',
@@ -535,47 +446,7 @@ Complete your mission to secure Zone 1.`
         cat: 'ファイル内容を表示（ファイル全体を読み込み表示）',
         rm: 'ファイルの削除',
         help: 'このヘルプを表示',
-        clear: '画面をクリア',
-        quest: '現在のクエスト状況と目標を表示',
-        debug: 'デバッグコマンド: debug-quest <id>, debug-skip',
-        'debug-quest': '特定のクエストを開始（デバッグ）: debug-quest first|deeperCorruption',
-        'debug-skip': '現在のチュートリアル/クエストをスキップ（デバッグモード）'
-      }
-    },
-    debug: {
-      questList: '🔧 デバッグ: 利用可能なクエスト: first, deeperCorruption',
-      questStarted: '🔧 デバッグ: クエスト開始 - {questId}',
-      questSkipped: '🔧 デバッグ: 現在のフェーズをスキップしました',
-      invalidQuest: '🔧 デバッグ: 無効なクエストID。使用可能: first, deeperCorruption',
-      debugMode: '🔧 デバッグモード有効 - 追加コマンドが利用可能'
-    },
-    quests: {
-      questAvailable: '📋 新しいクエスト利用可能 - 目標を確認するには「quest」と入力',
-      questComplete: '✅ クエスト完了 - よくやった、エージェント-7（セブン）！',
-      noActiveQuest: '📋 アクティブなクエストはありません。Ω（オメガ）クラスタの探索を続けてください。',
-      first: {
-        title: '🔍 セクター偵察',
-        description: '▶ ARIA：「エージェント-7（セブン）、チュートリアル・フェーズ完了。君の最初の実戦ミッションが始まる。」\n\n▶ システム音声：「主要目標：ゾーン2の深度偵察を実施せよ。情報によると、高度な汚染ベクターが発現している。」\n\n▶ ARIA：「ゾーン2に進入し、脅威レベルを評価、敵対エンティティを無力化せよ。クラスタの安定性は君の成功にかかっている。」',
-        objectives: [
-          'ゾーン2へ進入（/srv/cluster/zone2）',
-          '破損プロセスをスキャン（ps）',
-          'すべての敵対エンティティを排除',
-          'システムログを特定・解析',
-          '脅威レベルを3未満まで軽減'
-        ],
-        completion: '▶ システム音声：「セクター偵察完了。見事な働きだ、エージェント-7（セブン）。」\n\n▶ ARIA：「ゾーン2確保完了！君の戦術評価により貴重な情報を得た。汚染パターンは予想以上に複雑だ...」'
-      },
-      deeperCorruption: {
-        title: '⚠️ ディープ汚染プロトコル',
-        description: '▶ ARIA：「エージェント-7（セブン）、システム・コアから異常な読み取り値を検出。汚染が進化している。」\n\n▶ システム音声：「アラート：高度脅威シグネチャ検出。ディープ汚染プロトコルを即座に実行せよ。」\n\n▶ ARIA：「これまでに遭遇したことのない事象だ。汚染が防御機構を発達させている。最大限の警戒で進め。」',
-        objectives: [
-          'システム・コアを調査（/srv/cluster/core）',
-          '変異ベクターを特定',
-          '高度対抗手段を配備',
-          '根源汚染ソースを除去',
-          'システム整合性を90%以上まで回復'
-        ],
-        completion: '▶ システム音声：「ディープ汚染プロトコル成功。システム整合性回復。」\n\n▶ ARIA：「驚異的な働きだ、エージェント-7（セブン）。汚染の根源を突き止めた。Ω（オメガ）クラスタは安定している...今のところは。」'
+        clear: '画面をクリア'
       }
     },
     zones: {
@@ -585,8 +456,8 @@ Complete your mission to secure Zone 1.`
 エージェント-7（セブン）、我々のシステム内で敵ファイルを検出：
 
 ターゲット位置：
-- /srv/cluster/zone1/tmp/virus.exe
-- /srv/cluster/zone1/logs/[隠し場所]/malware.dat
+- /zone1/tmp/virus.exe
+- /zone1/logs/[隠し場所]/malware.dat
 
 ミッション目標：
 'rm'コマンドを使用してこれらの敵対ファイルを除去せよ。

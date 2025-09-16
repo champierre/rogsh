@@ -41,9 +41,8 @@ export interface GameEvent {
   timestamp: Date;
 }
 
-export interface TutorialStep {
+export interface Zone1Step {
   id: string;
-  title: string;
   description: string;
   expectedCommand?: string;
   hint?: string;

@@ -12,14 +12,17 @@ ShellQuest (rogsh) is an educational roguelike game that teaches Unix command-li
 # Install dependencies
 npm install
 
-# Run in development mode
+# Run in development mode (with intro animation skipped)
 npm run dev
+
+# Run with full intro animation
+npm start
+
+# Run directly with skip option
+node dist/index-simple.js --skip-intro
 
 # Build for production
 npm run build
-
-# Run production build
-npm start
 ```
 
 ## How to Play
@@ -42,17 +45,6 @@ npm start
 - Kill hostile processes to reduce threat
 - Explore directories to find resources and complete objectives
 - Follow the tutorial to learn the basics
-
-### Tutorial Walkthrough
-
-1. Start with `ls` to explore your location
-2. Use `ls -la` for detailed view including hidden files
-3. Read objectives with `cat README.zone`
-4. Check processes with `ps`
-5. Terminate threats with `kill <pid>`
-6. Navigate directories with `cd`
-7. Search for files with `find -name <pattern>`
-8. Change permissions with `chmod +x <file>`
 
 ## Game Status Display
 

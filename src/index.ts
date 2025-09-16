@@ -54,7 +54,8 @@ class ShellQuest {
       // Display any events
       const event = this.game.getLastEvent();
       if (event && event.type === 'tutorial') {
-        console.log(event.message);
+        // Display tutorial event in same format as displayTutorial
+        this.displayTutorialEvent();
       }
 
       // Check if game is over
@@ -106,8 +107,46 @@ class ShellQuest {
   private displayTutorial(): void {
     const tutorial = this.game.getTutorialMessage();
     if (tutorial) {
-      console.log(tutorial);
+      // Display description in gray - handle multi-paragraph descriptions
       console.log();
+      const paragraphs = tutorial.description.split('\n\n');
+      for (const paragraph of paragraphs) {
+        if (paragraph.trim()) {
+          console.log(chalk.gray(paragraph.trim()));
+          console.log();
+        }
+      }
+
+      // Display hint in cyan if present with same format as Enter prompt
+      if (tutorial.hint) {
+        console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+        console.log(chalk.cyan.bold(`       ▶▶▶  ${tutorial.hint}  ◀◀◀       `));
+        console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+        console.log();
+      }
+    }
+  }
+
+  private displayTutorialEvent(): void {
+    const tutorial = this.game.getTutorialMessage();
+    if (tutorial) {
+      // Display description in gray - handle multi-paragraph descriptions
+      console.log();
+      const paragraphs = tutorial.description.split('\n\n');
+      for (const paragraph of paragraphs) {
+        if (paragraph.trim()) {
+          console.log(chalk.gray(paragraph.trim()));
+          console.log();
+        }
+      }
+
+      // Display hint in cyan if present with same format as Enter prompt
+      if (tutorial.hint) {
+        console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+        console.log(chalk.cyan.bold(`       ▶▶▶  ${tutorial.hint}  ◀◀◀       `));
+        console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+        console.log();
+      }
     }
   }
 
