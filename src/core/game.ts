@@ -325,8 +325,8 @@ export class Game {
       }
     }
 
-    // Special handling for quantum virus deletion (can complete zone2 directly)
-    if (input.trim() === 'rm quantum_virus.exe' && this.filesystem.isZone2Completed()) {
+    // Special handling for zone2 completion (when all hostile files are deleted)
+    if (this.filesystem.isZone2Completed() && !this.completedZones.includes('zone2')) {
       this.completeZone2();
     }
   }

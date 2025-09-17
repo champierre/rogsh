@@ -91,6 +91,11 @@ export class CommandParser {
           const perms = this.formatPermissions(file.permissions);
           const size = file.size.toString().padStart(5);
           const color = file.isCorrupted ? chalk.red :
+                        file.name === 'data_corruptor.bin' ? chalk.red :
+                        file.name === 'virus.exe' ? chalk.red :
+                        file.name === 'malware.dat' ? chalk.red :
+                        file.name === 'quantum_virus.exe' ? chalk.red :
+                        file.name === 'system_leech.dll' ? chalk.red :
                         file.name.endsWith('.sh') ? chalk.green :
                         file.name === 'README.txt' ? chalk.yellow :
                         file.isHidden ? chalk.gray : chalk.white;
@@ -105,6 +110,11 @@ export class CommandParser {
         } else {
           const file = item as any;
           const color = file.isCorrupted ? chalk.red :
+                        file.name === 'data_corruptor.bin' ? chalk.red :
+                        file.name === 'virus.exe' ? chalk.red :
+                        file.name === 'malware.dat' ? chalk.red :
+                        file.name === 'quantum_virus.exe' ? chalk.red :
+                        file.name === 'system_leech.dll' ? chalk.red :
                         file.name.endsWith('.sh') ? chalk.green :
                         file.name === 'README.txt' ? chalk.yellow :
                         file.isHidden ? chalk.gray : chalk.white;
@@ -225,6 +235,8 @@ export class CommandParser {
       
       // Add special messages for enemy files
       if (filename === 'virus.exe' || filename === 'malware.dat') {
+        // Add progress bar for hostile file deletion
+        output += this.getHostileFileDeletionProgress();
         output += chalk.green(`\n[MISSION UPDATE] Hostile file eliminated! Zone 1 is more secure.`);
 
         // Reduce threat level when enemy files are removed
@@ -249,19 +261,63 @@ export class CommandParser {
           energyCost: 3,
           attackEffect: 'medium'
         };
-      } else if (filename === 'quantum_virus.exe') {
+      } else if ((filename === 'quantum_virus.exe') || (filename === 'data_corruptor.bin')) {
+        // Add progress bar for quantum file deletion
+        output += this.getHostileFileDeletionProgress();
+
         if (this.locale === 'ja') {
-          output += chalk.green(`\n[ミッション更新] 量子ウイルスを除去完了！Zone 2をクリアしました！`);
-          output += chalk.cyan(`\n\nおめでとうございます！量子ブリーチ封じ込め成功！`);
-          output += chalk.cyan(`\n\n[システムアラート] Zone 3ゲートウェイが起動しました！`);
-          output += chalk.cyan(`\n新たなる深層エリアへのアクセスが可能になりました。`);
-          output += chalk.cyan(`\n「cd /」でルートディレクトリに移動し、zone3を探索してください。`);
+          output += chalk.green(`\n\n[ミッション更新] 量子ウイルスを除去完了！`);
+          output += chalk.yellow(`\n\n[警告] 量子ウイルスの削除により、歪んだディレクトリ構造が出現しました！`);
+          output += chalk.cyan(`\n\n新しいディレクトリが .quantum 下に検出されました。`);
+          output += chalk.cyan(`\nこの歪んだ空間を探索してください。`);
         } else {
-          output += chalk.green(`\n[MISSION UPDATE] Quantum virus eliminated! Zone 2 cleared!`);
-          output += chalk.cyan(`\n\nCongratulations! Quantum breach containment successful!`);
-          output += chalk.cyan(`\n\n[SYSTEM ALERT] Zone 3 gateway activated!`);
-          output += chalk.cyan(`\nAccess to new deep layer areas is now available.`);
-          output += chalk.cyan(`\nUse "cd /" to return to root directory and explore zone3.`);
+          output += chalk.green(`\n\n[MISSION UPDATE] Quantum virus eliminated!`);
+          output += chalk.yellow(`\n\n[WARNING] Quantum virus deletion has caused corrupted directory structures to appear!`);
+          output += chalk.cyan(`\n\nNew directories detected under .quantum.`);
+          output += chalk.cyan(`\nExplore this distorted space.`);
+        }
+
+        // Check if all zone2 files are deleted to show completion message
+        if (this.filesystem.isZone2Completed()) {
+          if (this.locale === 'ja') {
+            output += chalk.green(`\nZone 2をクリアしました！`);
+            output += chalk.cyan(`\n\nおめでとうございます！量子ブリーチ封じ込め成功！`);
+            output += chalk.cyan(`\n\n[システムアラート] Zone 3ゲートウェイが起動しました！`);
+            output += chalk.cyan(`\n新たなる深層エリアへのアクセスが可能になりました。`);
+            output += chalk.cyan(`\n「cd /」でルートディレクトリに移動し、zone3を探索してください。`);
+          } else {
+            output += chalk.green(`\nZone 2 cleared!`);
+            output += chalk.cyan(`\n\nCongratulations! Quantum breach containment successful!`);
+            output += chalk.cyan(`\n\n[SYSTEM ALERT] Zone 3 gateway activated!`);
+            output += chalk.cyan(`\nAccess to new deep layer areas is now available.`);
+            output += chalk.cyan(`\nUse "cd /" to return to root directory and explore zone3.`);
+          }
+        }
+      } else if (filename === 'system_leech.dll') {
+        // Add progress bar for final boss deletion
+        output += this.getHostileFileDeletionProgress();
+
+        if (this.locale === 'ja') {
+          output += chalk.cyan(`\n\n[ミッション更新] システムリーチを除去完了！`);
+        } else {
+          output += chalk.cyan(`\n\n[MISSION UPDATE] System leech eliminated!`);
+        }
+
+        // Check if all zone2 files are deleted to show completion message
+        if (this.filesystem.isZone2Completed()) {
+          if (this.locale === 'ja') {
+            output += chalk.green(`\nZone 2をクリアしました！`);
+            output += chalk.cyan(`\n\nおめでとうございます！量子ブリーチ封じ込め成功！`);
+            output += chalk.cyan(`\n\n[システムアラート] Zone 3ゲートウェイが起動しました！`);
+            output += chalk.cyan(`\n\n新たなる深層エリアへのアクセスが可能になりました。`);
+            output += chalk.cyan(`\n「cd /」でルートディレクトリに移動し、zone3を探索してください。`);
+          } else {
+            output += chalk.green(`\nZone 2 cleared!`);
+            output += chalk.cyan(`\n\nCongratulations! Quantum breach containment successful!`);
+            output += chalk.cyan(`\n\n[SYSTEM ALERT] Zone 3 gateway activated!`);
+            output += chalk.cyan(`\nAccess to new deep layer areas is now available.`);
+            output += chalk.cyan(`\nUse "cd /" to return to root directory and explore zone3.`);
+          }
         }
 
         // Reduce threat level when enemy files are removed
@@ -329,7 +385,9 @@ export class CommandParser {
     return Array.from(this.availableCommands);
   }
 
-
-
+  private getHostileFileDeletionProgress(): string {
+    return chalk.cyan(`\n\n>>> 敵対ファイル削除プロセス開始 <<<`) +
+           chalk.cyan(`\n[████████████████████] 100%`);
+  }
 
 }

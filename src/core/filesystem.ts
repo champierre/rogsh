@@ -143,7 +143,7 @@ TO BE CONTINUED...`;
       messages[this.locale].zones.zone2readme
     ));
 
-    // Add enemy file in hidden directory
+    // Add enemy files in hidden directory
     quantumDir.files.set('quantum_virus.exe', this.createFile(
       'quantum_virus.exe',
       'file',
@@ -406,7 +406,7 @@ Remove immediately to secure Zone 1.`,
     const success = this.currentDirectory.files.delete(filename);
 
     // Track hostile file deletions
-    if (success && file && (filename === 'virus.exe' || filename === 'malware.dat' || filename === 'quantum_virus.exe')) {
+    if (success && file && (filename === 'virus.exe' || filename === 'malware.dat' || filename === 'quantum_virus.exe' || filename === 'data_corruptor.bin' || filename === 'system_leech.dll')) {
       this.deletedHostileFiles.add(filename);
 
       // Check if zone1 hostile files have been deleted to unlock zone2
@@ -414,8 +414,18 @@ Remove immediately to secure Zone 1.`,
         this.unlockZone2();
       }
 
-      // Check if quantum_virus.exe has been deleted to unlock zone3 and add prime directories
-      if (this.deletedHostileFiles.has('quantum_virus.exe')) {
+      // Special handling for quantum_virus.exe deletion - add corrupted directories
+      if (filename === 'quantum_virus.exe') {
+        this.addCorruptedDirectories();
+      }
+
+      // Special handling for data_corruptor.bin deletion - add final corrupted directories
+      if (filename === 'data_corruptor.bin') {
+        this.addFinalCorruptedDirectories();
+      }
+
+      // Check if all zone2 hostile files have been deleted to unlock zone3 and add prime directories
+      if (this.deletedHostileFiles.has('quantum_virus.exe') && this.deletedHostileFiles.has('data_corruptor.bin') && this.deletedHostileFiles.has('system_leech.dll')) {
         this.unlockZone3();
         this.addPrimeDirectories();
       }
@@ -447,56 +457,76 @@ Remove immediately to secure Zone 1.`,
     // These contain 2-digit and 3-digit primes mixed with other characters
     const primeDir1 = this.createDirectory('zU17xq71egh', '/zone2/2/3/5/.quantum/zU17xq71egh'); // contains 17, 71
     const primeDir2 = this.createDirectory('m23nP101wz', '/zone2/2/3/5/.quantum/m23nP101wz');   // contains 23, 101
-    const primeDir3 = this.createDirectory('k41fR139j9', '/zone2/2/3/5/.quantum/k41fR139j9');   // contains 41, 139
-    const primeDir4 = this.createDirectory('x67hT211qv', '/zone2/2/3/5/.quantum/x67hT211qv');   // contains 67, 211
 
     this.quantumDir.subdirectories.set('zU17xq71egh', primeDir1);
     this.quantumDir.subdirectories.set('m23nP101wz', primeDir2);
-    this.quantumDir.subdirectories.set('k41fR139j9', primeDir3);
-    this.quantumDir.subdirectories.set('x67hT211qv', primeDir4);
 
     primeDir1.parent = this.quantumDir;
     primeDir2.parent = this.quantumDir;
-    primeDir3.parent = this.quantumDir;
-    primeDir4.parent = this.quantumDir;
 
-    // Add README files in each prime directory with cryptic clues
-    const primeClue = this.locale === 'ja'
-      ? `深層数学的パターン検出システム
 
-エージェント-7、このディレクトリ名には数学的意味が隠されています。
+  }
 
-ヒント: 除数を持たない純粋な整数を探せ
-より大きな素数が、より深い真実へと導く`
-      : `DEEP MATHEMATICAL PATTERN DETECTION SYSTEM
+  addCorruptedDirectories(): void {
+    if (!this.quantumDir) {
+      return; // Quantum directory not available
+    }
 
-Agent-7, this directory name contains mathematical significance.
+    // Add the 4 corrupted directories: D41a&, a!Lrt56b, yu75a, pQ234+a
+    const corruptedDir1 = this.createDirectory('D41a&', '/zone2/2/3/5/.quantum/D41a&'); // contains prime 41
+    const corruptedDir2 = this.createDirectory('a!Lrt56b', '/zone2/2/3/5/.quantum/a!Lrt56b');
+    const corruptedDir3 = this.createDirectory('yu75a', '/zone2/2/3/5/.quantum/yu75a');
+    const corruptedDir4 = this.createDirectory('pQ234+a', '/zone2/2/3/5/.quantum/pQ234+a');
 
-HINT: Seek pure integers that have no divisors
-Larger primes lead to deeper truths`;
+    this.quantumDir.subdirectories.set('D41a&', corruptedDir1);
+    this.quantumDir.subdirectories.set('a!Lrt56b', corruptedDir2);
+    this.quantumDir.subdirectories.set('yu75a', corruptedDir3);
+    this.quantumDir.subdirectories.set('pQ234+a', corruptedDir4);
 
-    primeDir1.files.set('analysis.log', this.createFile(
-      'analysis.log',
+    corruptedDir1.parent = this.quantumDir;
+    corruptedDir2.parent = this.quantumDir;
+    corruptedDir3.parent = this.quantumDir;
+    corruptedDir4.parent = this.quantumDir;
+
+    // Add subdirectories under D41a&: U78%a, y%@77e, wQ43au
+    const subDir1 = this.createDirectory('U78%a', '/zone2/2/3/5/.quantum/D41a&/U78%a');
+    const subDir2 = this.createDirectory('y%@77e', '/zone2/2/3/5/.quantum/D41a&/y%@77e');
+    const subDir3 = this.createDirectory('wQ43au', '/zone2/2/3/5/.quantum/D41a&/wQ43au'); // contains prime 43
+
+    corruptedDir1.subdirectories.set('U78%a', subDir1);
+    corruptedDir1.subdirectories.set('y%@77e', subDir2);
+    corruptedDir1.subdirectories.set('wQ43au', subDir3);
+
+    subDir1.parent = corruptedDir1;
+    subDir2.parent = corruptedDir1;
+    subDir3.parent = corruptedDir1;
+
+    // Add directories under wQ43au: one prime and some dummy non-prime folders
+    const primeDir = this.createDirectory('p127x', '/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x'); // contains prime 127
+    const dummyDir1 = this.createDirectory('n24k', '/zone2/2/3/5/.quantum/D41a&/wQ43au/n24k'); // 24 is not prime
+    const dummyDir2 = this.createDirectory('m35j', '/zone2/2/3/5/.quantum/D41a&/wQ43au/m35j'); // 35 is not prime
+    const dummyDir3 = this.createDirectory('q49z', '/zone2/2/3/5/.quantum/D41a&/wQ43au/q49z'); // 49 is not prime
+
+    subDir3.subdirectories.set('p127x', primeDir);
+    subDir3.subdirectories.set('n24k', dummyDir1);
+    subDir3.subdirectories.set('m35j', dummyDir2);
+    subDir3.subdirectories.set('q49z', dummyDir3);
+
+    primeDir.parent = subDir3;
+    dummyDir1.parent = subDir3;
+    dummyDir2.parent = subDir3;
+    dummyDir3.parent = subDir3;
+
+    // Add .quantum directory under p127x with data_corruptor.bin
+    const p127xQuantumDir = this.createDirectory('.quantum', '/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum');
+    primeDir.subdirectories.set('.quantum', p127xQuantumDir);
+    p127xQuantumDir.parent = primeDir;
+
+    // Add data_corruptor.bin to p127x/.quantum
+    p127xQuantumDir.files.set('data_corruptor.bin', this.createFile(
+      'data_corruptor.bin',
       'file',
-      primeClue
-    ));
-
-    primeDir2.files.set('analysis.log', this.createFile(
-      'analysis.log',
-      'file',
-      primeClue
-    ));
-
-    primeDir3.files.set('analysis.log', this.createFile(
-      'analysis.log',
-      'file',
-      primeClue
-    ));
-
-    primeDir4.files.set('analysis.log', this.createFile(
-      'analysis.log',
-      'file',
-      primeClue
+      Buffer.from('DATA CORRUPTION ENGINE ACTIVE').toString('base64')
     ));
   }
 
@@ -508,12 +538,103 @@ Larger primes lead to deeper truths`;
     return this.root.subdirectories.has('zone3');
   }
 
+  addFinalCorruptedDirectories(): void {
+    // This function is called after data_corruptor.bin is deleted
+    // It adds the final puzzle: lol (101) -> Zll (211) -> lBl (181) -> .quantum -> system_leech.dll
+
+    // Find the p127x/.quantum directory
+    const zone2Dir = this.root.subdirectories.get('zone2');
+    if (!zone2Dir) return;
+
+    const dir2 = zone2Dir.subdirectories.get('2');
+    if (!dir2) return;
+
+    const dir3 = dir2.subdirectories.get('3');
+    if (!dir3) return;
+
+    const dir5 = dir3.subdirectories.get('5');
+    if (!dir5) return;
+
+    const quantumDir = dir5.subdirectories.get('.quantum');
+    if (!quantumDir) return;
+
+    const d41aDir = quantumDir.subdirectories.get('D41a&');
+    if (!d41aDir) return;
+
+    const wQ43auDir = d41aDir.subdirectories.get('wQ43au');
+    if (!wQ43auDir) return;
+
+    const p127xDir = wQ43auDir.subdirectories.get('p127x');
+    if (!p127xDir) return;
+
+    const p127xQuantumDir = p127xDir.subdirectories.get('.quantum');
+    if (!p127xQuantumDir) return;
+
+    // Add lol (101 - prime), lool (non-prime), 110 (non-prime) directories
+    const lolDir = this.createDirectory('lol', '/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/lol'); // 101 is prime
+    const loolDir = this.createDirectory('lool', '/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/lool'); // not prime
+    const dir110 = this.createDirectory('110', '/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/110'); // 110 is not prime
+
+    p127xQuantumDir.subdirectories.set('lol', lolDir);
+    p127xQuantumDir.subdirectories.set('lool', loolDir);
+    p127xQuantumDir.subdirectories.set('110', dir110);
+
+    lolDir.parent = p127xQuantumDir;
+    loolDir.parent = p127xQuantumDir;
+    dir110.parent = p127xQuantumDir;
+
+    // Under lol (101), add 22 (not prime), Zll (211 - prime), llZo (not prime)
+    const dir22 = this.createDirectory('22', '/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/lol/22'); // not prime
+    const zllDir = this.createDirectory('Zll', '/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/lol/Zll'); // 211 is prime
+    const llZoDir = this.createDirectory('llZo', '/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/lol/llZo'); // not prime
+
+    lolDir.subdirectories.set('22', dir22);
+    lolDir.subdirectories.set('Zll', zllDir);
+    lolDir.subdirectories.set('llZo', llZoDir);
+
+    dir22.parent = lolDir;
+    zllDir.parent = lolDir;
+    llZoDir.parent = lolDir;
+
+    // Under Zll (211), add lZB (not prime), Bl (not prime), 80 (not prime), lBl (181 - prime)
+    const lZBDir = this.createDirectory('lZB', '/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/lol/Zll/lZB'); // not prime
+    const blDir = this.createDirectory('Bl', '/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/lol/Zll/Bl'); // not prime
+    const dir80 = this.createDirectory('80', '/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/lol/Zll/80'); // not prime
+    const lBlDir = this.createDirectory('lBl', '/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/lol/Zll/lBl'); // 181 is prime
+
+    zllDir.subdirectories.set('lZB', lZBDir);
+    zllDir.subdirectories.set('Bl', blDir);
+    zllDir.subdirectories.set('80', dir80);
+    zllDir.subdirectories.set('lBl', lBlDir);
+
+    lZBDir.parent = zllDir;
+    blDir.parent = zllDir;
+    dir80.parent = zllDir;
+    lBlDir.parent = zllDir;
+
+    // Add .quantum under lBl with system_leech.dll
+    const finalQuantumDir = this.createDirectory('.quantum', '/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/lol/Zll/lBl/.quantum');
+    lBlDir.subdirectories.set('.quantum', finalQuantumDir);
+    finalQuantumDir.parent = lBlDir;
+
+    // Add system_leech.dll to the final .quantum directory
+    finalQuantumDir.files.set('system_leech.dll', this.createFile(
+      'system_leech.dll',
+      'file',
+      `[SYSTEM RESOURCE DRAIN]
+THREAT LEVEL: CRITICAL
+Consuming system resources at exponential rate.
+Must be eliminated to complete zone clearance.`,
+      { isCorrupted: true, threatLevel: 9 }
+    ));
+  }
+
   areAllHostileFilesDeleted(): boolean {
     return this.deletedHostileFiles.has('virus.exe') && this.deletedHostileFiles.has('malware.dat');
   }
 
   isZone2Completed(): boolean {
-    return this.deletedHostileFiles.has('quantum_virus.exe');
+    return this.deletedHostileFiles.has('quantum_virus.exe') && this.deletedHostileFiles.has('data_corruptor.bin') && this.deletedHostileFiles.has('system_leech.dll');
   }
 
   getDeletedHostileFiles(): string[] {
@@ -529,7 +650,7 @@ Larger primes lead to deeper truths`;
     }
 
     // Check if zone3 should be unlocked based on loaded state
-    if (this.deletedHostileFiles.has('quantum_virus.exe')) {
+    if (this.deletedHostileFiles.has('quantum_virus.exe') && this.deletedHostileFiles.has('data_corruptor.bin') && this.deletedHostileFiles.has('system_leech.dll')) {
       this.unlockZone3();
       this.addPrimeDirectories();
     }

@@ -480,7 +480,7 @@ Think beyond the obvious.
         hint: '入力: help'
       },
       readInstructions: {
-        description: '暗号化された指令を注意深く研究してください。',
+        description: '暗号化されたメッセージを解読してください。',
         hint: '入力: help'
       },
       followPrimes: {
@@ -569,7 +569,7 @@ Think beyond the obvious.
 - cat: ファイル内容を表示
 - rm: ファイルの削除
 
-情報：第二ターゲットは隠蔽されている。高度スキャンを使用せよ。
+情報：第二ターゲットは隠蔽されている。高度スキャン(ls -a)を使用せよ。
 
 ゾーン1の確保のため任務を完遂せよ。`,
       zone2readme: `量子ブリーチ封じ込めプロトコル
@@ -579,7 +579,7 @@ Think beyond the obvious.
 
 暗号化指令 [クリアランス: OMEGA]:
 「デジタル空間で踊る数字たち、
-除算の手に触れぬものを求めよ。
+素の心を持ち、1と自身のみに心を開く数を発見せよ。
 純粋なる整数が孤高に立つ処、
 救済への道が汝に現れん。
 

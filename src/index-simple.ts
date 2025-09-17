@@ -87,7 +87,7 @@ class rogsh {
 
         // Handle attack effect if requested
         if (result.attackEffect) {
-          await this.displayAttackEffect(result.attackEffect);
+          await this.displayAttackEffect();
         }
 
         // Display output
@@ -156,7 +156,7 @@ class rogsh {
 
         // Handle attack effect if requested
         if (result.attackEffect) {
-          await this.displayAttackEffect(result.attackEffect);
+          await this.displayAttackEffect();
         }
 
         // Display output
@@ -392,34 +392,16 @@ class rogsh {
     this.rl.close();
   }
 
-  private async displayAttackEffect(intensity: 'medium' | 'high'): Promise<void> {
-    if (intensity === 'medium') {
-      console.log(chalk.cyan('>>> ELIMINATION IN PROGRESS <<<'));
-      await this.sleep(500);
+  private async displayAttackEffect(): Promise<void> {
+    console.log(chalk.cyan('>>> ELIMINATION IN PROGRESS <<<'));
+    await this.sleep(500);
 
-      // Animated progress bar
-      await this.displayProgressBar('[', ']', 24);
+    // Animated progress bar
+    await this.displayProgressBar('[', ']', 24);
 
-      await this.sleep(300);
-      console.log(chalk.cyan('>>> TARGET NEUTRALIZED <<<'));
-      await this.sleep(500);
-    } else {
-      console.log(chalk.cyan.bold('>>> QUANTUM ELIMINATION PROTOCOL <<<'));
-      await this.sleep(500);
-
-      // Animated progress bar
-      await this.displayProgressBar('[', ']', 30);
-
-      await this.sleep(300);
-      console.log(chalk.cyan('     ✦ * ✧ '));
-      await this.sleep(200);
-      console.log(chalk.cyan('   * ✦ BOOM ✧ *'));
-      await this.sleep(200);
-      console.log(chalk.cyan('     ✧ * ✦'));
-      await this.sleep(300);
-      console.log(chalk.cyan.bold('>>> QUANTUM VIRUS PURGED <<<'));
-      await this.sleep(500);
-    }
+    await this.sleep(300);
+    console.log(chalk.cyan('>>> TARGET NEUTRALIZED <<<'));
+    await this.sleep(500);
 
     console.log(); // Add newline after effect
   }
