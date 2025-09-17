@@ -23,7 +23,8 @@ class rogsh {
     this.rl = readline.createInterface({
       input,
       output,
-      terminal: true
+      terminal: true,
+      completer: this.tabCompleter.bind(this)
     });
   }
 
@@ -378,6 +379,28 @@ class rogsh {
     console.log(chalk.gray(`  ${msg.game.depthReached}: ${state.currentDepth}\n`));
     
     console.log(chalk.yellow(`${msg.game.thankYou}\n`));
+  }
+
+  private tabCompleter(line: string): [string[], string] {
+    const parts = line.trim().split(/\s+/);
+    const command = parts[0];
+    const currentArg = parts[parts.length - 1] || '';
+
+    // Get available commands from the game
+    const availableCommands = this.game.getAvailableCommands();
+
+    if (parts.length === 1) {
+      // Complete command names
+      const matches = availableCommands.filter((cmd: string) => cmd.startsWith(currentArg));
+      return [matches, currentArg];
+    } else if (command === 'cd' || command === 'ls' || command === 'cat' || command === 'rm') {
+      // Complete file/directory names for these commands
+      const matches = this.game.getFileCompletions(currentArg);
+      return [matches, currentArg];
+    }
+
+    // No completions available
+    return [[], currentArg];
   }
 
   private async exit(): Promise<void> {

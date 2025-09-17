@@ -576,4 +576,26 @@ export class Game {
     this.state.currentPath = this.filesystem.pwd();
   }
 
+  getAvailableCommands(): string[] {
+    return this.commandParser.getAvailableCommands();
+  }
+
+  getFileCompletions(partial: string): string[] {
+    // Get current directory items
+    const items = this.filesystem.listDirectory();
+    const matches: string[] = [];
+
+    for (const item of items) {
+      if (item.name.startsWith(partial)) {
+        if (item.type === 'directory') {
+          matches.push(item.name + '/');
+        } else {
+          matches.push(item.name);
+        }
+      }
+    }
+
+    return matches;
+  }
+
 }
