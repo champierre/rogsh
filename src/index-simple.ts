@@ -85,6 +85,11 @@ class rogsh {
         // Process command
         const result = await this.game.processCommand(input.trim());
 
+        // Handle attack effect if requested
+        if (result.attackEffect) {
+          await this.displayAttackEffect(result.attackEffect);
+        }
+
         // Display output
         if (result.output) {
           console.log(result.output);
@@ -148,6 +153,11 @@ class rogsh {
 
         // Process command
         const result = await this.game.processCommand(input.trim());
+
+        // Handle attack effect if requested
+        if (result.attackEffect) {
+          await this.displayAttackEffect(result.attackEffect);
+        }
 
         // Display output
         if (result.output) {
@@ -380,6 +390,56 @@ class rogsh {
     console.log(chalk.cyan(`\n${msg.game.exitMessage}\n`));
     this.isRunning = false;
     this.rl.close();
+  }
+
+  private async displayAttackEffect(intensity: 'medium' | 'high'): Promise<void> {
+    if (intensity === 'medium') {
+      console.log(chalk.cyan('>>> ELIMINATION IN PROGRESS <<<'));
+      await this.sleep(500);
+
+      // Animated progress bar
+      await this.displayProgressBar('[', ']', 24);
+
+      await this.sleep(300);
+      console.log(chalk.cyan('>>> TARGET NEUTRALIZED <<<'));
+      await this.sleep(500);
+    } else {
+      console.log(chalk.cyan.bold('>>> QUANTUM ELIMINATION PROTOCOL <<<'));
+      await this.sleep(500);
+
+      // Animated progress bar
+      await this.displayProgressBar('[', ']', 30);
+
+      await this.sleep(300);
+      console.log(chalk.cyan('     ✦ * ✧ '));
+      await this.sleep(200);
+      console.log(chalk.cyan('   * ✦ BOOM ✧ *'));
+      await this.sleep(200);
+      console.log(chalk.cyan('     ✧ * ✦'));
+      await this.sleep(300);
+      console.log(chalk.cyan.bold('>>> QUANTUM VIRUS PURGED <<<'));
+      await this.sleep(500);
+    }
+
+    console.log(); // Add newline after effect
+  }
+
+  private async displayProgressBar(start: string, end: string, length: number): Promise<void> {
+    const progressChar = '█';
+    const emptyChar = ' ';
+
+    for (let i = 0; i <= length; i++) {
+      const filled = progressChar.repeat(i);
+      const empty = emptyChar.repeat(length - i);
+      const percentage = Math.round((i / length) * 100);
+
+      process.stdout.write(`\r${chalk.cyan(start + filled + empty + end)} ${chalk.cyan(percentage + '%')}`);
+
+      // Slow down the progress animation
+      await this.sleep(100);
+    }
+
+    console.log(); // Move to next line after progress bar completes
   }
 }
 

@@ -205,7 +205,7 @@ export class Game {
     ];
   }
 
-  async processCommand(input: string): Promise<{output: string, shouldExit?: boolean}> {
+  async processCommand(input: string): Promise<{output: string, shouldExit?: boolean, attackEffect?: 'medium' | 'high'}> {
     if (this.state.isGameOver) {
       return {output: chalk.red('Game Over. Restart to play again.')};
     }
@@ -215,7 +215,7 @@ export class Game {
 
     // Check if we should exit (zone2 reached)
     if (result.shouldExit) {
-      return {output: result.output, shouldExit: true};
+      return {output: result.output, shouldExit: true, attackEffect: result.attackEffect};
     }
 
     // Update game state
@@ -254,7 +254,7 @@ export class Game {
     // Check game over conditions
     this.checkGameOver();
 
-    return {output: result.output};
+    return {output: result.output, attackEffect: result.attackEffect};
   }
 
   private processTurn(): void {

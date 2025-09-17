@@ -8,6 +8,7 @@ export interface CommandResult {
   success: boolean;
   energyCost: number;
   shouldExit?: boolean;
+  attackEffect?: 'medium' | 'high';
 }
 
 export class CommandParser {
@@ -241,6 +242,13 @@ export class CommandParser {
             output += chalk.cyan(`\n\nUse "cd /" to return to root directory.`);
           }
         }
+
+        return {
+          output,
+          success: true,
+          energyCost: 3,
+          attackEffect: 'medium'
+        };
       } else if (filename === 'quantum_virus.exe') {
         if (this.locale === 'ja') {
           output += chalk.green(`\n[ミッション更新] 量子ウイルスを除去完了！Zone 2をクリアしました！`);
@@ -260,8 +268,15 @@ export class CommandParser {
         if (file.threatLevel) {
           output += chalk.green(`\nThreat level reduced by ${file.threatLevel}`);
         }
+
+        return {
+          output,
+          success: true,
+          energyCost: 3,
+          attackEffect: 'high'
+        };
       }
-      
+
       return {
         output,
         success: true,
