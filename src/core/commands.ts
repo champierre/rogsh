@@ -318,7 +318,7 @@ export class CommandParser {
       output += chalk.cyan.bold('TO BE CONTINUED\n\n');
       output += chalk.cyan('Zone 2 adventures coming in future updates!\n');
       output += chalk.cyan('Thank you for playing\n');
-      output += chalk.cyan('ShellQuest!\n\n');
+      output += chalk.cyan('rogsh!\n\n');
     }
 
     return output;

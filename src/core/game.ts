@@ -1,9 +1,11 @@
 import { GameState, GameEvent, Zone1Step } from '../types/game.js';
 import { VirtualFileSystem } from './filesystem.js';
 import { CommandParser } from './commands.js';
+import { SaveManager, SaveData } from './saveManager.js';
 import { messages } from '../i18n/messages.js';
 import { getLocale } from '../i18n/locale.js';
 import chalk from 'chalk';
+import * as readline from 'readline/promises';
 
 export class Game {
   private state: GameState;
@@ -14,15 +16,21 @@ export class Game {
   private currentTutorialStep: number;
   private isTutorialMode: boolean;
   private locale: 'ja' | 'en';
+  private saveManager: SaveManager;
+  private completedZones: string[];
+  private unlockedCommands: string[];
 
   constructor() {
     this.locale = getLocale();
     this.filesystem = new VirtualFileSystem(this.locale);
     this.commandParser = new CommandParser(this.filesystem, this.locale);
+    this.saveManager = new SaveManager(this.locale);
     this.events = [];
     this.tutorialSteps = this.createZone1Steps();
     this.currentTutorialStep = 0;
     this.isTutorialMode = true;
+    this.completedZones = [];
+    this.unlockedCommands = ['ls', 'cd', 'pwd', 'cat', 'rm', 'help', 'clear'];
 
     this.state = {
       hp: 50,
@@ -306,6 +314,100 @@ export class Game {
 
   isInTutorial(): boolean {
     return this.isTutorialMode;
+  }
+
+  setReadlineInterface(rl: readline.Interface): void {
+    this.saveManager.setReadlineInterface(rl);
+  }
+
+  async loadFromSave(rl: readline.Interface): Promise<boolean> {
+    this.saveManager.setReadlineInterface(rl);
+
+    const saveExists = await this.saveManager.saveExists();
+    if (!saveExists) {
+      return false;
+    }
+
+    const shouldLoad = await this.saveManager.askToLoadSave();
+    if (!shouldLoad) {
+      return false;
+    }
+
+    const saveData = await this.saveManager.load();
+    if (!saveData) {
+      console.log(chalk.red('Failed to load save data.'));
+      return false;
+    }
+
+    this.applyLoadedData(saveData);
+    const successMessage = this.locale === 'ja'
+      ? 'セーブデータを読み込みました。'
+      : 'Progress loaded successfully!';
+    console.log(chalk.green(successMessage));
+    return true;
+  }
+
+  private applyLoadedData(saveData: SaveData): void {
+    // Apply saved game state
+    if (saveData.gameState) {
+      this.state = {
+        ...this.state,
+        ...saveData.gameState,
+        isGameOver: false,
+        isPaused: false
+      } as GameState;
+    }
+
+    // Apply tutorial progress
+    this.currentTutorialStep = saveData.tutorialStep || 0;
+    this.isTutorialMode = saveData.isTutorialMode !== undefined ? saveData.isTutorialMode : true;
+
+    // Apply completed zones and unlocked commands
+    this.completedZones = saveData.completedZones || [];
+    this.unlockedCommands = saveData.unlockedCommands || ['ls', 'cd', 'pwd', 'cat', 'rm', 'help', 'clear'];
+
+    // Restore filesystem state
+    const deletedFiles = saveData.deletedHostileFiles || [];
+    this.filesystem.setDeletedHostileFiles(deletedFiles);
+
+    // Explicitly unlock zone2 if needed (handle backward compatibility)
+    const isZone2Unlocked = saveData.isZone2Unlocked !== undefined
+      ? saveData.isZone2Unlocked
+      : this.filesystem.areAllHostileFilesDeleted();
+
+    if (isZone2Unlocked && !this.filesystem.isZone2Unlocked()) {
+      this.filesystem.unlockZone2();
+    }
+
+    // Update filesystem path if needed
+    if (saveData.gameState?.currentPath) {
+      this.filesystem.changeDirectory(saveData.gameState.currentPath);
+    }
+  }
+
+  async saveProgress(): Promise<boolean> {
+    // Mark zone1 as completed if tutorial is finished
+    if (!this.isTutorialMode && !this.completedZones.includes('zone1')) {
+      this.completedZones.push('zone1');
+    }
+
+    return await this.saveManager.save(
+      this.state,
+      this.currentTutorialStep,
+      this.isTutorialMode,
+      this.completedZones,
+      this.unlockedCommands,
+      this.filesystem.getDeletedHostileFiles(),
+      this.filesystem.isZone2Unlocked()
+    );
+  }
+
+  getCompletedZones(): string[] {
+    return [...this.completedZones];
+  }
+
+  getUnlockedCommands(): string[] {
+    return [...this.unlockedCommands];
   }
 
 }

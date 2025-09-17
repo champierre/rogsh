@@ -1,10 +1,10 @@
-# ShellQuest
+# rogsh
 
 Unix command-line learning roguelike game
 
 ## Overview
 
-ShellQuest (rogsh) is an educational roguelike game that teaches Unix command-line skills through dungeon exploration. Players navigate a virtual filesystem-based dungeon using real Unix commands, battling corrupted processes and solving system problems.
+rogsh is an educational roguelike game that teaches Unix command-line skills through dungeon exploration. Players navigate a virtual filesystem-based dungeon using real Unix commands, battling corrupted processes and solving system problems.
 
 ## Installation
 

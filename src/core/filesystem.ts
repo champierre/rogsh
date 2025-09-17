@@ -396,4 +396,17 @@ Remove immediately to secure Zone 1.`,
   areAllHostileFilesDeleted(): boolean {
     return this.deletedHostileFiles.has('virus.exe') && this.deletedHostileFiles.has('malware.dat');
   }
+
+  getDeletedHostileFiles(): string[] {
+    return Array.from(this.deletedHostileFiles);
+  }
+
+  setDeletedHostileFiles(deletedFiles: string[]): void {
+    this.deletedHostileFiles = new Set(deletedFiles);
+
+    // Check if zone2 should be unlocked based on loaded state
+    if (this.areAllHostileFilesDeleted()) {
+      this.unlockZone2();
+    }
+  }
 }

@@ -7,7 +7,7 @@ import { getLocale } from './i18n/locale.js';
 import * as readline from 'readline/promises';
 import { stdin as input, stdout as output } from 'process';
 
-class ShellQuest {
+class rogsh {
   private game: Game;
   private rl: readline.Interface;
   private isRunning: boolean = true;
@@ -28,16 +28,39 @@ class ShellQuest {
   }
 
   async start(): Promise<void> {
-    if (!this.isDevelopmentMode) {
-      await this.displayWelcome();
-    } else {
-      // Show minimal welcome for dev mode
-      console.clear();
-      console.log(chalk.cyan.bold('ShellQuest - Development Mode'));
-      console.log(chalk.gray('(演出スキップ済み)\n'));
-    }
+    // Set readline interface for save manager
+    this.game.setReadlineInterface(this.rl);
 
-    await this.displayTutorial();
+    // Try to load save data
+    const loadedFromSave = await this.game.loadFromSave(this.rl);
+
+    if (!loadedFromSave) {
+      if (!this.isDevelopmentMode) {
+        await this.displayWelcome();
+      } else {
+        // Show minimal welcome for dev mode
+        console.clear();
+        console.log(chalk.cyan.bold('ROGSH - Development Mode'));
+        console.log(chalk.gray('(演出スキップ済み)\n'));
+      }
+
+      await this.displayTutorial();
+    } else {
+      // If loaded from save, show current status
+      const welcomeMessage = this.locale === 'ja'
+        ? 'rogshへようこそ！'
+        : 'Welcome back to rogsh!';
+      const continueMessage = this.locale === 'ja'
+        ? '前回の続きから開始します...'
+        : 'Continuing from your saved progress...';
+      console.log(chalk.cyan(`\n${welcomeMessage}`));
+      console.log(chalk.gray(`${continueMessage}\n`));
+
+      // Show tutorial if still in tutorial mode
+      if (this.game.isInTutorial()) {
+        await this.displayTutorial();
+      }
+    }
     
     while (this.isRunning) {
       try {
@@ -47,7 +70,7 @@ class ShellQuest {
         
         // Handle exit commands
         if (input.trim() === 'exit' || input.trim() === 'quit') {
-          this.exit();
+          await this.exit();
           break;
         }
 
@@ -61,7 +84,7 @@ class ShellQuest {
 
         // Check if we should exit (zone2 reached)
         if (result.shouldExit) {
-          this.exit();
+          await this.exit();
           break;
         }
 
@@ -75,13 +98,13 @@ class ShellQuest {
         // Check if game is over
         if (this.game.getState().isGameOver) {
           this.displayGameOver();
-          this.exit();
+          await this.exit();
           break;
         }
       } catch (error) {
         if (error instanceof Error && error.name === 'AbortError') {
           // Handle Ctrl+C
-          this.exit();
+          await this.exit();
           break;
         }
         console.error(chalk.red('Error:'), error);
@@ -94,19 +117,12 @@ class ShellQuest {
     console.log(chalk.cyan.bold(`
 ╔═══════════════════════════════════════════════════════╗
 ║                                                       ║
-║      ███████╗██╗  ██╗███████╗██╗     ██╗             ║
-║      ██╔════╝██║  ██║██╔════╝██║     ██║             ║
-║      ███████╗███████║█████╗  ██║     ██║             ║
-║      ╚════██║██╔══██║██╔══╝  ██║     ██║             ║
-║      ███████║██║  ██║███████╗███████╗███████╗        ║
-║      ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝        ║
-║                                                       ║
-║           ██████╗ ██╗   ██╗███████╗███████╗████████╗ ║
-║          ██╔═══██╗██║   ██║██╔════╝██╔════╝╚══██╔══╝ ║
-║          ██║   ██║██║   ██║█████╗  ███████╗   ██║    ║
-║          ██║▄▄ ██║██║   ██║██╔══╝  ╚════██║   ██║    ║
-║          ╚██████╔╝╚██████╔╝███████╗███████║   ██║    ║
-║           ╚══▀▀═╝  ╚═════╝ ╚══════╝╚══════╝   ╚═╝    ║
+║       ██████╗  ██████╗  ██████╗ ███████╗██╗  ██╗     ║
+║       ██╔══██╗██╔═══██╗██╔════╝ ██╔════╝██║  ██║     ║
+║       ██████╔╝██║   ██║██║  ███╗███████╗███████║     ║
+║       ██╔══██╗██║   ██║██║   ██║╚════██║██╔══██║     ║
+║       ██║  ██║╚██████╔╝╚██████╔╝███████║██║  ██║     ║
+║       ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝     ║
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝
 `));
@@ -284,7 +300,12 @@ class ShellQuest {
     console.log(chalk.yellow(`${msg.game.thankYou}\n`));
   }
 
-  private exit(): void {
+  private async exit(): Promise<void> {
+    // Save progress before exiting (only if not game over)
+    if (!this.game.getState().isGameOver) {
+      await this.game.saveProgress();
+    }
+
     const msg = messages[this.locale];
     console.log(chalk.cyan(`\n${msg.game.exitMessage}\n`));
     this.isRunning = false;
@@ -300,7 +321,7 @@ process.on('SIGINT', () => {
 });
 
 // Start the game
-const game = new ShellQuest();
+const game = new rogsh();
 game.start().catch(error => {
   console.error(chalk.red('Fatal error:'), error);
   process.exit(1);

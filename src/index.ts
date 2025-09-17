@@ -4,7 +4,7 @@ import readline from 'readline';
 import chalk from 'chalk';
 import { Game } from './core/game.js';
 
-class ShellQuest {
+class rogsh {
   private game: Game;
   private rl: readline.Interface;
 
@@ -162,18 +162,18 @@ class ShellQuest {
     console.log(chalk.gray(`  Final Threat Level: ${state.threatLevel}`));
     console.log(chalk.gray(`  Depth Reached: ${state.currentDepth}\n`));
     
-    console.log(chalk.yellow('Thank you for playing ShellQuest!\n'));
+    console.log(chalk.yellow('Thank you for playing rogsh!\n'));
   }
 
   private exit(): void {
-    console.log(chalk.cyan('\nExiting ShellQuest. Goodbye!\n'));
+    console.log(chalk.cyan('\nExiting rogsh. Goodbye!\n'));
     this.rl.close();
     process.exit(0);
   }
 }
 
 // Start the game
-const game = new ShellQuest();
+const game = new rogsh();
 game.start().catch(error => {
   console.error(chalk.red('Fatal error:'), error);
   process.exit(1);
