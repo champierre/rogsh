@@ -31,6 +31,14 @@ class rogsh {
     // Set readline interface for save manager
     this.game.setReadlineInterface(this.rl);
 
+    // Check for debug zone start options
+    const startZoneArg = process.argv.find(arg => arg.startsWith('--start-zone='));
+    if (startZoneArg) {
+      const zone = startZoneArg.split('=')[1];
+      await this.startFromZone(zone);
+      return;
+    }
+
     // Try to load save data
     const loadedFromSave = await this.game.loadFromSave(this.rl);
 
@@ -104,6 +112,68 @@ class rogsh {
       } catch (error) {
         if (error instanceof Error && error.name === 'AbortError') {
           // Handle Ctrl+C
+          await this.exit();
+          break;
+        }
+        console.error(chalk.red('Error:'), error);
+      }
+    }
+  }
+
+  private async startFromZone(zone: string): Promise<void> {
+    console.clear();
+    console.log(chalk.cyan.bold(`ROGSH - Debug Mode: Starting from ${zone}`));
+    console.log(chalk.gray('(デバッグモード)\n'));
+
+    // Set up game state for the specified zone
+    await this.game.setupDebugZone(zone);
+
+    // Show tutorial if in tutorial mode
+    if (this.game.isInTutorial()) {
+      await this.displayTutorial();
+    }
+
+    // Start main game loop
+    while (this.isRunning) {
+      try {
+        // Display prompt and get input
+        const prompt = this.game.getPrompt();
+        const input = await this.rl.question(prompt);
+
+        // Handle exit commands
+        if (input.trim() === 'exit' || input.trim() === 'quit') {
+          await this.exit();
+          break;
+        }
+
+        // Process command
+        const result = await this.game.processCommand(input.trim());
+
+        // Display output
+        if (result.output) {
+          console.log(result.output);
+        }
+
+        // Check if we should exit
+        if (result.shouldExit) {
+          await this.exit();
+          break;
+        }
+
+        // Display any events
+        const event = this.game.getLastEvent();
+        if (event && event.type === 'tutorial') {
+          await this.displayTutorialEvent();
+        }
+
+        // Check if game is over
+        if (this.game.getState().isGameOver) {
+          this.displayGameOver();
+          await this.exit();
+          break;
+        }
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
           await this.exit();
           break;
         }

@@ -126,17 +126,6 @@ export class CommandParser {
     const success = this.filesystem.changeDirectory(path);
 
     if (success) {
-      // Check if we moved to zone2
-      const currentPath = this.filesystem.pwd();
-      if (currentPath === '/zone2') {
-        return {
-          output: this.generateToBeContinuedScreen(),
-          success: true,
-          energyCost: 1,
-          shouldExit: true
-        };
-      }
-
       return {
         output: '',
         success: true,
@@ -252,6 +241,25 @@ export class CommandParser {
             output += chalk.cyan(`\n\nUse "cd /" to return to root directory.`);
           }
         }
+      } else if (filename === 'quantum_virus.exe') {
+        if (this.locale === 'ja') {
+          output += chalk.green(`\n[ミッション更新] 量子ウイルスを除去完了！Zone 2をクリアしました！`);
+          output += chalk.cyan(`\n\nおめでとうございます！量子ブリーチ封じ込め成功！`);
+          output += chalk.cyan(`\n\n[システムアラート] Zone 3ゲートウェイが起動しました！`);
+          output += chalk.cyan(`\n新たなる深層エリアへのアクセスが可能になりました。`);
+          output += chalk.cyan(`\n「cd /」でルートディレクトリに移動し、zone3を探索してください。`);
+        } else {
+          output += chalk.green(`\n[MISSION UPDATE] Quantum virus eliminated! Zone 2 cleared!`);
+          output += chalk.cyan(`\n\nCongratulations! Quantum breach containment successful!`);
+          output += chalk.cyan(`\n\n[SYSTEM ALERT] Zone 3 gateway activated!`);
+          output += chalk.cyan(`\nAccess to new deep layer areas is now available.`);
+          output += chalk.cyan(`\nUse "cd /" to return to root directory and explore zone3.`);
+        }
+
+        // Reduce threat level when enemy files are removed
+        if (file.threatLevel) {
+          output += chalk.green(`\nThreat level reduced by ${file.threatLevel}`);
+        }
       }
       
       return {
@@ -306,23 +314,6 @@ export class CommandParser {
     return Array.from(this.availableCommands);
   }
 
-  private generateToBeContinuedScreen(): string {
-    let output = '\n\n';
-
-    if (this.locale === 'ja') {
-      output += chalk.cyan.bold('TO BE CONTINUED\n\n');
-      output += chalk.cyan('Zone 2の冒険は今後のアップデートで公開予定！\n');
-      output += chalk.cyan('ゲームをプレイしていただき、\n');
-      output += chalk.cyan('ありがとうございました！\n\n');
-    } else {
-      output += chalk.cyan.bold('TO BE CONTINUED\n\n');
-      output += chalk.cyan('Zone 2 adventures coming in future updates!\n');
-      output += chalk.cyan('Thank you for playing\n');
-      output += chalk.cyan('rogsh!\n\n');
-    }
-
-    return output;
-  }
 
 
 

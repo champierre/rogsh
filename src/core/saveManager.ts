@@ -10,7 +10,9 @@ export interface SaveData {
   timestamp: string;
   gameState: Partial<GameState>;
   tutorialStep: number;
+  zone2Step: number;
   isTutorialMode: boolean;
+  isInZone2Mode: boolean;
   completedZones: string[];
   unlockedCommands: string[];
   deletedHostileFiles: string[];
@@ -71,7 +73,9 @@ export class SaveManager {
   async save(
     gameState: GameState,
     tutorialStep: number,
+    zone2Step: number,
     isTutorialMode: boolean,
+    isInZone2Mode: boolean,
     completedZones: string[] = [],
     unlockedCommands: string[] = [],
     deletedHostileFiles: string[] = [],
@@ -104,7 +108,9 @@ export class SaveManager {
           turnCount: gameState.turnCount
         },
         tutorialStep,
+        zone2Step,
         isTutorialMode,
+        isInZone2Mode,
         completedZones,
         unlockedCommands,
         deletedHostileFiles,

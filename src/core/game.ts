@@ -1,4 +1,4 @@
-import { GameState, GameEvent, Zone1Step } from '../types/game.js';
+import { GameState, GameEvent, Zone1Step, Zone2Step } from '../types/game.js';
 import { VirtualFileSystem } from './filesystem.js';
 import { CommandParser } from './commands.js';
 import { SaveManager, SaveData } from './saveManager.js';
@@ -13,8 +13,11 @@ export class Game {
   private commandParser: CommandParser;
   private events: GameEvent[];
   private tutorialSteps: Zone1Step[];
+  private zone2Steps: Zone2Step[];
   private currentTutorialStep: number;
+  private currentZone2Step: number;
   private isTutorialMode: boolean;
+  private isInZone2Mode: boolean;
   private locale: 'ja' | 'en';
   private saveManager: SaveManager;
   private completedZones: string[];
@@ -27,8 +30,11 @@ export class Game {
     this.saveManager = new SaveManager(this.locale);
     this.events = [];
     this.tutorialSteps = this.createZone1Steps();
+    this.zone2Steps = this.createZone2Steps();
     this.currentTutorialStep = 0;
+    this.currentZone2Step = 0;
     this.isTutorialMode = true;
+    this.isInZone2Mode = false;
     this.completedZones = [];
     this.unlockedCommands = ['ls', 'cd', 'pwd', 'cat', 'rm', 'help', 'clear'];
 
@@ -163,6 +169,41 @@ export class Game {
     ];
   }
 
+  private createZone2Steps(): Zone2Step[] {
+    const msg = messages[this.locale];
+    return [
+      {
+        id: 'zone2_welcome',
+        description: msg.zone2.welcome.description,
+        expectedCommand: 'ls', // Add expected command to see available directories
+        hint: msg.zone2.welcome.hint
+      },
+      {
+        id: 'read_instructions',
+        description: msg.zone2.readInstructions.description,
+        expectedCommand: 'cat README.txt',
+        hint: msg.zone2.readInstructions.hint
+      },
+      {
+        id: 'follow_primes',
+        description: msg.zone2.followPrimes.description,
+        expectedCommand: 'cd 2',
+        hint: msg.zone2.followPrimes.hint
+      },
+      {
+        id: 'find_hidden',
+        description: msg.zone2.findHidden.description,
+        expectedCommand: 'ls -a',
+        hint: msg.zone2.findHidden.hint
+      },
+      {
+        id: 'eliminate_target',
+        description: msg.zone2.eliminateTarget.description,
+        expectedCommand: 'rm quantum_virus.exe',
+        hint: msg.zone2.eliminateTarget.hint
+      }
+    ];
+  }
 
   async processCommand(input: string): Promise<{output: string, shouldExit?: boolean}> {
     if (this.state.isGameOver) {
@@ -190,6 +231,23 @@ export class Game {
     // Check tutorial progress
     if (this.isTutorialMode) {
       this.checkTutorialProgress(input);
+    } else if (this.isInZone2Mode) {
+      this.checkZone2Progress(input);
+    }
+
+    // Check if entering zone2 for the first time (and zone2 is not completed)
+    if (!this.isTutorialMode && !this.isInZone2Mode &&
+        this.state.currentPath.startsWith('/zone2') &&
+        !this.completedZones.includes('zone2')) {
+      this.isInZone2Mode = true;
+      this.currentZone2Step = 0;
+      const step = this.zone2Steps[this.currentZone2Step];
+      this.addEvent({
+        type: 'tutorial',
+        message: `\n${step.description}`,
+        severity: 'info',
+        timestamp: new Date()
+      });
     }
 
 
@@ -242,6 +300,52 @@ export class Game {
     }
   }
 
+  private checkZone2Progress(input: string): void {
+    if (this.currentZone2Step >= this.zone2Steps.length) {
+      return;
+    }
+
+    const currentStep = this.zone2Steps[this.currentZone2Step];
+
+    // Check if the command matches the expected command for this step
+    if (currentStep.expectedCommand && input.trim() === currentStep.expectedCommand) {
+      this.currentZone2Step++;
+
+      if (this.currentZone2Step < this.zone2Steps.length) {
+        const nextStep = this.zone2Steps[this.currentZone2Step];
+        this.addEvent({
+          type: 'tutorial',
+          message: `\n${nextStep.description}`,
+          severity: 'info',
+          timestamp: new Date()
+        });
+      } else {
+        // Zone2 completed
+        this.completeZone2();
+      }
+    }
+
+    // Special handling for quantum virus deletion (can complete zone2 directly)
+    if (input.trim() === 'rm quantum_virus.exe' && this.filesystem.isZone2Completed()) {
+      this.completeZone2();
+    }
+  }
+
+  private completeZone2(): void {
+    this.isInZone2Mode = false;
+    this.currentZone2Step = this.zone2Steps.length;
+
+    if (!this.completedZones.includes('zone2')) {
+      this.completedZones.push('zone2');
+    }
+
+    this.addEvent({
+      type: 'tutorial',
+      message: chalk.green.bold(`\n${messages[this.locale].zone2.complete.description}`),
+      severity: 'success',
+      timestamp: new Date()
+    });
+  }
 
   private checkGameOver(): void {
     const msg = messages[this.locale];
@@ -297,15 +401,25 @@ export class Game {
   }
 
   getTutorialMessage(): { description: string; hint: string } | null {
-    if (!this.isTutorialMode || this.currentTutorialStep >= this.tutorialSteps.length) {
-      return null;
+    // Zone1 tutorial
+    if (this.isTutorialMode && this.currentTutorialStep < this.tutorialSteps.length) {
+      const step = this.tutorialSteps[this.currentTutorialStep];
+      return {
+        description: step.description,
+        hint: step.hint || ''
+      };
     }
 
-    const step = this.tutorialSteps[this.currentTutorialStep];
-    return {
-      description: step.description,
-      hint: step.hint || ''
-    };
+    // Zone2 tutorial
+    if (this.isInZone2Mode && this.currentZone2Step < this.zone2Steps.length) {
+      const step = this.zone2Steps[this.currentZone2Step];
+      return {
+        description: step.description,
+        hint: step.hint || ''
+      };
+    }
+
+    return null;
   }
 
   getLastEvent(): GameEvent | null {
@@ -313,7 +427,7 @@ export class Game {
   }
 
   isInTutorial(): boolean {
-    return this.isTutorialMode;
+    return this.isTutorialMode || this.isInZone2Mode;
   }
 
   setReadlineInterface(rl: readline.Interface): void {
@@ -360,7 +474,9 @@ export class Game {
 
     // Apply tutorial progress
     this.currentTutorialStep = saveData.tutorialStep || 0;
+    this.currentZone2Step = saveData.zone2Step || 0;
     this.isTutorialMode = saveData.isTutorialMode !== undefined ? saveData.isTutorialMode : true;
+    this.isInZone2Mode = saveData.isInZone2Mode !== undefined ? saveData.isInZone2Mode : false;
 
     // Apply completed zones and unlocked commands
     this.completedZones = saveData.completedZones || [];
@@ -394,7 +510,9 @@ export class Game {
     return await this.saveManager.save(
       this.state,
       this.currentTutorialStep,
+      this.currentZone2Step,
       this.isTutorialMode,
+      this.isInZone2Mode,
       this.completedZones,
       this.unlockedCommands,
       this.filesystem.getDeletedHostileFiles(),
@@ -408,6 +526,54 @@ export class Game {
 
   getUnlockedCommands(): string[] {
     return [...this.unlockedCommands];
+  }
+
+  async setupDebugZone(zone: string): Promise<void> {
+    switch (zone) {
+      case 'zone1':
+        // Reset to zone1 start
+        this.isTutorialMode = true;
+        this.isInZone2Mode = false;
+        this.currentTutorialStep = 0;
+        this.currentZone2Step = 0;
+        this.completedZones = [];
+        this.filesystem.changeDirectory('/');
+        break;
+
+      case 'zone2':
+        // Set up for zone2 start
+        this.isTutorialMode = false;
+        this.isInZone2Mode = true;
+        this.currentTutorialStep = this.tutorialSteps.length;
+        this.currentZone2Step = 0;
+        this.completedZones = ['zone1'];
+        // Unlock zone2 and set deleted files to allow access
+        this.filesystem.setDeletedHostileFiles(['virus.exe', 'malware.dat']);
+        this.filesystem.unlockZone2();
+        this.filesystem.changeDirectory('/zone2');
+        break;
+
+      case 'zone3':
+        // Set up for zone3 start (future implementation)
+        this.isTutorialMode = false;
+        this.isInZone2Mode = false;
+        this.currentTutorialStep = this.tutorialSteps.length;
+        this.currentZone2Step = this.zone2Steps.length;
+        this.completedZones = ['zone1', 'zone2'];
+        // Unlock zone2 and set all hostile files as deleted
+        this.filesystem.setDeletedHostileFiles(['virus.exe', 'malware.dat', 'quantum_virus.exe']);
+        this.filesystem.unlockZone2();
+        this.filesystem.changeDirectory('/');
+        break;
+
+      default:
+        console.log(`Unknown zone: ${zone}. Defaulting to zone1.`);
+        await this.setupDebugZone('zone1');
+        break;
+    }
+
+    // Update current path in state
+    this.state.currentPath = this.filesystem.pwd();
   }
 
 }

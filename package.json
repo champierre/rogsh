@@ -10,6 +10,9 @@
   "scripts": {
     "dev": "tsx src/index-simple.ts --dev",
     "dev:watch": "tsx watch src/index-simple.ts --dev",
+    "dev:zone1": "tsx src/index-simple.ts --dev --start-zone=zone1",
+    "dev:zone2": "tsx src/index-simple.ts --dev --start-zone=zone2",
+    "dev:zone3": "tsx src/index-simple.ts --dev --start-zone=zone3",
     "dev:old": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index-simple.js",

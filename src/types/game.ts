@@ -48,3 +48,11 @@ export interface Zone1Step {
   hint?: string;
   onComplete?: () => void;
 }
+
+export interface Zone2Step {
+  id: string;
+  description: string;
+  expectedCommand?: string;
+  hint?: string;
+  onComplete?: () => void;
+}

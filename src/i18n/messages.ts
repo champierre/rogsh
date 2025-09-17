@@ -89,6 +89,32 @@ export interface Messages {
       hint: string;
     };
   };
+  zone2: {
+    welcome: {
+      description: string;
+      hint: string;
+    };
+    readInstructions: {
+      description: string;
+      hint: string;
+    };
+    followPrimes: {
+      description: string;
+      hint: string;
+    };
+    findHidden: {
+      description: string;
+      hint: string;
+    };
+    eliminateTarget: {
+      description: string;
+      hint: string;
+    };
+    complete: {
+      description: string;
+      hint: string;
+    };
+  };
   commands: {
     notFound: string;
     notImplemented: string;
@@ -140,6 +166,7 @@ export interface Messages {
   };
   zones: {
     readme: string;
+    zone2readme: string;
   };
 }
 
@@ -235,6 +262,32 @@ export const messages: { en: Messages; ja: Messages } = {
         hint: 'Type cd zone2 to move to zone2'
       }
     },
+    zone2: {
+      welcome: {
+        description: 'Zone 2 - Quantum Layer. Advanced challenge activated.',
+        hint: 'Type: help'
+      },
+      readInstructions: {
+        description: 'Study the encrypted directive carefully.',
+        hint: 'Type: help'
+      },
+      followPrimes: {
+        description: 'Navigate through numbered directories. Mathematical intuition required.',
+        hint: 'Type: help'
+      },
+      findHidden: {
+        description: 'Search for concealed quantum anomalies.',
+        hint: 'Type: help'
+      },
+      eliminateTarget: {
+        description: 'Quantum virus detected. Immediate elimination required.',
+        hint: 'Type: help'
+      },
+      complete: {
+        description: 'Zone 2 secured. Quantum containment restored.',
+        hint: 'Mission accomplished'
+      }
+    },
     commands: {
       notFound: 'Command not found',
       notImplemented: 'Command not implemented',
@@ -306,7 +359,28 @@ Navigation Commands:
 
 INTEL: Second target is concealed. Use advanced scanning.
 
-Complete your mission to secure Zone 1.`
+Complete your mission to secure Zone 1.`,
+      zone2readme: `QUANTUM BREACH CONTAINMENT PROTOCOL
+===================================
+
+Agent-7, the quantum layer has been compromised.
+
+ENCRYPTED DIRECTIVE [CLEARANCE: OMEGA]:
+"When numbers dance in digital space,
+Seek those untouched by division's embrace.
+Where pure integers stand alone and true,
+The path to salvation reveals to you.
+
+Follow the sacred sequence deep,
+Until no children directories you keep.
+In shadows hidden from casual sight,
+Quantum corruption awaits your might."
+
+WARNING: Navigation requires mathematical intuition.
+Standard protocols insufficient.
+Think beyond the obvious.
+
+[END TRANSMISSION]`
     }
   },
   ja: {
@@ -400,6 +474,32 @@ Complete your mission to secure Zone 1.`
         hint: '入力: cd zone2'
       }
     },
+    zone2: {
+      welcome: {
+        description: 'ゾーン2 - 量子レイヤー。高度なチャレンジが開始されました。',
+        hint: '入力: help'
+      },
+      readInstructions: {
+        description: '暗号化された指令を注意深く研究してください。',
+        hint: '入力: help'
+      },
+      followPrimes: {
+        description: '数字ディレクトリを移動します。数学的直感が必要です。',
+        hint: '入力: help'
+      },
+      findHidden: {
+        description: '隠された量子異常を検索してください。',
+        hint: '入力: help'
+      },
+      eliminateTarget: {
+        description: '量子ウイルスを検出。即座の排除が必要です。',
+        hint: '入力: help'
+      },
+      complete: {
+        description: 'ゾーン2確保完了。量子封じ込め復旧しました。',
+        hint: 'ミッション達成'
+      }
+    },
     commands: {
       notFound: 'コマンドが見つかりません',
       notImplemented: 'コマンドは実装されていません',
@@ -471,7 +571,28 @@ Complete your mission to secure Zone 1.`
 
 情報：第二ターゲットは隠蔽されている。高度スキャンを使用せよ。
 
-ゾーン1の確保のため任務を完遂せよ。`
+ゾーン1の確保のため任務を完遂せよ。`,
+      zone2readme: `量子ブリーチ封じ込めプロトコル
+===============================
+
+エージェント-7、量子レイヤーが侵害されました。
+
+暗号化指令 [クリアランス: OMEGA]:
+「デジタル空間で踊る数字たち、
+除算の手に触れぬものを求めよ。
+純粋なる整数が孤高に立つ処、
+救済への道が汝に現れん。
+
+神聖なる数列を深く追い、
+子のディレクトリなき場所まで。
+目に見えぬ影の奥に潜みて、
+量子の腐敗が汝を待ちぬ。」
+
+警告: ナビゲーションには数学的直感が必要。
+標準プロトコルでは不十分。
+自明を超えて思考せよ。
+
+[送信終了]`
     }
   }
 };

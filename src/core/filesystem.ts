@@ -6,6 +6,7 @@ export class VirtualFileSystem {
   private currentDirectory: VirtualDirectory;
   private locale: 'ja' | 'en';
   private zone2: VirtualDirectory | null = null;
+  private zone3: VirtualDirectory | null = null;
   private deletedHostileFiles: Set<string> = new Set();
 
   constructor(locale: 'ja' | 'en' = 'en') {
@@ -65,62 +66,93 @@ export class VirtualFileSystem {
     // Create zone2 structure but don't add to root yet (unlocked when hostile files are deleted)
     this.zone2 = this.createDirectory('zone2', '/zone2');
 
-    // Create directories in zone2
-    const zone2_data = this.createDirectory('data', '/zone2/data');
-    const zone2_cache = this.createDirectory('cache', '/zone2/cache');
-    const zone2_system = this.createDirectory('system', '/zone2/system');
+    // Create zone3 structure but don't add to root yet (unlocked when quantum_virus.exe is deleted)
+    this.zone3 = this.createDirectory('zone3', '/zone3');
 
-    this.zone2.subdirectories.set('data', zone2_data);
-    this.zone2.subdirectories.set('cache', zone2_cache);
-    this.zone2.subdirectories.set('system', zone2_system);
+    // Add zone3 README
+    const zone3ReadmeContent = this.locale === 'ja'
+      ? `ZONE 3 - DEEP LAYER ACCESS
+=============================
 
-    zone2_data.parent = this.zone2;
-    zone2_cache.parent = this.zone2;
-    zone2_system.parent = this.zone2;
+Agent-7, Zone 3へようこそ。
+
+現在この領域は開発中です。
+今後のアップデートをお待ちください。
+
+TO BE CONTINUED...`
+      : `ZONE 3 - DEEP LAYER ACCESS
+=============================
+
+Agent-7, welcome to Zone 3.
+
+This area is currently under development.
+Please wait for future updates.
+
+TO BE CONTINUED...`;
+
+    this.zone3.files.set('README.txt', this.createFile(
+      'README.txt',
+      'file',
+      zone3ReadmeContent
+    ));
+
+    // Create numbered directories in zone2 (prime number puzzle)
+    // Path: 2 -> 3 -> 5 (all primes) -> hidden folder with enemy
+    const dir2 = this.createDirectory('2', '/zone2/2');
+    const dir4 = this.createDirectory('4', '/zone2/4');
+    const dir6 = this.createDirectory('6', '/zone2/6');
+
+    this.zone2.subdirectories.set('2', dir2);
+    this.zone2.subdirectories.set('4', dir4);
+    this.zone2.subdirectories.set('6', dir6);
+
+    dir2.parent = this.zone2;
+    dir4.parent = this.zone2;
+    dir6.parent = this.zone2;
+
+    // Second level: from dir2 (prime)
+    const dir3 = this.createDirectory('3', '/zone2/2/3');
+    const dir8 = this.createDirectory('8', '/zone2/2/8');
+
+    dir2.subdirectories.set('3', dir3);
+    dir2.subdirectories.set('8', dir8);
+
+    dir3.parent = dir2;
+    dir8.parent = dir2;
+
+    // Third level: from dir3 (prime) - this is the deepest level
+    const dir5 = this.createDirectory('5', '/zone2/2/3/5');
+    const dir9 = this.createDirectory('9', '/zone2/2/3/9');
+
+    dir3.subdirectories.set('5', dir5);
+    dir3.subdirectories.set('9', dir9);
+
+    dir5.parent = dir3;
+    dir9.parent = dir3;
+
+    // Hidden directory in dir5 (prime path: 2->3->5)
+    const quantumDir = this.createDirectory('.quantum', '/zone2/2/3/5/.quantum');
+    dir5.subdirectories.set('.quantum', quantumDir);
+    quantumDir.parent = dir5;
 
     // Add zone2 files
     this.zone2.files.set('README.txt', this.createFile(
       'README.txt',
       'file',
-      `ZONE 2 STATUS REPORT
-====================
-
-Agent-7, welcome to Zone 2 operations area.
-
-CURRENT THREAT ASSESSMENT:
-- Multiple corrupted processes detected
-- System stability at 67%
-- Advanced malware signatures present
-
-OBJECTIVES:
-- Investigate data corruption in /data directory
-- Neutralize hostile processes
-- Restore system integrity above 85%
-
-Zone 2 contains more sophisticated threats.
-Proceed with enhanced caution protocols.`
+      messages[this.locale].zones.zone2readme
     ));
 
-    // Add corrupted files in zone2
-    zone2_data.files.set('corrupt.db', this.createFile(
-      'corrupt.db',
+    // Add enemy file in hidden directory
+    quantumDir.files.set('quantum_virus.exe', this.createFile(
+      'quantum_virus.exe',
       'file',
-      `[DATABASE CORRUPTION DETECTED]
-CRITICAL: Core data compromised
-This file contains infected database entries.
-Advanced removal protocols required.`,
-      { isCorrupted: true, threatLevel: 7 }
+      `[QUANTUM VIRUS DETECTED]
+THREAT LEVEL: MAXIMUM
+This advanced malware has breached quantum containment.
+Immediate removal required to prevent cascade failure.`,
+      { isCorrupted: true, threatLevel: 10 }
     ));
 
-    zone2_cache.files.set('malware.cache', this.createFile(
-      'malware.cache',
-      'file',
-      `[MALWARE CACHE DETECTED]
-WARNING: Persistent threat vector
-Automated replication system active
-Requires immediate elimination.`,
-      { isCorrupted: true, threatLevel: 6 }
-    ));
     
     // Create tutorial directories in zone1
     const logs = this.createDirectory('logs', '/zone1/logs');
@@ -370,12 +402,17 @@ Remove immediately to secure Zone 1.`,
     const success = this.currentDirectory.files.delete(filename);
 
     // Track hostile file deletions
-    if (success && file && (filename === 'virus.exe' || filename === 'malware.dat')) {
+    if (success && file && (filename === 'virus.exe' || filename === 'malware.dat' || filename === 'quantum_virus.exe')) {
       this.deletedHostileFiles.add(filename);
 
-      // Check if both hostile files have been deleted
+      // Check if zone1 hostile files have been deleted to unlock zone2
       if (this.deletedHostileFiles.has('virus.exe') && this.deletedHostileFiles.has('malware.dat')) {
         this.unlockZone2();
+      }
+
+      // Check if quantum_virus.exe has been deleted to unlock zone3
+      if (this.deletedHostileFiles.has('quantum_virus.exe')) {
+        this.unlockZone3();
       }
     }
 
@@ -389,12 +426,27 @@ Remove immediately to secure Zone 1.`,
     }
   }
 
+  unlockZone3(): void {
+    if (this.zone3 && !this.root.subdirectories.has('zone3')) {
+      this.root.subdirectories.set('zone3', this.zone3);
+      this.zone3.parent = this.root;
+    }
+  }
+
   isZone2Unlocked(): boolean {
     return this.root.subdirectories.has('zone2');
   }
 
+  isZone3Unlocked(): boolean {
+    return this.root.subdirectories.has('zone3');
+  }
+
   areAllHostileFilesDeleted(): boolean {
     return this.deletedHostileFiles.has('virus.exe') && this.deletedHostileFiles.has('malware.dat');
+  }
+
+  isZone2Completed(): boolean {
+    return this.deletedHostileFiles.has('quantum_virus.exe');
   }
 
   getDeletedHostileFiles(): string[] {
@@ -407,6 +459,11 @@ Remove immediately to secure Zone 1.`,
     // Check if zone2 should be unlocked based on loaded state
     if (this.areAllHostileFilesDeleted()) {
       this.unlockZone2();
+    }
+
+    // Check if zone3 should be unlocked based on loaded state
+    if (this.deletedHostileFiles.has('quantum_virus.exe')) {
+      this.unlockZone3();
     }
   }
 }
