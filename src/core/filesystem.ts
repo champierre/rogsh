@@ -7,6 +7,7 @@ export class VirtualFileSystem {
   private locale: 'ja' | 'en';
   private zone2: VirtualDirectory | null = null;
   private zone3: VirtualDirectory | null = null;
+  private quantumDir: VirtualDirectory | null = null;
   private deletedHostileFiles: Set<string> = new Set();
 
   constructor(locale: 'ja' | 'en' = 'en') {
@@ -152,6 +153,9 @@ This advanced malware has breached quantum containment.
 Immediate removal required to prevent cascade failure.`,
       { isCorrupted: true, threatLevel: 10 }
     ));
+
+    // Store reference to quantum directory for later access
+    this.quantumDir = quantumDir;
 
     
     // Create tutorial directories in zone1
@@ -410,9 +414,10 @@ Remove immediately to secure Zone 1.`,
         this.unlockZone2();
       }
 
-      // Check if quantum_virus.exe has been deleted to unlock zone3
+      // Check if quantum_virus.exe has been deleted to unlock zone3 and add prime directories
       if (this.deletedHostileFiles.has('quantum_virus.exe')) {
         this.unlockZone3();
+        this.addPrimeDirectories();
       }
     }
 
@@ -431,6 +436,68 @@ Remove immediately to secure Zone 1.`,
       this.root.subdirectories.set('zone3', this.zone3);
       this.zone3.parent = this.root;
     }
+  }
+
+  addPrimeDirectories(): void {
+    if (!this.quantumDir || this.quantumDir.subdirectories.size > 0) {
+      return; // Already added or quantum directory not available
+    }
+
+    // Add new directories with hidden prime numbers
+    // These contain 2-digit and 3-digit primes mixed with other characters
+    const primeDir1 = this.createDirectory('zU17xq71egh', '/zone2/2/3/5/.quantum/zU17xq71egh'); // contains 17, 71
+    const primeDir2 = this.createDirectory('m23nP101wz', '/zone2/2/3/5/.quantum/m23nP101wz');   // contains 23, 101
+    const primeDir3 = this.createDirectory('k41fR139j9', '/zone2/2/3/5/.quantum/k41fR139j9');   // contains 41, 139
+    const primeDir4 = this.createDirectory('x67hT211qv', '/zone2/2/3/5/.quantum/x67hT211qv');   // contains 67, 211
+
+    this.quantumDir.subdirectories.set('zU17xq71egh', primeDir1);
+    this.quantumDir.subdirectories.set('m23nP101wz', primeDir2);
+    this.quantumDir.subdirectories.set('k41fR139j9', primeDir3);
+    this.quantumDir.subdirectories.set('x67hT211qv', primeDir4);
+
+    primeDir1.parent = this.quantumDir;
+    primeDir2.parent = this.quantumDir;
+    primeDir3.parent = this.quantumDir;
+    primeDir4.parent = this.quantumDir;
+
+    // Add README files in each prime directory with cryptic clues
+    const primeClue = this.locale === 'ja'
+      ? `深層数学的パターン検出システム
+
+エージェント-7、このディレクトリ名には数学的意味が隠されています。
+
+ヒント: 除数を持たない純粋な整数を探せ
+より大きな素数が、より深い真実へと導く`
+      : `DEEP MATHEMATICAL PATTERN DETECTION SYSTEM
+
+Agent-7, this directory name contains mathematical significance.
+
+HINT: Seek pure integers that have no divisors
+Larger primes lead to deeper truths`;
+
+    primeDir1.files.set('analysis.log', this.createFile(
+      'analysis.log',
+      'file',
+      primeClue
+    ));
+
+    primeDir2.files.set('analysis.log', this.createFile(
+      'analysis.log',
+      'file',
+      primeClue
+    ));
+
+    primeDir3.files.set('analysis.log', this.createFile(
+      'analysis.log',
+      'file',
+      primeClue
+    ));
+
+    primeDir4.files.set('analysis.log', this.createFile(
+      'analysis.log',
+      'file',
+      primeClue
+    ));
   }
 
   isZone2Unlocked(): boolean {
@@ -464,6 +531,7 @@ Remove immediately to secure Zone 1.`,
     // Check if zone3 should be unlocked based on loaded state
     if (this.deletedHostileFiles.has('quantum_virus.exe')) {
       this.unlockZone3();
+      this.addPrimeDirectories();
     }
   }
 }
