@@ -158,16 +158,18 @@ export const getZone1Hint = (flags: Zone1ProgressFlags, locale: 'ja' | 'en') => 
     return { description: msg.readReadme, key: 'zone1.readReadme' };
   }
 
-  if (!flags.enteredTmp && !flags.removedVirus) {
-    return { description: msg.navigateToTmp, key: 'zone1.navigateToTmp' };
-  }
-
-  if (!flags.listedTmp && !flags.removedVirus) {
-    return { description: msg.confirmTmpLocation, key: 'zone1.confirmTmpLocation' };
-  }
-
   if (!flags.removedVirus) {
-    return { description: msg.returnToZone1, key: 'zone1.returnToZone1' };
+    const inTmp = flags.lastZone1Directory === '/zone1/tmp';
+    if (!flags.enteredTmp) {
+      return { description: msg.navigateToTmp, key: 'zone1.navigateToTmp' };
+    }
+    if (inTmp && !flags.listedTmp) {
+      return { description: msg.confirmTmpLocation, key: 'zone1.confirmTmpLocation' };
+    }
+    if (inTmp) {
+      return { description: msg.returnToZone1, key: 'zone1.returnToZone1' };
+    }
+    return { description: msg.navigateToTmp, key: 'zone1.navigateToTmp' };
   }
 
   if (!flags.enteredLogs) {
