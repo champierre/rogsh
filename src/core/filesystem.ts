@@ -57,6 +57,13 @@ export class VirtualFileSystem {
   }
 
   private initializeFilesystem(): void {
+    this.initializeZone1();
+    this.initializeZone2();
+    this.initializeZone3();
+    this.initializeRootFiles();
+  }
+
+  private initializeZone1(): void {
     // Create zone1 structure directly under root
     const zone1 = this.createDirectory('zone1', '/zone1');
 
@@ -64,9 +71,19 @@ export class VirtualFileSystem {
     this.root.subdirectories.set('zone1', zone1);
     zone1.parent = this.root;
 
+    // Add zone1 tutorial directories
+    this.createZone1TutorialDirectories(zone1);
+  }
+
+  private initializeZone2(): void {
     // Create zone2 structure but don't add to root yet (unlocked when hostile files are deleted)
     this.zone2 = this.createDirectory('zone2', '/zone2');
 
+    // Initialize zone2 content
+    this.createZone2Content();
+  }
+
+  private initializeZone3(): void {
     // Create zone3 structure but don't add to root yet (unlocked when quantum_virus.exe is deleted)
     this.zone3 = this.createDirectory('zone3', '/zone3');
 
@@ -96,6 +113,10 @@ TO BE CONTINUED...`;
       'file',
       zone3ReadmeContent
     ));
+  }
+
+  private createZone2Content(): void {
+    if (!this.zone2) return;
 
     // Create numbered directories in zone2 (prime number puzzle)
     // Path: 2 -> 3 -> 5 (all primes) -> hidden folder with enemy
@@ -156,8 +177,9 @@ Immediate removal required to prevent cascade failure.`,
 
     // Store reference to quantum directory for later access
     this.hiddenDirZone2 = hiddenDirZone2;
+  }
 
-    
+  private createZone1TutorialDirectories(zone1: VirtualDirectory): void {
     // Create tutorial directories in zone1
     const logs = this.createDirectory('logs', '/zone1/logs');
     const tmp = this.createDirectory('tmp', '/zone1/tmp');
@@ -220,8 +242,9 @@ This file is corrupting the system!
 Remove immediately to secure Zone 1.`,
       { isCorrupted: true, threatLevel: 5 }
     ));
-    
-    
+  }
+
+  private initializeRootFiles(): void {
     // Start at root directory
     this.currentDirectory = this.root;
   }
@@ -395,7 +418,6 @@ Remove immediately to secure Zone 1.`,
       // Check if all zone2 hostile files have been deleted to unlock zone3 and add prime directories
       if (this.deletedHostileFiles.has('quantum_virus.exe') && this.deletedHostileFiles.has('data_corruptor.bin') && this.deletedHostileFiles.has('system_leech.dll')) {
         this.unlockZone3();
-        this.addPrimeDirectories();
       }
     }
 
@@ -416,24 +438,6 @@ Remove immediately to secure Zone 1.`,
     }
   }
 
-  addPrimeDirectories(): void {
-    if (!this.hiddenDirZone2 || this.hiddenDirZone2.subdirectories.size > 0) {
-      return; // Already added or quantum directory not available
-    }
-
-    // Add new directories with hidden prime numbers
-    // These contain 2-digit and 3-digit primes mixed with other characters
-    const primeDir1 = this.createDirectory('zU17xq71egh', '/zone2/2/3/5/.hidden/zU17xq71egh'); // contains 17, 71
-    const primeDir2 = this.createDirectory('m23nP101wz', '/zone2/2/3/5/.hidden/m23nP101wz');   // contains 23, 101
-
-    this.hiddenDirZone2.subdirectories.set('zU17xq71egh', primeDir1);
-    this.hiddenDirZone2.subdirectories.set('m23nP101wz', primeDir2);
-
-    primeDir1.parent = this.hiddenDirZone2;
-    primeDir2.parent = this.hiddenDirZone2;
-
-
-  }
 
   addCorruptedDirectories(): void {
     if (!this.hiddenDirZone2) {
@@ -616,7 +620,6 @@ Must be eliminated to complete zone clearance.`,
     // Check if zone3 should be unlocked based on loaded state
     if (this.deletedHostileFiles.has('quantum_virus.exe') && this.deletedHostileFiles.has('data_corruptor.bin') && this.deletedHostileFiles.has('system_leech.dll')) {
       this.unlockZone3();
-      this.addPrimeDirectories();
     }
   }
 }

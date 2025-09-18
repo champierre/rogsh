@@ -1,6 +1,7 @@
 import { VirtualFileSystem } from './filesystem.js';
 import { GameState } from '../types/game.js';
 import { messages } from '../i18n/messages.js';
+import { formatWithMarkup, getFileColor } from '../utils/formatting.js';
 import chalk from 'chalk';
 
 export interface CommandResult {
@@ -22,23 +23,6 @@ export class CommandParser {
   private tutorialProvider: (() => TutorialHintInfo | null) | null;
   private showHintKeys: boolean;
 
-  private formatWithMarkup(
-    text: string,
-    baseColor: (input: string) => string,
-    emphasisColor: (input: string) => string
-  ): string {
-    const segments = text.split(/(\*\*[^*]+\*\*)/g);
-    return segments
-      .filter(segment => segment.length > 0)
-      .map(segment => {
-        if (segment.startsWith('**') && segment.endsWith('**')) {
-          const inner = segment.slice(2, -2);
-          return emphasisColor(inner);
-        }
-        return baseColor(segment);
-      })
-      .join('');
-  }
   constructor(filesystem: VirtualFileSystem, locale: 'ja' | 'en' = 'en') {
     this.filesystem = filesystem;
     this.locale = locale;
@@ -116,15 +100,7 @@ export class CommandParser {
           const file = item as any;
           const perms = this.formatPermissions(file.permissions);
           const size = file.size.toString().padStart(5);
-          const color = file.isCorrupted ? chalk.red :
-                        file.name === 'data_corruptor.bin' ? chalk.red :
-                        file.name === 'virus.exe' ? chalk.red :
-                        file.name === 'malware.dat' ? chalk.red :
-                        file.name === 'quantum_virus.exe' ? chalk.red :
-                        file.name === 'system_leech.dll' ? chalk.red :
-                        file.name.endsWith('.sh') ? chalk.green :
-                        file.name === 'README.txt' ? chalk.yellow :
-                        file.isHidden ? chalk.gray : chalk.white;
+          const color = getFileColor(file);
           output += `${perms} agent cluster ${size} ${color(file.name)}`;
           if (file.isCorrupted) output += chalk.red(' [CORRUPTED]');
           if (file.threatLevel) output += chalk.yellow(` [THREAT:${file.threatLevel}]`);
@@ -135,15 +111,7 @@ export class CommandParser {
           output += chalk.blue(`${item.name}/  `);
         } else {
           const file = item as any;
-          const color = file.isCorrupted ? chalk.red :
-                        file.name === 'data_corruptor.bin' ? chalk.red :
-                        file.name === 'virus.exe' ? chalk.red :
-                        file.name === 'malware.dat' ? chalk.red :
-                        file.name === 'quantum_virus.exe' ? chalk.red :
-                        file.name === 'system_leech.dll' ? chalk.red :
-                        file.name.endsWith('.sh') ? chalk.green :
-                        file.name === 'README.txt' ? chalk.yellow :
-                        file.isHidden ? chalk.gray : chalk.white;
+          const color = getFileColor(file);
           output += color(file.name) + '  ';
         }
       }
@@ -376,7 +344,7 @@ export class CommandParser {
       const description = tutorial.description.trim();
       const base = (value: string) => chalk.cyan(value);
       const emphasis = (value: string) => chalk.cyan.bold(value);
-      let output = this.formatWithMarkup(description, base, emphasis);
+      let output = formatWithMarkup(description, base, emphasis);
       if (this.showHintKeys && tutorial.key) {
         output += `\n\n${chalk.gray(`[hint key: ${tutorial.key}]`)}`;
       }
@@ -392,7 +360,7 @@ export class CommandParser {
     const base = (value: string) => chalk.cyan(value);
     const emphasis = (value: string) => chalk.cyan.bold(value);
     return {
-      output: this.formatWithMarkup(fallback, base, emphasis),
+      output: formatWithMarkup(fallback, base, emphasis),
       success: true,
       energyCost: 0
     };

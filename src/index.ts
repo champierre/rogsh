@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import { Game } from './core/game.js';
 import { messages } from './i18n/messages.js';
 import { getLocale } from './i18n/locale.js';
+import { formatGreenWithBold } from './utils/formatting.js';
 import * as readline from 'readline/promises';
 import { stdin as input, stdout as output } from 'process';
 
@@ -66,71 +67,7 @@ class rogsh {
 
     }
     
-    while (this.isRunning) {
-      try {
-        // Display prompt and get input
-        const prompt = this.game.getPrompt();
-        const input = await this.rl.question(prompt);
-
-        // Handle exit commands
-        if (input.trim() === 'exit' || input.trim() === 'quit') {
-          await this.exit();
-          break;
-        }
-
-        // Process command
-        const result = await this.game.processCommand(input.trim());
-
-
-        // Display output
-        if (result.output) {
-          // Remove trailing newlines to avoid double spacing
-          const trimmedOutput = result.output.replace(/\n+$/, '');
-          console.log(trimmedOutput);
-        }
-
-        // Zone1の場合は自動的にヒントを表示（コマンド出力の後）
-        // ただし、helpコマンドの場合は重複を避けるため表示しない
-        const isHelpCommand = input.trim().toLowerCase() === 'help';
-        const zone1Hint = this.game.getZone1HintFormatted();
-        if (zone1Hint && !isHelpCommand) {
-          console.log(); // コマンド出力とヒントの間に空行
-          console.log(zone1Hint);
-        }
-
-        // Zone2の場合は初回のみヘルプ案内を表示
-        const zone2Notification = this.game.getZone2HelpNotification();
-        if (zone2Notification) {
-          console.log(); // コマンド出力との間に空行
-          console.log(zone2Notification);
-        }
-
-        // 常に空行を追加（コマンド実行後）
-        if (result.output || zone1Hint || zone2Notification || result.success) {
-          console.log();
-        }
-
-        // Check if we should exit (zone2 reached)
-        if (result.shouldExit) {
-          await this.exit();
-          break;
-        }
-
-        // Check if game is over
-        if (this.game.getState().isGameOver) {
-          this.displayGameOver();
-          await this.exit();
-          break;
-        }
-      } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-          // Handle Ctrl+C
-          await this.exit();
-          break;
-        }
-        console.error(chalk.red('Error:'), error);
-      }
-    }
+    await this.runGameLoop();
   }
 
   private async startFromZone(zone: string): Promise<void> {
@@ -142,6 +79,10 @@ class rogsh {
     await this.game.setupDebugZone(zone);
 
     // Start main game loop
+    await this.runGameLoop();
+  }
+
+  private async runGameLoop(): Promise<void> {
     while (this.isRunning) {
       try {
         // Display prompt and get input
@@ -156,7 +97,6 @@ class rogsh {
 
         // Process command
         const result = await this.game.processCommand(input.trim());
-
 
         // Display output
         if (result.output) {
@@ -285,12 +225,8 @@ class rogsh {
     await this.typewriterEffect(msg.welcome.description2, chalk.cyan, 25);
     console.log();
     
-    console.log(this.formatWithMarkup(msg.welcome.helpHint,
-      (text: string) => chalk.green(text),
-      (text: string) => chalk.green.bold(text)));
-    console.log(this.formatWithMarkup(msg.welcome.exitHint,
-      (text: string) => chalk.green(text),
-      (text: string) => chalk.green.bold(text)));
+    console.log(formatGreenWithBold(msg.welcome.helpHint));
+    console.log(formatGreenWithBold(msg.welcome.exitHint));
     console.log();
   }
   
@@ -339,23 +275,6 @@ class rogsh {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  private formatWithMarkup(
-    text: string,
-    baseColor: (input: string) => string,
-    emphasisColor: (input: string) => string
-  ): string {
-    const segments = text.split(/(\*\*[^*]+\*\*)/g);
-    return segments
-      .filter(segment => segment.length > 0)
-      .map(segment => {
-        if (segment.startsWith('**') && segment.endsWith('**')) {
-          const inner = segment.slice(2, -2);
-          return emphasisColor(inner);
-        }
-        return baseColor(segment);
-      })
-      .join('');
-  }
 
   private async typewriterEffect(text: string, chalkFn: any, speed: number = 30): Promise<void> {
     const lines = text.split('\n');

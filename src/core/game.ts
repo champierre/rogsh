@@ -4,6 +4,7 @@ import { CommandParser } from './commands.js';
 import { SaveManager, SaveData } from './saveManager.js';
 import { messages } from '../i18n/messages.js';
 import { getLocale } from '../i18n/locale.js';
+import { formatWithMarkup } from '../utils/formatting.js';
 import {
   createInitialZone1Flags,
   updateZone1Flags,
@@ -274,22 +275,11 @@ export class Game {
       return null;
     }
 
-    // formatWithMarkup風にフォーマット
-    const formatWithMarkup = (text: string) => {
-      const segments = text.split(/(\*\*[^*]+\*\*)/g);
-      return segments
-        .filter(segment => segment.length > 0)
-        .map(segment => {
-          if (segment.startsWith('**') && segment.endsWith('**')) {
-            const inner = segment.slice(2, -2);
-            return chalk.cyan.bold(inner);
-          }
-          return chalk.cyan(segment);
-        })
-        .join('');
-    };
-
-    return formatWithMarkup(hint.description);
+    return formatWithMarkup(
+      hint.description,
+      (text: string) => chalk.cyan(text),
+      (text: string) => chalk.cyan.bold(text)
+    );
   }
 
   getZone2HelpNotification(): string | null {
@@ -302,25 +292,15 @@ export class Game {
     // 初回表示後はフラグを立てる
     this.eventFlags.zone2.shownHelpNotification = true;
 
-    const formatWithMarkup = (text: string) => {
-      const segments = text.split(/(\*\*[^*]+\*\*)/g);
-      return segments
-        .filter(segment => segment.length > 0)
-        .map(segment => {
-          if (segment.startsWith('**') && segment.endsWith('**')) {
-            const inner = segment.slice(2, -2);
-            return chalk.cyan.bold(inner);
-          }
-          return chalk.cyan(segment);
-        })
-        .join('');
-    };
-
     const msg = this.locale === 'ja'
       ? 'Zone 2では自動ヒントは表示されません。**help** コマンドでヒントを確認できます。'
       : 'Zone 2 no longer shows automatic hints. Use **help** command to view hints.';
 
-    return chalk.blue('💡 ') + formatWithMarkup(msg);
+    return chalk.blue('💡 ') + formatWithMarkup(
+      msg,
+      (text: string) => chalk.cyan(text),
+      (text: string) => chalk.cyan.bold(text)
+    );
   }
 
   getTutorialMessage(): { description: string; hint?: string } | null {
