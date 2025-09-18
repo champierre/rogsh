@@ -23,15 +23,22 @@ export class CommandParser {
   private tutorialProvider: (() => TutorialHintInfo | null) | null;
   private showHintKeys: boolean;
 
-  private formatWithMarkup(text: string, colorFn: (input: string) => string): string {
+  private formatWithMarkup(
+    text: string,
+    baseColor: (input: string) => string,
+    emphasisColor: (input: string) => string
+  ): string {
     const segments = text.split(/(\*\*[^*]+\*\*)/g);
-    return segments.map(segment => {
-      if (segment.startsWith('**') && segment.endsWith('**')) {
-        const inner = segment.slice(2, -2);
-        return colorFn(chalk.bold(inner));
-      }
-      return colorFn(segment);
-    }).join('');
+    return segments
+      .filter(segment => segment.length > 0)
+      .map(segment => {
+        if (segment.startsWith('**') && segment.endsWith('**')) {
+          const inner = segment.slice(2, -2);
+          return emphasisColor(inner);
+        }
+        return baseColor(segment);
+      })
+      .join('');
   }
   constructor(filesystem: VirtualFileSystem, locale: 'ja' | 'en' = 'en') {
     this.filesystem = filesystem;
@@ -373,7 +380,9 @@ export class CommandParser {
 
     if (tutorial) {
       const description = tutorial.description.trim();
-      let output = this.formatWithMarkup(description, chalk.hex("#00a1e0"));
+      const base = (value: string) => chalk.blueBright(value);
+      const emphasis = (value: string) => chalk.blueBright.bold(value);
+      let output = this.formatWithMarkup(description, base, emphasis);
       if (this.showHintKeys && tutorial.key) {
         output += `\n\n${chalk.gray(`[hint key: ${tutorial.key}]`)}`;
       }
@@ -386,8 +395,10 @@ export class CommandParser {
 
     const fallback = msg.help.noHints;
 
+    const base = (value: string) => chalk.blueBright(value);
+    const emphasis = (value: string) => chalk.blueBright.bold(value);
     return {
-      output: this.formatWithMarkup(fallback, chalk.hex("#6c6c6c")),
+      output: this.formatWithMarkup(fallback, base, emphasis),
       success: true,
       energyCost: 0
     };
