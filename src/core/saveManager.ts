@@ -152,7 +152,7 @@ export class SaveManager {
 
       // Validate save data version
       if (!saveData.version) {
-        console.log(chalk.yellow('⚠️  Old save file format detected.'));
+        console.log(chalk.yellow('[WARNING] Old save file format detected.'));
         return null;
       }
 

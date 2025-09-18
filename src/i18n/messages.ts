@@ -108,9 +108,9 @@ export const messages: { en: Messages; ja: Messages } = {
       title: 'Unix Command Learning Roguelike v0.1.0',
       subtitle: '═══ SYSTEM INITIALIZATION ═══',
       description1: 'CLASSIFIED BRIEFING - CLEARANCE LEVEL: OMEGA\n\nThe year is 2087. The Ω(Omega)-Cluster, humanity\'s most advanced quantum computing network, has suffered a catastrophic system breach. Corrupted processes are spreading like a digital plague, threatening to collapse the entire infrastructure that keeps our civilization running.\n\nYou are Agent-7 (Agent Seven), an elite maintenance operative trained in ancient Unix protocols - skills thought obsolete until now.',
-      description2: '🚨 MISSION BRIEFING:\nCorrupted entities have infiltrated the filesystem layers. Your neural interface has been calibrated to translate system commands into direct environmental manipulation. Every Unix command you execute will reshape reality within the digital realm.\n\n🖥️ HUD INTERFACE: Your neural HUD (Heads-Up Display) projects critical survival metrics directly into your field of vision:\n• HP: System Integrity (health)\n• EP: CPU Quota (energy for commands)\n• THR: Threat Level (corruption intensity)\n• Current digital location path\n\n⚠️ WARNING: Higher threat levels spawn more dangerous entities and destabilize the environment. Monitor your HUD constantly and eliminate corrupted processes to reduce the threat.\n\nTime is running out. The corruption spreads with each passing cycle.',
-      helpHint: '💡 Neural link established. Type **help** to show hints.',
-      exitHint: '⚠️ Emergency extraction: Type **exit** or **quit** to abort mission.'
+      description2: '[MISSION BRIEFING]\nCorrupted entities have infiltrated the filesystem layers. Your neural interface has been calibrated to translate system commands into direct environmental manipulation. Every Unix command you execute will reshape reality within the digital realm.\n\n[HUD INTERFACE] Your neural HUD (Heads-Up Display) projects critical survival metrics directly into your field of vision:\n• HP: System Integrity (health)\n• EP: CPU Quota (energy for commands)\n• THR: Threat Level (corruption intensity)\n• Current digital location path\n\n[WARNING] Higher threat levels spawn more dangerous entities and destabilize the environment. Monitor your HUD constantly and eliminate corrupted processes to reduce the threat.\n\nTime is running out. The corruption spreads with each passing cycle.',
+      helpHint: '[NEURAL LINK] Neural link established. Type **help** to show hints.',
+      exitHint: '[EMERGENCY] Emergency extraction: Type **exit** or **quit** to abort mission.'
     },
     zone1: {
       welcome: 'You are a maintenance agent in the Ω(Omega)-Cluster. Your mission is to clean corrupted processes and restore system stability.\n\nFirst, let\'s explore your current location. Type **ls** (list) to see all files and directories here.',
@@ -179,7 +179,7 @@ export const messages: { en: Messages; ja: Messages } = {
       systemPanic: 'SYSTEM PANIC: Integrity critical. Game Over.',
       diskFull: 'DISK FULL: System unresponsive. Game Over.',
       threatCritical: 'THREAT CRITICAL: System compromised. Game Over.',
-      tutorialComplete: '🎉 Tutorial Complete! You are now free to explore.'
+      tutorialComplete: '[SUCCESS] Tutorial Complete! You are now free to explore.'
     },
     help: {
       title: 'Available Commands:',
@@ -323,7 +323,7 @@ Think beyond the obvious.
       systemPanic: 'システムパニック：整合性がクリティカル。ゲームオーバー。',
       diskFull: 'ディスクフル：システムが応答しません。ゲームオーバー。',
       threatCritical: '脅威クリティカル：システムが侵害されました。ゲームオーバー。',
-      tutorialComplete: '🎉 チュートリアル完了！自由に探索できるようになりました。'
+      tutorialComplete: '[成功] チュートリアル完了！自由に探索できるようになりました。'
     },
     help: {
       title: '使用可能なコマンド：',

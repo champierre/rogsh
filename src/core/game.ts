@@ -296,7 +296,7 @@ export class Game {
       ? 'Zone 2では自動ヒントは表示されません。**help** コマンドでヒントを確認できます。'
       : 'Zone 2 no longer shows automatic hints. Use **help** command to view hints.';
 
-    return chalk.blue('💡 ') + formatWithMarkup(
+    return chalk.blue('[HINT] ') + formatWithMarkup(
       msg,
       (text: string) => chalk.cyan(text),
       (text: string) => chalk.cyan.bold(text)
