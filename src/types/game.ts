@@ -41,12 +41,15 @@ export interface GameEvent {
   timestamp: Date;
 }
 
+export interface GameProgressFlags {
+  hasEnteredZone1: boolean;
+}
+
 export interface Zone1Step {
   id: string;
   description: string;
   expectedCommand?: string;
   hint?: string;
-  onComplete?: () => void;
 }
 
 export interface Zone2Step {
@@ -54,5 +57,4 @@ export interface Zone2Step {
   description: string;
   expectedCommand?: string;
   hint?: string;
-  onComplete?: () => void;
 }

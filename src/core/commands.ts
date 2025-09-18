@@ -376,11 +376,6 @@ export class CommandParser {
     return `-${format(perms.owner)}${format(perms.group)}${format(perms.other)}`;
   }
 
-  unlockCommand(command: string): void {
-    this.availableCommands.add(command);
-  }
-
-
   getAvailableCommands(): string[] {
     return Array.from(this.availableCommands);
   }

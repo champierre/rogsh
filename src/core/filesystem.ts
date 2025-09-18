@@ -226,14 +226,6 @@ Remove immediately to secure Zone 1.`,
     this.currentDirectory = this.root;
   }
 
-  getCurrentDirectory(): VirtualDirectory {
-    return this.currentDirectory;
-  }
-
-  getRoot(): VirtualDirectory {
-    return this.root;
-  }
-
   changeDirectory(path: string): boolean {
     if (path === '/') {
       this.currentDirectory = this.root;
@@ -373,34 +365,6 @@ Remove immediately to secure Zone 1.`,
     return this.currentDirectory.path;
   }
 
-  findFiles(pattern: string, dir?: VirtualDirectory): VirtualFile[] {
-    const results: VirtualFile[] = [];
-    const searchDir = dir || this.currentDirectory;
-
-    const searchRecursive = (currentDir: VirtualDirectory) => {
-      for (const [name, file] of currentDir.files) {
-        if (name.includes(pattern)) {
-          results.push(file);
-        }
-      }
-
-      for (const [, subdir] of currentDir.subdirectories) {
-        searchRecursive(subdir);
-      }
-    };
-
-    searchRecursive(searchDir);
-    return results;
-  }
-
-  updateFilePermissions(filename: string, permissions: Partial<FilePermissions>): boolean {
-    const file = this.currentDirectory.files.get(filename);
-    if (!file) return false;
-
-    file.permissions = { ...file.permissions, ...permissions };
-    return true;
-  }
-
   deleteFile(filename: string): boolean {
     const file = this.currentDirectory.files.get(filename);
     const success = this.currentDirectory.files.delete(filename);
@@ -532,10 +496,6 @@ Remove immediately to secure Zone 1.`,
 
   isZone2Unlocked(): boolean {
     return this.root.subdirectories.has('zone2');
-  }
-
-  isZone3Unlocked(): boolean {
-    return this.root.subdirectories.has('zone3');
   }
 
   addFinalCorruptedDirectories(): void {

@@ -1,4 +1,4 @@
-import { GameState, GameEvent, Zone1Step, Zone2Step } from '../types/game.js';
+import { GameState, GameEvent, Zone1Step, Zone2Step, GameProgressFlags } from '../types/game.js';
 import { VirtualFileSystem } from './filesystem.js';
 import { CommandParser } from './commands.js';
 import { SaveManager, SaveData } from './saveManager.js';
@@ -21,7 +21,7 @@ export class Game {
   private locale: 'ja' | 'en';
   private saveManager: SaveManager;
   private completedZones: string[];
-  private unlockedCommands: string[];
+  private eventFlags: GameProgressFlags;
 
   constructor() {
     // ゲーム依存と初期ステートをまとめて構築する
@@ -37,7 +37,7 @@ export class Game {
     this.isTutorialMode = true;
     this.isInZone2Mode = false;
     this.completedZones = [];
-    this.unlockedCommands = ['ls', 'cd', 'pwd', 'cat', 'rm', 'help', 'clear'];
+    this.eventFlags = { hasEnteredZone1: false };
 
     this.state = {
       hp: 50,
@@ -228,6 +228,11 @@ export class Game {
 
     // 現在パスを仮想ファイルシステムから取得する
     this.state.currentPath = this.filesystem.pwd();
+
+    // ゲーム開始後に初めて zone1 に入ったかどうかを記録する
+    if (!this.eventFlags.hasEnteredZone1 && this.state.currentPath.startsWith('/zone1')) {
+      this.eventFlags.hasEnteredZone1 = true;
+    }
 
     // ターン経過時の定常処理を行う
     this.processTurn();
@@ -494,9 +499,8 @@ export class Game {
     this.isTutorialMode = saveData.isTutorialMode !== undefined ? saveData.isTutorialMode : true;
     this.isInZone2Mode = saveData.isInZone2Mode !== undefined ? saveData.isInZone2Mode : false;
 
-    // クリア済みゾーンと解放済みコマンドを復元する
+    // クリア済みゾーンを復元する
     this.completedZones = saveData.completedZones || [];
-    this.unlockedCommands = saveData.unlockedCommands || ['ls', 'cd', 'pwd', 'cat', 'rm', 'help', 'clear'];
 
     // 仮想ファイルシステムの敵ファイル削除状況を復元する
     const deletedFiles = saveData.deletedHostileFiles || [];
@@ -515,6 +519,16 @@ export class Game {
     if (saveData.gameState?.currentPath) {
       this.filesystem.changeDirectory(saveData.gameState.currentPath);
     }
+
+    // イベントフラグを復元する
+    const savedZone1Flag = saveData.eventFlags?.hasEnteredZone1;
+    const derivedZone1Flag = savedZone1Flag !== undefined
+      ? savedZone1Flag
+      : (this.completedZones.includes('zone1') || this.state.currentPath.startsWith('/zone1'));
+
+    this.eventFlags = {
+      hasEnteredZone1: derivedZone1Flag
+    };
   }
 
   async saveProgress(): Promise<boolean> {
@@ -531,20 +545,10 @@ export class Game {
       this.isTutorialMode,
       this.isInZone2Mode,
       this.completedZones,
-      this.unlockedCommands,
       this.filesystem.getDeletedHostileFiles(),
-      this.filesystem.isZone2Unlocked()
+      this.filesystem.isZone2Unlocked(),
+      this.eventFlags
     );
-  }
-
-  getCompletedZones(): string[] {
-    // クリア済みゾーンの一覧を返す
-    return [...this.completedZones];
-  }
-
-  getUnlockedCommands(): string[] {
-    // 解放済みコマンド一覧を返す
-    return [...this.unlockedCommands];
   }
 
   async setupDebugZone(zone: string): Promise<void> {
@@ -558,6 +562,7 @@ export class Game {
         this.currentZone2Step = 0;
         this.completedZones = [];
         this.filesystem.changeDirectory('/');
+        this.eventFlags.hasEnteredZone1 = false;
         break;
 
       case 'zone2':
@@ -571,6 +576,7 @@ export class Game {
         this.filesystem.setDeletedHostileFiles(['virus.exe', 'malware.dat']);
         this.filesystem.unlockZone2();
         this.filesystem.changeDirectory('/zone2');
+        this.eventFlags.hasEnteredZone1 = true;
         break;
 
       case 'zone3':
@@ -584,6 +590,7 @@ export class Game {
         this.filesystem.setDeletedHostileFiles(['virus.exe', 'malware.dat', 'quantum_virus.exe']);
         this.filesystem.unlockZone2();
         this.filesystem.changeDirectory('/');
+        this.eventFlags.hasEnteredZone1 = true;
         break;
 
       default:

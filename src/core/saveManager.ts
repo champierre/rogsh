@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as os from 'os';
-import { GameState } from '../types/game.js';
+import { GameState, GameProgressFlags } from '../types/game.js';
 import chalk from 'chalk';
 import * as readline from 'readline/promises';
 
@@ -14,9 +14,9 @@ export interface SaveData {
   isTutorialMode: boolean;
   isInZone2Mode: boolean;
   completedZones: string[];
-  unlockedCommands: string[];
   deletedHostileFiles: string[];
   isZone2Unlocked: boolean;
+  eventFlags?: GameProgressFlags;
 }
 
 export class SaveManager {
@@ -77,9 +77,9 @@ export class SaveManager {
     isTutorialMode: boolean,
     isInZone2Mode: boolean,
     completedZones: string[] = [],
-    unlockedCommands: string[] = [],
     deletedHostileFiles: string[] = [],
-    isZone2Unlocked: boolean = false
+    isZone2Unlocked: boolean = false,
+    eventFlags: GameProgressFlags = { hasEnteredZone1: false }
   ): Promise<boolean> {
     try {
       const hasPermission = await this.askPermissionToSave();
@@ -112,9 +112,9 @@ export class SaveManager {
         isTutorialMode,
         isInZone2Mode,
         completedZones,
-        unlockedCommands,
         deletedHostileFiles,
-        isZone2Unlocked
+        isZone2Unlocked,
+        eventFlags
       };
 
       await fs.writeFile(
@@ -178,22 +178,4 @@ export class SaveManager {
     return trimmedAnswer === 'y' || trimmedAnswer === 'yes';
   }
 
-  async deleteSave(): Promise<boolean> {
-    try {
-      const exists = await this.saveExists();
-      if (exists) {
-        await fs.unlink(this.saveFilePath);
-        console.log(chalk.gray('Save file deleted.'));
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error(chalk.red('Failed to delete save file:'), error);
-      return false;
-    }
-  }
-
-  getSaveInfo(): string {
-    return `Save location: ${this.saveFilePath}`;
-  }
 }
