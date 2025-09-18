@@ -380,8 +380,8 @@ export class CommandParser {
 
     if (tutorial) {
       const description = tutorial.description.trim();
-      const base = (value: string) => chalk.blueBright(value);
-      const emphasis = (value: string) => chalk.blueBright.bold(value);
+      const base = (value: string) => chalk.blue(value);
+      const emphasis = (value: string) => chalk.blue.bold(value);
       let output = this.formatWithMarkup(description, base, emphasis);
       if (this.showHintKeys && tutorial.key) {
         output += `\n\n${chalk.gray(`[hint key: ${tutorial.key}]`)}`;
@@ -395,8 +395,8 @@ export class CommandParser {
 
     const fallback = msg.help.noHints;
 
-    const base = (value: string) => chalk.blueBright(value);
-    const emphasis = (value: string) => chalk.blueBright.bold(value);
+    const base = (value: string) => chalk.blue(value);
+    const emphasis = (value: string) => chalk.blue.bold(value);
     return {
       output: this.formatWithMarkup(fallback, base, emphasis),
       success: true,
