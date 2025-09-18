@@ -373,7 +373,7 @@ export class CommandParser {
 
     if (tutorial) {
       const description = tutorial.description.trim();
-      let output = this.formatWithMarkup(description, chalk.cyan);
+      let output = this.formatWithMarkup(description, chalk.hex("#00a1e0"));
       if (this.showHintKeys && tutorial.key) {
         output += `\n\n${chalk.gray(`[hint key: ${tutorial.key}]`)}`;
       }
@@ -387,7 +387,7 @@ export class CommandParser {
     const fallback = msg.help.noHints;
 
     return {
-      output: this.formatWithMarkup(fallback, chalk.gray),
+      output: this.formatWithMarkup(fallback, chalk.hex("#6c6c6c")),
       success: true,
       energyCost: 0
     };
