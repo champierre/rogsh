@@ -127,7 +127,7 @@ export const messages: { en: Messages; ja: Messages } = {
       exploreDetailed: 'Good! You can see Zone 1. This is the training area.\n\nUse **cd zone1** (change directory) to enter Zone 1.',
       confirmLocation: 'You\'ve entered Zone 1! After moving to a directory, check the files within that directory to understand the situation. Type **ls** to see what files and directories are available in this zone.',
       readReadme: 'Excellent! You found the README.txt file. This file contains mission details. Use **cat README.txt** (concatenate/display) to read the mission briefing.',
-      returnToZone1Readme: 'Return to zone1 (cd zone1) and inspect README.txt to brief yourself before moving deeper.',
+      returnToZone1Readme: 'Return to zone1 using the absolute path **cd /zone1** and review README.txt before proceeding deeper.',
       navigateToTmp: 'Perfect! You\'ve read the mission details. According to README.txt, virus.exe is in the tmp directory. Use **cd tmp** (change directory) to move to the tmp directory.',
       confirmTmpLocation: 'You\'ve entered the tmp directory! After moving to a directory, check the files within that directory to understand the situation. Use **ls** to see the contents of this directory and find the virus.exe file.',
       returnToZone1: 'Perfect! You found the virus.exe file. This is the hostile file. Use **rm virus.exe** (remove) to eliminate this file.',
@@ -281,7 +281,7 @@ Think beyond the obvious.
       exploreDetailed: 'よくできました！Zone 1が見えます。これは訓練エリアです。\n\n**cd zone1**（change directory：ディレクトリ変更）と入力してZone 1に入りましょう。',
       confirmLocation: 'Zone 1に入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。**ls**と入力して、このゾーンにあるファイルとディレクトリを表示してください。',
       readReadme: '素晴らしい！README.txtファイルが見つかりました。このファイルにはミッションの詳細が記載されています。**cat README.txt**（concatenate/display：連結・表示）を使用してミッションの詳細を確認しましょう。',
-      returnToZone1Readme: '「cd /zone1」（/zone1 は絶対パスと言われる表記）でZone 1の入口に戻り、README.txtで状況を確認してください。',
+      returnToZone1Readme: '**cd /zone1**（/zone1 は絶対パス）でゾーン1の入口に戻り、README.txtで状況を確認してください。',
       navigateToTmp: '完璧です！ミッション詳細を確認しました。README.txtに書かれている通り、virus.exeがtmpディレクトリにあります。**cd tmp**（change directory：ディレクトリ変更）でtmpディレクトリに移動しましょう。',
       confirmTmpLocation: 'tmpディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。**ls**でこのディレクトリの内容を確認してみましょう。virus.exeファイルがあるかどうか見つけてください。',
       returnToZone1: '完璧です！virus.exeファイルが見つかりました。これが敵対ファイルです。**rm virus.exe**（remove：削除）を使用してこのファイルを排除してください。',
@@ -301,28 +301,28 @@ Think beyond the obvious.
     },
     zone2: {
       welcome: {
-        description: 'ゾーン2 - 量子レイヤー。高度なチャレンジが開始されました。',
-        hint: '入力: help'
+        description: 'ゾーン2の入口で **ls** を実行し、配置されているファイルを確認してください。',
+        hint: '**ls**'
       },
       readInstructions: {
-        description: '暗号化されたメッセージを解読してください。',
-        hint: '入力: help'
+        description: 'まずは **cat README.txt** でミッションブリーフィングを確認しましょう。',
+        hint: '**cat README.txt**'
       },
       followPrimes: {
-        description: '数字ディレクトリを移動します。数学的直感が必要です。',
-        hint: '入力: help'
+        description: '素数ディレクトリを辿ります。まずは **cd 2** で進んでください。',
+        hint: '**cd 2**'
       },
       findHidden: {
-        description: '隠された量子異常を検索してください。',
-        hint: '入力: help'
+        description: '量子異常を暴くには **ls -a** で隠しファイルを表示します。',
+        hint: '**ls -a**'
       },
       eliminateTarget: {
-        description: '量子ウイルスを検出。即座の排除が必要です。',
-        hint: '入力: help'
+        description: '量子ウイルスを **rm quantum_virus.exe** で除去してください。',
+        hint: '**rm quantum_virus.exe**'
       },
       complete: {
-        description: 'ゾーン2確保完了。量子封じ込め復旧しました。',
-        hint: 'ミッション達成'
+        description: 'ゾーン2の封じ込めに成功しました。',
+        hint: '**mission complete**'
       }
     },
     commands: {

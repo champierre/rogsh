@@ -81,12 +81,12 @@ export const getZone2Hint = (flags: Zone2ProgressFlags, locale: 'ja' | 'en') => 
 
   const msg = messages[locale].zone2;
 
-  if (!flags.listedZone2Root && !flags.removedQuantumVirus) {
-    return { description: msg.welcome.description, hint: msg.welcome.hint, key: 'zone2.welcome' };
+  if (!flags.readInstructions) {
+    return { description: msg.readInstructions.description, hint: msg.readInstructions.hint, key: 'zone2.readInstructions' };
   }
 
-  if (!flags.readInstructions && !flags.removedQuantumVirus) {
-    return { description: msg.readInstructions.description, hint: msg.readInstructions.hint, key: 'zone2.readInstructions' };
+  if (!flags.listedZone2Root && !flags.removedQuantumVirus) {
+    return { description: msg.welcome.description, hint: msg.welcome.hint, key: 'zone2.welcome' };
   }
 
   if (!flags.enteredPrimePath && !flags.removedQuantumVirus) {
