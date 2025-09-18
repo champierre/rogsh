@@ -1,6 +1,6 @@
 {
   "name": "rogsh",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Unix command-line learning roguelike game",
   "main": "dist/index.js",
   "type": "module",
