@@ -8,7 +8,6 @@ export interface CommandResult {
   success: boolean;
   energyCost: number;
   shouldExit?: boolean;
-  attackEffect?: 'medium' | 'high';
 }
 
 interface TutorialHintInfo {
@@ -77,7 +76,7 @@ export class CommandParser {
         case 'cat':
           return this.cat(args);
         case 'rm':
-          return this.rm(args);
+          return await this.rm(args);
         case 'help':
           return this.help();
         case 'clear':
@@ -226,7 +225,7 @@ export class CommandParser {
   }
 
 
-  private rm(args: string[]): CommandResult {
+  private async rm(args: string[]): Promise<CommandResult> {
     if (args.length === 0) {
       return {
         output: chalk.red('rm: missing operand'),
@@ -258,12 +257,13 @@ export class CommandParser {
     const success = this.filesystem.deleteFile(filename);
     
     if (success) {
-      let output = chalk.green(`[OK] File '${filename}' removed successfully`);
+      // Display elimination animation
+      const animationOutput = await this.displayEliminationAnimation();
+      let output = animationOutput;
+      output += chalk.green(`\n\n[OK] File '${filename}' removed successfully`);
       
       // Add special messages for enemy files
       if (filename === 'virus.exe' || filename === 'malware.dat') {
-        // Add progress bar for hostile file deletion
-        output += this.getHostileFileDeletionProgress();
         output += chalk.green(`\n[MISSION UPDATE] Hostile file eliminated! Zone 1 is more secure.`);
 
         // Reduce threat level when enemy files are removed
@@ -285,22 +285,19 @@ export class CommandParser {
         return {
           output,
           success: true,
-          energyCost: 3,
-          attackEffect: 'medium'
+          energyCost: 3
         };
       } else if ((filename === 'quantum_virus.exe') || (filename === 'data_corruptor.bin')) {
-        // Add progress bar for quantum file deletion
-        output += this.getHostileFileDeletionProgress();
 
         if (this.locale === 'ja') {
           output += chalk.green(`\n\n[ミッション更新] 量子ウイルスを除去完了！`);
           output += chalk.yellow(`\n\n[警告] 量子ウイルスの削除により、歪んだディレクトリ構造が出現しました！`);
-          output += chalk.cyan(`\n\n新しいディレクトリが .quantum 下に検出されました。`);
+          output += chalk.cyan(`\n\n新しいディレクトリが .hidden 下に検出されました。`);
           output += chalk.cyan(`\nこの歪んだ空間を探索してください。`);
         } else {
           output += chalk.green(`\n\n[MISSION UPDATE] Quantum virus eliminated!`);
           output += chalk.yellow(`\n\n[WARNING] Quantum virus deletion has caused corrupted directory structures to appear!`);
-          output += chalk.cyan(`\n\nNew directories detected under .quantum.`);
+          output += chalk.cyan(`\n\nNew directories detected under .hidden.`);
           output += chalk.cyan(`\nExplore this distorted space.`);
         }
 
@@ -321,8 +318,6 @@ export class CommandParser {
           }
         }
       } else if (filename === 'system_leech.dll') {
-        // Add progress bar for final boss deletion
-        output += this.getHostileFileDeletionProgress();
 
         if (this.locale === 'ja') {
           output += chalk.cyan(`\n\n[ミッション更新] システムリーチを除去完了！`);
@@ -355,8 +350,7 @@ export class CommandParser {
         return {
           output,
           success: true,
-          energyCost: 3,
-          attackEffect: 'high'
+          energyCost: 3
         };
       }
 
@@ -381,7 +375,7 @@ export class CommandParser {
     if (tutorial) {
       const description = tutorial.description.trim();
       const base = (value: string) => chalk.cyan(value);
-      const emphasis = (value: string) => chalk.blue.bold(value);
+      const emphasis = (value: string) => chalk.cyan.bold(value);
       let output = this.formatWithMarkup(description, base, emphasis);
       if (this.showHintKeys && tutorial.key) {
         output += `\n\n${chalk.gray(`[hint key: ${tutorial.key}]`)}`;
@@ -396,7 +390,7 @@ export class CommandParser {
     const fallback = msg.help.noHints;
 
     const base = (value: string) => chalk.cyan(value);
-    const emphasis = (value: string) => chalk.blue.bold(value);
+    const emphasis = (value: string) => chalk.cyan.bold(value);
     return {
       output: this.formatWithMarkup(fallback, base, emphasis),
       success: true,
@@ -424,9 +418,31 @@ export class CommandParser {
     this.showHintKeys = showKeys;
   }
 
-  private getHostileFileDeletionProgress(): string {
-    return chalk.cyan(`\n\n>>> 敵対ファイル削除プロセス開始 <<<`) +
-           chalk.cyan(`\n[████████████████████] 100%`);
+  private async displayEliminationAnimation(): Promise<string> {
+    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+    // Display initial message
+    process.stdout.write(chalk.cyan('\n>>> ELIMINATION IN PROGRESS <<<\n'));
+
+    // Progressive progress bar
+    const progressLength = 24;
+    for (let i = 0; i <= progressLength; i++) {
+      const filled = '█'.repeat(i);
+      const empty = ' '.repeat(progressLength - i);
+      const percentage = Math.round((i / progressLength) * 100);
+
+      // Clear line and display progress
+      process.stdout.write(`\r${chalk.cyan(`[${filled}${empty}] ${percentage}%`)}`);
+
+      // Small delay for animation
+      await sleep(50);
+    }
+
+    // Move to next line and add completion message
+    process.stdout.write('\n' + chalk.cyan('>>> TARGET NEUTRALIZED <<<'));
+
+    // Return empty string since we've already written to stdout
+    return '';
   }
 
 }

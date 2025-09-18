@@ -62,13 +62,24 @@ export interface Zone1ProgressFlags {
 
 export interface Zone2ProgressFlags {
   enteredZone2: boolean;
+  shownHelpNotification: boolean;
   listedZone2Root: boolean;
   readInstructions: boolean;
   enteredPrimePath: boolean;
+  enteredDir2: boolean;
+  enteredDir3: boolean;
+  enteredDir5: boolean;
+  listedDir5: boolean;
   revealedQuantumHidden: boolean;
+  enteredHidden: boolean;
+  listedHidden: boolean;
   removedQuantumVirus: boolean;
+  exploredCorrupted: boolean;
+  foundDataCorruptor: boolean;
   removedDataCorruptor: boolean;
+  foundSystemLeech: boolean;
   removedSystemLeech: boolean;
+  currentPath: string;
 }
 
 export interface GameProgressFlags {

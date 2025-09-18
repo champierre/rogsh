@@ -64,10 +64,10 @@ export class Game {
     };
   }
 
-  async processCommand(input: string): Promise<{output: string, shouldExit?: boolean, attackEffect?: 'medium' | 'high'}> {
+  async processCommand(input: string): Promise<{output: string, shouldExit?: boolean, success: boolean}> {
     // プレイヤー入力を解釈し状態更新やチュートリアル進行を処理する
     if (this.state.isGameOver) {
-      return {output: chalk.red('Game Over. Restart to play again.')};
+      return {output: chalk.red('Game Over. Restart to play again.'), success: false};
     }
 
     const trimmed = input.trim();
@@ -81,7 +81,7 @@ export class Game {
 
     // ゾーン2到達などで終了すべきか確認する
     if (result.shouldExit) {
-      return {output: result.output, shouldExit: true, attackEffect: result.attackEffect};
+      return {output: result.output, shouldExit: true, success: result.success};
     }
 
     // コマンド実行後のステータスを更新する
@@ -110,7 +110,7 @@ export class Game {
     // ゲームオーバー条件をチェックする
     this.checkGameOver();
 
-    return {output: result.output, attackEffect: result.attackEffect};
+    return {output: result.output, success: result.success};
   }
 
   private processTurn(): void {
@@ -156,7 +156,7 @@ export class Game {
     }
 
     if (!this.eventFlags.zone2.removedQuantumVirus) {
-      const quantumVirus = this.filesystem.getFile('/zone2/2/3/5/.quantum/quantum_virus.exe');
+      const quantumVirus = this.filesystem.getFile('/zone2/2/3/5/.hidden/quantum_virus.exe');
       if (!quantumVirus) {
         this.eventFlags.zone2.removedQuantumVirus = true;
         this.eventFlags.zone2.enteredZone2 = true;
@@ -164,7 +164,7 @@ export class Game {
     }
 
     if (!this.eventFlags.zone2.removedDataCorruptor) {
-      const dataCorruptor = this.filesystem.getFile('/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/data_corruptor.bin');
+      const dataCorruptor = this.filesystem.getFile('/zone2/2/3/5/.hidden/D41a&/wQ43au/p127x/.hidden/data_corruptor.bin');
       if (!dataCorruptor) {
         this.eventFlags.zone2.removedDataCorruptor = true;
         this.eventFlags.zone2.enteredZone2 = true;
@@ -172,7 +172,7 @@ export class Game {
     }
 
     if (!this.eventFlags.zone2.removedSystemLeech) {
-      const systemLeech = this.filesystem.getFile('/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/lol/Zll/lBl/.quantum/system_leech.dll');
+      const systemLeech = this.filesystem.getFile('/zone2/2/3/5/.hidden/D41a&/wQ43au/p127x/.hidden/lol/Zll/lBl/.hidden/system_leech.dll');
       if (!systemLeech) {
         this.eventFlags.zone2.removedSystemLeech = true;
         this.eventFlags.zone2.enteredZone2 = true;
@@ -195,7 +195,7 @@ export class Game {
       this.completedZones.push('zone2');
       this.addEvent({
         type: 'tutorial',
-        message: chalk.green.bold(`\n${messages[this.locale].zone2.complete.description}`),
+        message: chalk.green.bold(`\n${messages[this.locale].zone2.complete}`),
         severity: 'success',
         timestamp: new Date()
       });
@@ -257,6 +257,70 @@ export class Game {
   getState(): GameState {
     // 現在のゲームステートをコピーして返す
     return { ...this.state };
+  }
+
+  isInZone1(): boolean {
+    return this.state.currentPath === '/' || this.state.currentPath.startsWith('/zone1');
+  }
+
+  getZone1HintFormatted(): string | null {
+    // zone1にいる場合のみヒントを返す
+    if (!this.isInZone1()) {
+      return null;
+    }
+
+    const hint = getZone1Hint(this.eventFlags.zone1, this.locale);
+    if (!hint) {
+      return null;
+    }
+
+    // formatWithMarkup風にフォーマット
+    const formatWithMarkup = (text: string) => {
+      const segments = text.split(/(\*\*[^*]+\*\*)/g);
+      return segments
+        .filter(segment => segment.length > 0)
+        .map(segment => {
+          if (segment.startsWith('**') && segment.endsWith('**')) {
+            const inner = segment.slice(2, -2);
+            return chalk.cyan.bold(inner);
+          }
+          return chalk.cyan(segment);
+        })
+        .join('');
+    };
+
+    return formatWithMarkup(hint.description);
+  }
+
+  getZone2HelpNotification(): string | null {
+    // zone2で初回のみ表示
+    const inZone2 = this.state.currentPath.startsWith('/zone2');
+    if (!inZone2 || this.eventFlags.zone2.shownHelpNotification) {
+      return null;
+    }
+
+    // 初回表示後はフラグを立てる
+    this.eventFlags.zone2.shownHelpNotification = true;
+
+    const formatWithMarkup = (text: string) => {
+      const segments = text.split(/(\*\*[^*]+\*\*)/g);
+      return segments
+        .filter(segment => segment.length > 0)
+        .map(segment => {
+          if (segment.startsWith('**') && segment.endsWith('**')) {
+            const inner = segment.slice(2, -2);
+            return chalk.cyan.bold(inner);
+          }
+          return chalk.cyan(segment);
+        })
+        .join('');
+    };
+
+    const msg = this.locale === 'ja'
+      ? 'Zone 2では自動ヒントは表示されません。**help** コマンドでヒントを確認できます。'
+      : 'Zone 2 no longer shows automatic hints. Use **help** command to view hints.';
+
+    return chalk.blue('💡 ') + formatWithMarkup(msg);
   }
 
   getTutorialMessage(): { description: string; hint?: string } | null {

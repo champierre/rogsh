@@ -71,7 +71,7 @@ class rogsh {
         // Display prompt and get input
         const prompt = this.game.getPrompt();
         const input = await this.rl.question(prompt);
-        
+
         // Handle exit commands
         if (input.trim() === 'exit' || input.trim() === 'quit') {
           await this.exit();
@@ -81,14 +81,33 @@ class rogsh {
         // Process command
         const result = await this.game.processCommand(input.trim());
 
-        // Handle attack effect if requested
-        if (result.attackEffect) {
-          await this.displayAttackEffect();
-        }
 
         // Display output
         if (result.output) {
-          console.log(result.output);
+          // Remove trailing newlines to avoid double spacing
+          const trimmedOutput = result.output.replace(/\n+$/, '');
+          console.log(trimmedOutput);
+        }
+
+        // Zone1の場合は自動的にヒントを表示（コマンド出力の後）
+        // ただし、helpコマンドの場合は重複を避けるため表示しない
+        const isHelpCommand = input.trim().toLowerCase() === 'help';
+        const zone1Hint = this.game.getZone1HintFormatted();
+        if (zone1Hint && !isHelpCommand) {
+          console.log(); // コマンド出力とヒントの間に空行
+          console.log(zone1Hint);
+        }
+
+        // Zone2の場合は初回のみヘルプ案内を表示
+        const zone2Notification = this.game.getZone2HelpNotification();
+        if (zone2Notification) {
+          console.log(); // コマンド出力との間に空行
+          console.log(zone2Notification);
+        }
+
+        // 常に空行を追加（コマンド実行後）
+        if (result.output || zone1Hint || zone2Notification || result.success) {
+          console.log();
         }
 
         // Check if we should exit (zone2 reached)
@@ -138,14 +157,33 @@ class rogsh {
         // Process command
         const result = await this.game.processCommand(input.trim());
 
-        // Handle attack effect if requested
-        if (result.attackEffect) {
-          await this.displayAttackEffect();
-        }
 
         // Display output
         if (result.output) {
-          console.log(result.output);
+          // Remove trailing newlines to avoid double spacing
+          const trimmedOutput = result.output.replace(/\n+$/, '');
+          console.log(trimmedOutput);
+        }
+
+        // Zone1の場合は自動的にヒントを表示（コマンド出力の後）
+        // ただし、helpコマンドの場合は重複を避けるため表示しない
+        const isHelpCommand = input.trim().toLowerCase() === 'help';
+        const zone1Hint = this.game.getZone1HintFormatted();
+        if (zone1Hint && !isHelpCommand) {
+          console.log(); // コマンド出力とヒントの間に空行
+          console.log(zone1Hint);
+        }
+
+        // Zone2の場合は初回のみヘルプ案内を表示
+        const zone2Notification = this.game.getZone2HelpNotification();
+        if (zone2Notification) {
+          console.log(); // コマンド出力との間に空行
+          console.log(zone2Notification);
+        }
+
+        // 常に空行を追加（コマンド実行後）
+        if (result.output || zone1Hint || zone2Notification || result.success) {
+          console.log();
         }
 
         // Check if we should exit
@@ -227,8 +265,6 @@ class rogsh {
     // Display each paragraph with typewriter effect and wait for Enter
     for (let i = 0; i < story.length; i++) {
       // Add suspenseful lead-in for each paragraph
-      await this.sleep(500);
-      console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
       await this.sleep(300);
       
       await this.typewriterEffect(story[i], chalk.cyan, 35);
@@ -249,30 +285,76 @@ class rogsh {
     await this.typewriterEffect(msg.welcome.description2, chalk.cyan, 25);
     console.log();
     
-    console.log(chalk.green(msg.welcome.helpHint));
-    console.log(chalk.green(`${msg.welcome.exitHint}\n`));
+    console.log(this.formatWithMarkup(msg.welcome.helpHint,
+      (text: string) => chalk.green(text),
+      (text: string) => chalk.green.bold(text)));
+    console.log(this.formatWithMarkup(msg.welcome.exitHint,
+      (text: string) => chalk.green(text),
+      (text: string) => chalk.green.bold(text)));
+    console.log();
   }
   
   private async waitForEnter(): Promise<void> {
-    console.log();
-    console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-    
-    const msg = this.locale === 'ja' ?
-      chalk.cyan.bold('       ▶▶▶  Enterキーを押して続ける  ◀◀◀       ') :
-      chalk.cyan.bold('       ▶▶▶  Press Enter to continue  ◀◀◀       ');
-    
-    console.log(msg);
-    console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-    
+    // Hide cursor
+    process.stdout.write('\x1b[?25l');
+
+    // Start blinking ↵ symbol
+    let blinkInterval: NodeJS.Timeout | null = null;
+    let visible = true;
+
+    const startBlinking = () => {
+      // Initial display
+      process.stdout.write(chalk.cyan('↵'));
+
+      blinkInterval = setInterval(() => {
+        // Move cursor back one character and either show or hide the symbol
+        process.stdout.write('\x1b[1D');
+        if (visible) {
+          process.stdout.write(' ');
+        } else {
+          process.stdout.write(chalk.cyan('↵'));
+        }
+        visible = !visible;
+      }, 500);
+    };
+
+    startBlinking();
+
     // Wait for Enter key press
     await this.rl.question('');
-    
-    // Clear the "Press Enter" message (5 lines up and clear them)
-    process.stdout.write('\x1b[5A\x1b[J');
+
+    // Stop blinking and clear the line
+    if (blinkInterval) {
+      clearInterval(blinkInterval);
+    }
+
+    // Show cursor again
+    process.stdout.write('\x1b[?25h');
+
+    // Clear the ↵ symbol (2 lines up and clear them)
+    process.stdout.write('\x1b[2A\x1b[J');
   }
   
   private sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  private formatWithMarkup(
+    text: string,
+    baseColor: (input: string) => string,
+    emphasisColor: (input: string) => string
+  ): string {
+    const segments = text.split(/(\*\*[^*]+\*\*)/g);
+    return segments
+      .filter(segment => segment.length > 0)
+      .map(segment => {
+        if (segment.startsWith('**') && segment.endsWith('**')) {
+          const inner = segment.slice(2, -2);
+          return emphasisColor(inner);
+        }
+        return baseColor(segment);
+      })
+      .join('');
   }
 
   private async typewriterEffect(text: string, chalkFn: any, speed: number = 30): Promise<void> {
@@ -338,37 +420,7 @@ class rogsh {
     this.rl.close();
   }
 
-  private async displayAttackEffect(): Promise<void> {
-    console.log(chalk.cyan('>>> ELIMINATION IN PROGRESS <<<'));
-    await this.sleep(500);
 
-    // Animated progress bar
-    await this.displayProgressBar('[', ']', 24);
-
-    await this.sleep(300);
-    console.log(chalk.cyan('>>> TARGET NEUTRALIZED <<<'));
-    await this.sleep(500);
-
-    console.log(); // Add newline after effect
-  }
-
-  private async displayProgressBar(start: string, end: string, length: number): Promise<void> {
-    const progressChar = '█';
-    const emptyChar = ' ';
-
-    for (let i = 0; i <= length; i++) {
-      const filled = progressChar.repeat(i);
-      const empty = emptyChar.repeat(length - i);
-      const percentage = Math.round((i / length) * 100);
-
-      process.stdout.write(`\r${chalk.cyan(start + filled + empty + end)} ${chalk.cyan(percentage + '%')}`);
-
-      // Slow down the progress animation
-      await this.sleep(100);
-    }
-
-    console.log(); // Move to next line after progress bar completes
-  }
 }
 
 // Handle Ctrl+C

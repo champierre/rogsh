@@ -31,30 +31,20 @@ export interface Messages {
     confirmRootLocation: string;
   };
   zone2: {
-    welcome: {
-      description: string;
-      hint: string;
-    };
-    readInstructions: {
-      description: string;
-      hint: string;
-    };
-    followPrimes: {
-      description: string;
-      hint: string;
-    };
-    findHidden: {
-      description: string;
-      hint: string;
-    };
-    eliminateTarget: {
-      description: string;
-      hint: string;
-    };
-    complete: {
-      description: string;
-      hint: string;
-    };
+    welcome: string;
+    readInstructions: string;
+    followPrimes: string;
+    nextPrime3: string;
+    nextPrime5: string;
+    explorePrime5: string;
+    findHidden: string;
+    enterHidden: string;
+    exploreHidden: string;
+    eliminateTarget: string;
+    exploreCorrupted: string;
+    findMoreThreats: string;
+    finalThreat: string;
+    complete: string;
   };
   commands: {
     notFound: string;
@@ -119,7 +109,7 @@ export const messages: { en: Messages; ja: Messages } = {
       subtitle: '═══ SYSTEM INITIALIZATION ═══',
       description1: 'CLASSIFIED BRIEFING - CLEARANCE LEVEL: OMEGA\n\nThe year is 2087. The Ω(Omega)-Cluster, humanity\'s most advanced quantum computing network, has suffered a catastrophic system breach. Corrupted processes are spreading like a digital plague, threatening to collapse the entire infrastructure that keeps our civilization running.\n\nYou are Agent-7 (Agent Seven), an elite maintenance operative trained in ancient Unix protocols - skills thought obsolete until now.',
       description2: '🚨 MISSION BRIEFING:\nCorrupted entities have infiltrated the filesystem layers. Your neural interface has been calibrated to translate system commands into direct environmental manipulation. Every Unix command you execute will reshape reality within the digital realm.\n\n🖥️ HUD INTERFACE: Your neural HUD (Heads-Up Display) projects critical survival metrics directly into your field of vision:\n• HP: System Integrity (health)\n• EP: CPU Quota (energy for commands)\n• THR: Threat Level (corruption intensity)\n• Current digital location path\n\n⚠️ WARNING: Higher threat levels spawn more dangerous entities and destabilize the environment. Monitor your HUD constantly and eliminate corrupted processes to reduce the threat.\n\nTime is running out. The corruption spreads with each passing cycle.',
-      helpHint: '💡 Neural link established. Type **help** to access your command protocols.',
+      helpHint: '💡 Neural link established. Type **help** to show hints.',
       exitHint: '⚠️ Emergency extraction: Type **exit** or **quit** to abort mission.'
     },
     zone1: {
@@ -146,30 +136,20 @@ export const messages: { en: Messages; ja: Messages } = {
       confirmRootLocation: 'Perfect! The zone2 directory has been unlocked. It\'s time to enter zone2.'
     },
     zone2: {
-      welcome: {
-        description: 'Zone 2 - Quantum Layer. Advanced challenge activated.',
-        hint: 'Type: help'
-      },
-      readInstructions: {
-        description: 'Study the encrypted directive carefully.',
-        hint: 'Type: help'
-      },
-      followPrimes: {
-        description: 'Navigate through numbered directories. Mathematical intuition required.',
-        hint: 'Type: help'
-      },
-      findHidden: {
-        description: 'Search for concealed quantum anomalies.',
-        hint: 'Type: help'
-      },
-      eliminateTarget: {
-        description: 'Quantum virus detected. Immediate elimination required.',
-        hint: 'Type: help'
-      },
-      complete: {
-        description: 'Zone 2 secured. Quantum containment restored.',
-        hint: 'Mission accomplished'
-      }
+      welcome: 'You\'ve entered Zone 2 - The Quantum Layer.\n\nFirst, use **ls** to examine the directory structure.',
+      readInstructions: 'Good! You can see README.txt.\n\nUse **cat README.txt** to read the mission briefing for Zone 2.',
+      followPrimes: 'The README mentions prime numbers are the key.\n\nNotice the numbered directories? Start with **cd 2** (2 is the first prime).',
+      nextPrime3: 'Excellent! You\'re in directory 2.\n\nContinue following the prime path with **cd 3** (3 is the next prime).',
+      nextPrime5: 'Perfect! Now in directory 3.\n\nContinue with **cd 5** (5 is the next prime after 3).',
+      explorePrime5: 'You\'ve reached directory 5!\n\nUse **ls** to see what\'s here.',
+      findHidden: 'The directory seems empty, but quantum anomalies are often hidden.\n\nUse **ls -a** to reveal hidden files and directories.',
+      enterHidden: 'Excellent! You found the .hidden directory.\n\nEnter it with **cd .hidden**',
+      exploreHidden: 'You\'re inside the hidden quantum space.\n\nUse **ls** to see what threats lurk here.',
+      eliminateTarget: 'Quantum virus detected!\n\nEliminate it with **rm quantum_virus.exe**',
+      exploreCorrupted: 'The virus removal revealed corrupted directories!\n\nExplore them using **ls** and **cd** to find remaining threats.',
+      findMoreThreats: 'There are more threats hidden in the corrupted directories.\n\nSearch through the maze-like structure to find and eliminate them.',
+      finalThreat: 'Almost done! One final threat remains.\n\nFind and eliminate system_leech.dll to complete Zone 2.',
+      complete: 'Zone 2 secured. Quantum containment restored.'
     },
     commands: {
       notFound: 'Command not found',
@@ -271,10 +251,10 @@ Think beyond the obvious.
     welcome: {
       title: 'ROGSH v0.1.0',
       subtitle: '═══ システム初期化 ═══',
-      description1: '機密ブリーフィング - クリアランスレベル：OMEGA\n\n西暦2087年。人類最高峰の量子計算ネットワーク「Ω（オメガ）クラスタ」に致命的なシステム侵害が発生した。破損したプロセスがデジタル癌のように蔓延し、我々の文明を支える全インフラの崩壊が迫っている。\n\n君はエージェント-7（セブン）、古代のUnixプロトコルを修得したエリートメンテナンス工作員だ。今まで時代遅れとされていたそのスキルが、今こそ必要とされている。',
+      description1: '機密ブリーフィング - クリアランスレベル：OMEGA\n\n\n西暦2087年。人類最高峰の量子計算ネットワーク「Ω（オメガ）クラスタ」に致命的なシステム侵害が発生した。破損したプロセスがデジタル癌のように蔓延し、我々の文明を支える全インフラの崩壊が迫っている。\n\n\n君はエージェント-7（セブン）、古代のUnixプロトコルを修得したエリートメンテナンス工作員だ。今まで時代遅れとされていたそのスキルが、今こそ必要とされている。',
       description2: 'ミッション概要：\n破損したエンティティがファイルシステム層に侵入している。君の神経インターフェースは、システムコマンドを直接的な環境操作に変換するよう調整済みだ。実行するUnixコマンドの全てが、デジタル領域内の現実を再構成する。\n\nHUDインターフェース：神経HUD（ヘッドアップディスプレイ）が重要な生存指標を視野に直接投影する：\n- HP：システム整合性（体力）\n- EP：CPUクォータ（コマンド実行エネルギー）\n- THR：脅威レベル（汚染強度）\n- 現在のデジタル位置パス\n\n警告：脅威レベルが高いほど危険なエンティティが出現し、環境が不安定化する。HUDを常時監視し、破損プロセスの排除により脅威を軽減せよ。\n\n時間は限られている。汚染は刻々と拡散している。',
-      helpHint: '神経リンク確立。コマンドプロトコルにアクセスするには**help**と入力。',
-      exitHint: '緊急脱出：ミッション中止は「exit」または「quit」。'
+      helpHint: '神経リンク確立。ヒントを表示するには **help** と入力。',
+      exitHint: '緊急脱出：ミッション中止は **exit** または **quit**。'
     },
     zone1: {
       welcome: 'あなたはΩ（オメガ）クラスタのルートディレクトリにいます。\n\nまず、現在地のディレクトリを確認しましょう。**ls**（list：リスト）と入力して、利用可能なゾーンを表示してください。',
@@ -300,30 +280,20 @@ Think beyond the obvious.
       confirmRootLocation: '完璧です！zone2ディレクトリが開放されています。いよいよzone2に進入する時です。'
     },
     zone2: {
-      welcome: {
-        description: 'ゾーン2の入口で **ls** を実行し、配置されているファイルを確認してください。',
-        hint: '**ls**'
-      },
-      readInstructions: {
-        description: 'まずは **cat README.txt** でミッションブリーフィングを確認しましょう。',
-        hint: '**cat README.txt**'
-      },
-      followPrimes: {
-        description: '素数ディレクトリを辿ります。まずは **cd 2** で進んでください。',
-        hint: '**cd 2**'
-      },
-      findHidden: {
-        description: '量子異常を暴くには **ls -a** で隠しファイルを表示します。',
-        hint: '**ls -a**'
-      },
-      eliminateTarget: {
-        description: '量子ウイルスを **rm quantum_virus.exe** で除去してください。',
-        hint: '**rm quantum_virus.exe**'
-      },
-      complete: {
-        description: 'ゾーン2の封じ込めに成功しました。',
-        hint: '**mission complete**'
-      }
+      welcome: 'ゾーン2 - 量子層へようこそ。\n\nまず **ls** でディレクトリ構造を確認してください。',
+      readInstructions: 'よくできました！README.txtが見つかりました。\n\n**cat README.txt** でゾーン2のミッション詳細を読みましょう。',
+      followPrimes: 'READMEによると、素数が鍵となっています。\n\n番号付きディレクトリが見えますね？**cd 2** から始めましょう（2は最初の素数）。',
+      nextPrime3: '素晴らしい！ディレクトリ2に入りました。\n\n素数の道を進み続けて **cd 3** を実行してください（3は次の素数）。',
+      nextPrime5: '完璧です！ディレクトリ3に到達しました。\n\n**cd 5** で続けてください（3の次の素数は5）。',
+      explorePrime5: 'ディレクトリ5に到達しました！\n\n**ls** で何があるか確認しましょう。',
+      findHidden: 'ディレクトリは空に見えますが、量子異常は隠されていることが多いです。\n\n**ls -a** で隠しファイルとディレクトリを表示してください。',
+      enterHidden: '素晴らしい！.hiddenディレクトリを発見しました。\n\n**cd .hidden** で入りましょう。',
+      exploreHidden: '隠された量子空間に入りました。\n\n**ls** で潜む脅威を確認してください。',
+      eliminateTarget: '量子ウイルスを検出しました！\n\n**rm quantum_virus.exe** で除去してください。',
+      exploreCorrupted: 'ウイルス除去により歪んだディレクトリが出現しました！\n\n**ls** と **cd** で探索し、残りの脅威を見つけてください。',
+      findMoreThreats: '歪んだディレクトリにさらなる脅威が隠されています。\n\n迷路のような構造を探索して、見つけ出して除去してください。',
+      finalThreat: 'あと少しです！最後の脅威が残っています。\n\nsystem_leech.dllを見つけて除去し、ゾーン2を完了してください。',
+      complete: 'ゾーン2の封じ込めに成功しました。'
     },
     commands: {
       notFound: 'コマンドが見つかりません',
