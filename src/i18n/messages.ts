@@ -1,3 +1,5 @@
+import { getVersion } from '../utils/version.js';
+
 export interface Messages {
   welcome: {
     title: string;
@@ -105,7 +107,7 @@ export interface Messages {
 export const messages: { en: Messages; ja: Messages } = {
   en: {
     welcome: {
-      title: 'Unix Command Learning Roguelike v0.1.0',
+      title: `Unix Command Learning Roguelike v${getVersion()}`,
       subtitle: '═══ SYSTEM INITIALIZATION ═══',
       description1: 'CLASSIFIED BRIEFING - CLEARANCE LEVEL: OMEGA\n\nThe year is 2087. The Ω(Omega)-Cluster, humanity\'s most advanced quantum computing network, has suffered a catastrophic system breach. Corrupted processes are spreading like a digital plague, threatening to collapse the entire infrastructure that keeps our civilization running.\n\nYou are Agent-7 (Agent Seven), an elite maintenance operative trained in ancient Unix protocols - skills thought obsolete until now.',
       description2: '[MISSION BRIEFING]\nCorrupted entities have infiltrated the filesystem layers. Your neural interface has been calibrated to translate system commands into direct environmental manipulation. Every Unix command you execute will reshape reality within the digital realm.\n\n[HUD INTERFACE] Your neural HUD (Heads-Up Display) projects critical survival metrics directly into your field of vision:\n• HP: System Integrity (health)\n• EP: CPU Quota (energy for commands)\n• THR: Threat Level (corruption intensity)\n• Current digital location path\n\n[WARNING] Higher threat levels spawn more dangerous entities and destabilize the environment. Monitor your HUD constantly and eliminate corrupted processes to reduce the threat.\n\nTime is running out. The corruption spreads with each passing cycle.',
@@ -249,7 +251,7 @@ Think beyond the obvious.
   },
   ja: {
     welcome: {
-      title: 'ROGSH v0.1.0',
+      title: `ROGSH v${getVersion()}`,
       subtitle: '═══ システム初期化 ═══',
       description1: '機密ブリーフィング - クリアランスレベル：OMEGA\n\n\n西暦2087年。人類最高峰の量子計算ネットワーク「Ω（オメガ）クラスタ」に致命的なシステム侵害が発生した。破損したプロセスがデジタル癌のように蔓延し、我々の文明を支える全インフラの崩壊が迫っている。\n\n\n君はエージェント-7（セブン）、古代のUnixプロトコルを修得したエリートメンテナンス工作員だ。今まで時代遅れとされていたそのスキルが、今こそ必要とされている。',
       description2: 'ミッション概要：\n破損したエンティティがファイルシステム層に侵入している。君の神経インターフェースは、システムコマンドを直接的な環境操作に変換するよう調整済みだ。実行するUnixコマンドの全てが、デジタル領域内の現実を再構成する。\n\nHUDインターフェース：神経HUD（ヘッドアップディスプレイ）が重要な生存指標を視野に直接投影する：\n- HP：システム整合性（体力）\n- EP：CPUクォータ（コマンド実行エネルギー）\n- THR：脅威レベル（汚染強度）\n- 現在のデジタル位置パス\n\n警告：脅威レベルが高いほど危険なエンティティが出現し、環境が不安定化する。HUDを常時監視し、破損プロセスの排除により脅威を軽減せよ。\n\n時間は限られている。汚染は刻々と拡散している。',
