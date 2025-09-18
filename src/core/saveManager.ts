@@ -9,14 +9,14 @@ export interface SaveData {
   version: string;
   timestamp: string;
   gameState: Partial<GameState>;
-  tutorialStep: number;
-  zone2Step: number;
-  isTutorialMode: boolean;
-  isInZone2Mode: boolean;
   completedZones: string[];
   deletedHostileFiles: string[];
   isZone2Unlocked: boolean;
-  eventFlags?: GameProgressFlags;
+  eventFlags?: GameProgressFlags & { hasEnteredZone1?: boolean };
+  tutorialStep?: number;
+  zone2Step?: number;
+  isTutorialMode?: boolean;
+  isInZone2Mode?: boolean;
 }
 
 export class SaveManager {
@@ -72,14 +72,11 @@ export class SaveManager {
 
   async save(
     gameState: GameState,
-    tutorialStep: number,
-    zone2Step: number,
-    isTutorialMode: boolean,
-    isInZone2Mode: boolean,
     completedZones: string[] = [],
     deletedHostileFiles: string[] = [],
     isZone2Unlocked: boolean = false,
-    eventFlags: GameProgressFlags = { hasEnteredZone1: false }
+    eventFlags: GameProgressFlags,
+    legacyFields: Partial<Pick<SaveData, 'tutorialStep' | 'zone2Step' | 'isTutorialMode' | 'isInZone2Mode'>> = {}
   ): Promise<boolean> {
     try {
       const hasPermission = await this.askPermissionToSave();
@@ -107,15 +104,24 @@ export class SaveManager {
           currentPath: gameState.currentPath,
           turnCount: gameState.turnCount
         },
-        tutorialStep,
-        zone2Step,
-        isTutorialMode,
-        isInZone2Mode,
         completedZones,
         deletedHostileFiles,
         isZone2Unlocked,
         eventFlags
       };
+
+      if (legacyFields.tutorialStep !== undefined) {
+        saveData.tutorialStep = legacyFields.tutorialStep;
+      }
+      if (legacyFields.zone2Step !== undefined) {
+        saveData.zone2Step = legacyFields.zone2Step;
+      }
+      if (legacyFields.isTutorialMode !== undefined) {
+        saveData.isTutorialMode = legacyFields.isTutorialMode;
+      }
+      if (legacyFields.isInZone2Mode !== undefined) {
+        saveData.isInZone2Mode = legacyFields.isInZone2Mode;
+      }
 
       await fs.writeFile(
         this.saveFilePath,

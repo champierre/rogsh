@@ -11,10 +11,17 @@ export interface CommandResult {
   attackEffect?: 'medium' | 'high';
 }
 
+interface TutorialHintInfo {
+  description: string;
+  key?: string;
+}
+
 export class CommandParser {
   private filesystem: VirtualFileSystem;
   private availableCommands: Set<string>;
   private locale: 'ja' | 'en';
+  private tutorialProvider: (() => TutorialHintInfo | null) | null;
+  private showHintKeys: boolean;
   constructor(filesystem: VirtualFileSystem, locale: 'ja' | 'en' = 'en') {
     this.filesystem = filesystem;
     this.locale = locale;
@@ -23,6 +30,8 @@ export class CommandParser {
     this.availableCommands = new Set([
       'ls', 'cd', 'pwd', 'cat', 'rm', 'help', 'clear'
     ]);
+    this.tutorialProvider = null;
+    this.showHintKeys = false;
   }
 
   async execute(input: string, _gameState: GameState): Promise<CommandResult> {
@@ -349,20 +358,25 @@ export class CommandParser {
 
   private help(): CommandResult {
     const msg = messages[this.locale];
-    const output = chalk.bold(`${msg.help.title}\n\n`) +
-      chalk.green(`${msg.help.navigation}\n`) +
-      `  ls [-a]         - ${msg.help.commands.ls}\n` +
-      `  cd <dir>        - ${msg.help.commands.cd}\n` +
-      `  pwd             - ${msg.help.commands.pwd}\n\n` +
-      chalk.green(`${msg.help.fileOperations}\n`) +
-      `  cat <file>      - ${msg.help.commands.cat}\n` +
-      `  rm <file>       - ${msg.help.commands.rm}\n\n` +
-      chalk.green(`${msg.help.helpSection}\n`) +
-      `  help            - ${msg.help.commands.help}\n` +
-      `  clear           - ${msg.help.commands.clear}\n`;
+    const tutorial = this.tutorialProvider ? this.tutorialProvider() : null;
+
+    if (tutorial) {
+      const description = tutorial.description.trim();
+      let output = chalk.cyan(description);
+      if (this.showHintKeys && tutorial.key) {
+        output += `\n\n${chalk.gray(`[hint key: ${tutorial.key}]`)}`;
+      }
+      return {
+        output,
+        success: true,
+        energyCost: 0
+      };
+    }
+
+    const fallback = msg.help.noHints;
 
     return {
-      output,
+      output: chalk.gray(fallback),
       success: true,
       energyCost: 0
     };
@@ -378,6 +392,14 @@ export class CommandParser {
 
   getAvailableCommands(): string[] {
     return Array.from(this.availableCommands);
+  }
+
+  setTutorialProvider(provider: (() => TutorialHintInfo | null) | null): void {
+    this.tutorialProvider = provider;
+  }
+
+  setTutorialDebug(showKeys: boolean): void {
+    this.showHintKeys = showKeys;
   }
 
   private getHostileFileDeletionProgress(): string {

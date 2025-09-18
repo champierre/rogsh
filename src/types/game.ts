@@ -41,20 +41,36 @@ export interface GameEvent {
   timestamp: Date;
 }
 
+export interface Zone1ProgressFlags {
+  listedRoot: boolean;
+  enteredZone1: boolean;
+  listedZone1: boolean;
+  readReadme: boolean;
+  enteredTmp: boolean;
+  listedTmp: boolean;
+  removedVirus: boolean;
+  enteredLogs: boolean;
+  listedLogs: boolean;
+  revealedHidden: boolean;
+  enteredHidden: boolean;
+  listedHidden: boolean;
+  removedMalware: boolean;
+  returnedRoot: boolean;
+  enteredZone2: boolean;
+}
+
+export interface Zone2ProgressFlags {
+  enteredZone2: boolean;
+  listedZone2Root: boolean;
+  readInstructions: boolean;
+  enteredPrimePath: boolean;
+  revealedQuantumHidden: boolean;
+  removedQuantumVirus: boolean;
+  removedDataCorruptor: boolean;
+  removedSystemLeech: boolean;
+}
+
 export interface GameProgressFlags {
-  hasEnteredZone1: boolean;
-}
-
-export interface Zone1Step {
-  id: string;
-  description: string;
-  expectedCommand?: string;
-  hint?: string;
-}
-
-export interface Zone2Step {
-  id: string;
-  description: string;
-  expectedCommand?: string;
-  hint?: string;
+  zone1: Zone1ProgressFlags;
+  zone2: Zone2ProgressFlags;
 }

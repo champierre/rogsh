@@ -8,86 +8,26 @@ export interface Messages {
     exitHint: string;
   };
   zone1: {
-    welcome: {
-      description: string;
-      hint: string;
-    };
-    exploreDetailed: {
-      description: string;
-      hint: string;
-    };
-    confirmLocation: {
-      description: string;
-      hint: string;
-    };
-    readReadme: {
-      description: string;
-      hint: string;
-    };
-    navigateToTmp: {
-      description: string;
-      hint: string;
-    };
-    confirmTmpLocation: {
-      description: string;
-      hint: string;
-    };
-    returnToZone1: {
-      description: string;
-      hint: string;
-    };
-    navigateToLogs: {
-      description: string;
-      hint: string;
-    };
-    confirmBackToZone1: {
-      description: string;
-      hint: string;
-    };
-    scanForHidden: {
-      description: string;
-      hint: string;
-    };
-    confirmLogsLocation: {
-      description: string;
-      hint: string;
-    };
-    enterHiddenDir: {
-      description: string;
-      hint: string;
-    };
-    removeMalware: {
-      description: string;
-      hint: string;
-    };
-    confirmHiddenLocation: {
-      description: string;
-      hint: string;
-    };
-    checkProcesses: {
-      description: string;
-      hint: string;
-    };
-    deleteFinalMalware: {
-      description: string;
-      hint: string;
-    };
-    exploreLogs: {
-      description: string;
-      hint: string;
-    };
-    complete: {
-      description: string;
-      hint: string;
-    };
-    moveToRoot: {
-      description: string;
-      hint: string;
-    };
-    confirmRootLocation: {
-      description: string;
-      hint: string;
-    };
+    welcome: string;
+    exploreDetailed: string;
+    confirmLocation: string;
+    readReadme: string;
+    navigateToTmp: string;
+    confirmTmpLocation: string;
+    returnToZone1: string;
+    navigateToLogs: string;
+    confirmBackToZone1: string;
+    scanForHidden: string;
+    confirmLogsLocation: string;
+    enterHiddenDir: string;
+    removeMalware: string;
+    confirmHiddenLocation: string;
+    checkProcesses: string;
+    deleteFinalMalware: string;
+    exploreLogs: string;
+    complete: string;
+    moveToRoot: string;
+    confirmRootLocation: string;
   };
   zone2: {
     welcome: {
@@ -154,6 +94,7 @@ export interface Messages {
     systemStatus: string;
     hudExplanation: string;
     threatLevel: string;
+    noHints: string;
     commands: {
       ls: string;
       cd: string;
@@ -181,86 +122,26 @@ export const messages: { en: Messages; ja: Messages } = {
       exitHint: '⚠️ Emergency extraction: Type "exit" or "quit" to abort mission.'
     },
     zone1: {
-      welcome: {
-        description: 'You are a maintenance agent in the Ω(Omega)-Cluster. Your mission is to clean corrupted processes and restore system stability.\n\nFirst, let\'s explore your current location. Type "ls" (list) to see all files and directories here.',
-        hint: 'Type: ls'
-      },
-      exploreDetailed: {
-        description: 'Good! You can see Zone 1. This is the training area.\n\nUse "cd zone1" (change directory) to enter Zone 1.',
-        hint: 'Type: cd zone1'
-      },
-      confirmLocation: {
-        description: 'You\'ve entered Zone 1! After moving to a directory, check the files within that directory to understand the situation. Type "ls" to see what files and directories are available in this zone.',
-        hint: 'Type: ls'
-      },
-      readReadme: {
-        description: 'Excellent! You found the README.txt file. This file contains mission details. Use "cat README.txt" (concatenate/display) to read the mission briefing.',
-        hint: 'Type: cat README.txt'
-      },
-      navigateToTmp: {
-        description: 'Perfect! You\'ve read the mission details. According to README.txt, virus.exe is in the tmp directory. Use "cd tmp" (change directory) to move to the tmp directory.',
-        hint: 'Type: cd tmp'
-      },
-      confirmTmpLocation: {
-        description: 'You\'ve entered the tmp directory! After moving to a directory, check the files within that directory to understand the situation. Use "ls" to see the contents of this directory and find the virus.exe file.',
-        hint: 'Type: ls'
-      },
-      returnToZone1: {
-        description: 'Perfect! You found the virus.exe file. This is the hostile file. Use "rm virus.exe" (remove) to eliminate this file.',
-        hint: 'Type: rm virus.exe'
-      },
-      navigateToLogs: {
-        description: 'Excellent! First target eliminated. Now return to zone1 directory. Use "cd .." (where .. means parent directory) to go back up one level.',
-        hint: 'Type: cd ..'
-      },
-      confirmBackToZone1: {
-        description: 'You\'re back in zone1! After moving to a directory, check the files within that directory to understand the situation. Use "ls" to see available directories. You should see the logs directory.',
-        hint: 'Type: ls'
-      },
-      scanForHidden: {
-        description: 'Good! Now navigate to the logs directory where the second enemy file is hidden. Use "cd logs".',
-        hint: 'Type: cd logs'
-      },
-      confirmLogsLocation: {
-        description: 'You\'ve entered the logs directory! After moving to a directory, check the files within that directory to understand the situation. Use "ls" to see the contents of this directory.',
-        hint: 'Type: ls'
-      },
-      enterHiddenDir: {
-        description: 'You\'ve checked the logs directory contents. However, the target is concealed. Use "ls -a" to reveal hidden files and directories (those starting with a dot).',
-        hint: 'Type: ls -a'
-      },
-      removeMalware: {
-        description: 'Excellent! You found the hidden directory ".hidden". Navigate into it to locate the final target. Use "cd .hidden".',
-        hint: 'Type: cd .hidden'
-      },
-      confirmHiddenLocation: {
-        description: 'You\'ve entered the hidden directory! After moving to a directory, check the files within that directory to understand the situation. Use "ls" to see what\'s in this directory.',
-        hint: 'Type: ls'
-      },
-      checkProcesses: {
-        description: 'Perfect! You found the malware.dat file. This is the final target. Use "rm malware.dat" to eliminate the final hostile file and complete your mission.',
-        hint: 'Type: rm malware.dat'
-      },
-      deleteFinalMalware: {
-        description: 'Perfect! You\'re now in the hidden directory. Use "rm malware.dat" to eliminate the final hostile file and complete your mission.',
-        hint: 'Type: rm malware.dat'
-      },
-      exploreLogs: {
-        description: 'Good work! Now navigate to the logs directory. Use "cd logs" to change directory.',
-        hint: 'Type: cd logs'
-      },
-      complete: {
-        description: 'Excellent! You\'ve mastered the basics:\n- Navigation (ls, cd)\n- File reading (cat)\n- File removal (rm)\n\nYou\'re ready to continue exploring the Ω(Omega)-Cluster!',
-        hint: 'Use cd / to move to the root directory'
-      },
-      moveToRoot: {
-        description: 'You\'re back at the root directory! First, let\'s check the current situation.',
-        hint: 'Type ls to see the contents of the current directory'
-      },
-      confirmRootLocation: {
-        description: 'Perfect! The zone2 directory has been unlocked. It\'s time to enter zone2.',
-        hint: 'Type cd zone2 to move to zone2'
-      }
+      welcome: 'You are a maintenance agent in the Ω(Omega)-Cluster. Your mission is to clean corrupted processes and restore system stability.\n\nFirst, let\'s explore your current location. Type "ls" (list) to see all files and directories here.',
+      exploreDetailed: 'Good! You can see Zone 1. This is the training area.\n\nUse "cd zone1" (change directory) to enter Zone 1.',
+      confirmLocation: 'You\'ve entered Zone 1! After moving to a directory, check the files within that directory to understand the situation. Type "ls" to see what files and directories are available in this zone.',
+      readReadme: 'Excellent! You found the README.txt file. This file contains mission details. Use "cat README.txt" (concatenate/display) to read the mission briefing.',
+      navigateToTmp: 'Perfect! You\'ve read the mission details. According to README.txt, virus.exe is in the tmp directory. Use "cd tmp" (change directory) to move to the tmp directory.',
+      confirmTmpLocation: 'You\'ve entered the tmp directory! After moving to a directory, check the files within that directory to understand the situation. Use "ls" to see the contents of this directory and find the virus.exe file.',
+      returnToZone1: 'Perfect! You found the virus.exe file. This is the hostile file. Use "rm virus.exe" (remove) to eliminate this file.',
+      navigateToLogs: 'Excellent! First target eliminated. Now return to zone1 directory. Use "cd .." (where .. means parent directory) to go back up one level.',
+      confirmBackToZone1: 'You\'re back in zone1! After moving to a directory, check the files within that directory to understand the situation. Use "ls" to see available directories. You should see the logs directory.',
+      scanForHidden: 'Good! Now navigate to the logs directory where the second enemy file is hidden. Use "cd logs".',
+      confirmLogsLocation: 'You\'ve entered the logs directory! After moving to a directory, check the files within that directory to understand the situation. Use "ls" to see the contents of this directory.',
+      enterHiddenDir: 'You\'ve checked the logs directory contents. However, the target is concealed. Use "ls -a" to reveal hidden files and directories (those starting with a dot).',
+      removeMalware: 'Excellent! You found the hidden directory ".hidden". Navigate into it to locate the final target. Use "cd .hidden".',
+      confirmHiddenLocation: 'You\'ve entered the hidden directory! After moving to a directory, check the files within that directory to understand the situation. Use "ls" to see what\'s in this directory.',
+      checkProcesses: 'Perfect! You found the malware.dat file. This is the final target. Use "rm malware.dat" to eliminate the final hostile file and complete your mission.',
+      deleteFinalMalware: 'Perfect! You\'re now in the hidden directory. Use "rm malware.dat" to eliminate the final hostile file and complete your mission.',
+      exploreLogs: 'Good work! Now navigate to the logs directory. Use "cd logs" to change directory.',
+      complete: 'Excellent! You\'ve mastered the basics:\n- Navigation (ls, cd)\n- File reading (cat)\n- File removal (rm)\n\nYou\'re ready to continue exploring the Ω(Omega)-Cluster!',
+      moveToRoot: 'You\'re back at the root directory! First, let\'s check the current situation.',
+      confirmRootLocation: 'Perfect! The zone2 directory has been unlocked. It\'s time to enter zone2.'
     },
     zone2: {
       welcome: {
@@ -327,6 +208,7 @@ export const messages: { en: Messages; ja: Messages } = {
       systemStatus: 'System Status:',
       hudExplanation: 'HUD Display: Your neural interface projects vital stats - HP (System Integrity), EP (CPU Quota), THR (Threat Level), and current location. Monitor these carefully to survive the digital realm.',
       threatLevel: 'THR (Threat Level): Indicates system corruption intensity. Higher levels mean more dangerous entities and unstable environment. Reduce threat by eliminating corrupted processes and cleaning infected files.',
+      noHints: 'No mission hints available right now. Explore the system and experiment.',
       commands: {
         ls: 'List directory contents (use -a to show hidden files/directories)',
         cd: 'Change directory (use "cd .." to go up one level, ".." = parent directory)',
@@ -393,86 +275,26 @@ Think beyond the obvious.
       exitHint: '緊急脱出：ミッション中止は「exit」または「quit」。'
     },
     zone1: {
-      welcome: {
-        description: 'あなたはΩ（オメガ）クラスタのルートディレクトリにいます。\n\nまず、現在地のディレクトリを確認しましょう。「ls」（list：リスト）と入力して、利用可能なゾーンを表示してください。',
-        hint: '入力: ls'
-      },
-      exploreDetailed: {
-        description: 'よくできました！Zone 1が見えます。これは訓練エリアです。\n\n「cd zone1」（change directory：ディレクトリ変更）と入力してZone 1に入りましょう。',
-        hint: '入力: cd zone1'
-      },
-      confirmLocation: {
-        description: 'Zone 1に入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」と入力して、このゾーンにあるファイルとディレクトリを表示してください。',
-        hint: '入力: ls'
-      },
-      readReadme: {
-        description: '素晴らしい！README.txtファイルが見つかりました。このファイルにはミッションの詳細が記載されています。「cat README.txt」（concatenate/display：連結・表示）を使用してミッションの詳細を確認しましょう。',
-        hint: '入力: cat README.txt'
-      },
-      navigateToTmp: {
-        description: '完璧です！ミッション詳細を確認しました。README.txtに書かれている通り、virus.exeがtmpディレクトリにあります。「cd tmp」（change directory：ディレクトリ変更）でtmpディレクトリに移動しましょう。',
-        hint: '入力: cd tmp'
-      },
-      confirmTmpLocation: {
-        description: 'tmpディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」でこのディレクトリの内容を確認してみましょう。virus.exeファイルがあるかどうか見つけてください。',
-        hint: '入力: ls'
-      },
-      returnToZone1: {
-        description: '完璧です！virus.exeファイルが見つかりました。これが敵対ファイルです。「rm virus.exe」（remove：削除）を使用してこのファイルを排除してください。',
-        hint: '入力: rm virus.exe'
-      },
-      navigateToLogs: {
-        description: '優秀です！第一ターゲットを排除しました。zone1ディレクトリに戻りましょう。「cd ..」（..は親ディレクトリ）を使用して一つ上のレベルに戻ってください。',
-        hint: '入力: cd ..'
-      },
-      confirmBackToZone1: {
-        description: 'zone1に戻りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」で利用可能なディレクトリを確認してください。logsディレクトリが見えるはずです。',
-        hint: '入力: ls'
-      },
-      scanForHidden: {
-        description: 'よくできました！次に第二の敵ファイルが隠されているlogsディレクトリに移動してください。「cd logs」を使用してください。',
-        hint: '入力: cd logs'
-      },
-      confirmLogsLocation: {
-        description: 'logsディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」で内容を確認してみてください。',
-        hint: '入力: ls'
-      },
-      enterHiddenDir: {
-        description: 'logsディレクトリの内容を確認しました。しかし、ターゲットは隠蔽されています。「ls -a」を使用して隠しファイルとディレクトリ（ドットで始まるもの）を表示してください。',
-        hint: '入力: ls -a'
-      },
-      removeMalware: {
-        description: '素晴らしい！隠しディレクトリ「.hidden」を発見しました。その中に移動して最終ターゲットを見つけてください。「cd .hidden」を使用してください。',
-        hint: '入力: cd .hidden'
-      },
-      confirmHiddenLocation: {
-        description: '隠しディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」でこのディレクトリに何があるか確認してください。',
-        hint: '入力: ls'
-      },
-      checkProcesses: {
-        description: '完璧です！malware.datファイルが見つかりました。これが最終ターゲットです。「rm malware.dat」を使用して最終の敵対ファイルを排除し、ミッションを完了してください。',
-        hint: '入力: rm malware.dat'
-      },
-      deleteFinalMalware: {
-        description: '完璧です！隠しディレクトリにいます。「rm malware.dat」を使用して最終の敵対ファイルを排除し、ミッションを完了してください。',
-        hint: '入力: rm malware.dat'
-      },
-      exploreLogs: {
-        description: 'よくできました！次にlogsディレクトリに移動しましょう。「cd logs」を使用してディレクトリを変更してください。',
-        hint: '入力: cd logs'
-      },
-      complete: {
-        description: '素晴らしい！基本を習得しました：\n- ナビゲーション（ls、cd）\n- ファイル読み取り（cat）\n- ファイル削除（rm）\n\nΩ（オメガ）クラスタの探索を続ける準備ができました！',
-        hint: '入力: cd /'
-      },
-      moveToRoot: {
-        description: 'ルートディレクトリに戻りました！まず現在の状況を確認しましょう。',
-        hint: '入力: ls'
-      },
-      confirmRootLocation: {
-        description: '完璧です！zone2ディレクトリが開放されています。いよいよzone2に進入する時です。',
-        hint: '入力: cd zone2'
-      }
+      welcome: 'あなたはΩ（オメガ）クラスタのルートディレクトリにいます。\n\nまず、現在地のディレクトリを確認しましょう。「ls」（list：リスト）と入力して、利用可能なゾーンを表示してください。',
+      exploreDetailed: 'よくできました！Zone 1が見えます。これは訓練エリアです。\n\n「cd zone1」（change directory：ディレクトリ変更）と入力してZone 1に入りましょう。',
+      confirmLocation: 'Zone 1に入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」と入力して、このゾーンにあるファイルとディレクトリを表示してください。',
+      readReadme: '素晴らしい！README.txtファイルが見つかりました。このファイルにはミッションの詳細が記載されています。「cat README.txt」（concatenate/display：連結・表示）を使用してミッションの詳細を確認しましょう。',
+      navigateToTmp: '完璧です！ミッション詳細を確認しました。README.txtに書かれている通り、virus.exeがtmpディレクトリにあります。「cd tmp」（change directory：ディレクトリ変更）でtmpディレクトリに移動しましょう。',
+      confirmTmpLocation: 'tmpディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」でこのディレクトリの内容を確認してみましょう。virus.exeファイルがあるかどうか見つけてください。',
+      returnToZone1: '完璧です！virus.exeファイルが見つかりました。これが敵対ファイルです。「rm virus.exe」（remove：削除）を使用してこのファイルを排除してください。',
+      navigateToLogs: '優秀です！第一ターゲットを排除しました。zone1ディレクトリに戻りましょう。「cd ..」（..は親ディレクトリ）を使用して一つ上のレベルに戻ってください。',
+      confirmBackToZone1: 'zone1に戻りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」で利用可能なディレクトリを確認してください。logsディレクトリが見えるはずです。',
+      scanForHidden: 'よくできました！次に第二の敵ファイルが隠されているlogsディレクトリに移動してください。「cd logs」を使用してください。',
+      confirmLogsLocation: 'logsディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」で内容を確認してみてください。',
+      enterHiddenDir: 'logsディレクトリの内容を確認しました。しかし、ターゲットは隠蔽されています。「ls -a」を使用して隠しファイルとディレクトリ（ドットで始まるもの）を表示してください。',
+      removeMalware: '素晴らしい！隠しディレクトリ「.hidden」を発見しました。その中に移動して最終ターゲットを見つけてください。「cd .hidden」を使用してください。',
+      confirmHiddenLocation: '隠しディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。「ls」でこのディレクトリに何があるか確認してください。',
+      checkProcesses: '完璧です！malware.datファイルが見つかりました。これが最終ターゲットです。「rm malware.dat」を使用して最終の敵対ファイルを排除し、ミッションを完了してください。',
+      deleteFinalMalware: '完璧です！隠しディレクトリにいます。「rm malware.dat」を使用して最終の敵対ファイルを排除し、ミッションを完了してください。',
+      exploreLogs: 'よくできました！次にlogsディレクトリに移動しましょう。「cd logs」を使用してディレクトリを変更してください。',
+      complete: '素晴らしい！基本を習得しました：\n- ナビゲーション（ls、cd）\n- ファイル読み取り（cat）\n- ファイル削除（rm）\n\nΩ（オメガ）クラスタの探索を続ける準備ができました！',
+      moveToRoot: 'ルートディレクトリに戻りました！まず現在の状況を確認しましょう。',
+      confirmRootLocation: '完璧です！zone2ディレクトリが開放されています。いよいよzone2に進入する時です。'
     },
     zone2: {
       welcome: {
@@ -539,6 +361,7 @@ Think beyond the obvious.
       systemStatus: 'システム状態：',
       hudExplanation: 'HUD表示：神経インターフェースにより重要な統計が投影される - HP（システム整合性）、EP（CPUクォータ）、THR（脅威レベル）、現在位置。デジタル領域での生存にはこれらの監視が不可欠。',
       threatLevel: 'THR（脅威レベル）：システムの汚染度を示します。レベルが高いほど危険なエンティティが存在し、環境が不安定になります。破損したプロセスの排除と感染ファイルの除去により脅威を軽減できます。',
+      noHints: '現在利用できるヒントはありません。自分の判断でシステムを探索してください。',
       commands: {
         ls: 'ディレクトリ内容をリスト（-aで隠しファイル・ディレクトリも表示）',
         cd: 'ディレクトリを変更（「cd ..」で一つ上の階層へ移動、「..」は親ディレクトリ）',

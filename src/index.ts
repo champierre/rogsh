@@ -19,7 +19,7 @@ class rogsh {
     this.isDevelopmentMode = process.argv.includes('--skip-intro') ||
                             process.argv.includes('--dev') ||
                             process.env.NODE_ENV === 'development';
-    this.game = new Game();
+    this.game = new Game({ showHintKeys: this.isDevelopmentMode });
     this.rl = readline.createInterface({
       input,
       output,
@@ -53,7 +53,6 @@ class rogsh {
         console.log(chalk.gray('(演出スキップ済み)\n'));
       }
 
-      await this.displayTutorial();
     } else {
       // If loaded from save, show current status
       const welcomeMessage = this.locale === 'ja'
@@ -65,10 +64,6 @@ class rogsh {
       console.log(chalk.cyan(`\n${welcomeMessage}`));
       console.log(chalk.gray(`${continueMessage}\n`));
 
-      // Show tutorial if still in tutorial mode
-      if (this.game.isInTutorial()) {
-        await this.displayTutorial();
-      }
     }
     
     while (this.isRunning) {
@@ -102,13 +97,6 @@ class rogsh {
           break;
         }
 
-        // Display any events
-        const event = this.game.getLastEvent();
-        if (event && event.type === 'tutorial') {
-          // Display tutorial event in same format as displayTutorial
-          await this.displayTutorialEvent();
-        }
-
         // Check if game is over
         if (this.game.getState().isGameOver) {
           this.displayGameOver();
@@ -133,11 +121,6 @@ class rogsh {
 
     // Set up game state for the specified zone
     await this.game.setupDebugZone(zone);
-
-    // Show tutorial if in tutorial mode
-    if (this.game.isInTutorial()) {
-      await this.displayTutorial();
-    }
 
     // Start main game loop
     while (this.isRunning) {
@@ -169,12 +152,6 @@ class rogsh {
         if (result.shouldExit) {
           await this.exit();
           break;
-        }
-
-        // Display any events
-        const event = this.game.getLastEvent();
-        if (event && event.type === 'tutorial') {
-          await this.displayTutorialEvent();
         }
 
         // Check if game is over
@@ -307,44 +284,6 @@ class rogsh {
         await this.sleep(speed);
       }
       console.log(); // New line after each line
-    }
-  }
-
-  private async displayTutorial(): Promise<void> {
-    const tutorial = this.game.getTutorialMessage();
-    if (tutorial) {
-      await this.waitForEnter();
-
-      // Display description with typewriter effect - handle multi-paragraph descriptions
-      console.log();
-      const paragraphs = tutorial.description.split('\n\n');
-      for (const paragraph of paragraphs) {
-        if (paragraph.trim()) {
-          const speed = this.isDevelopmentMode ? 5 : 25;
-          await this.typewriterEffect(paragraph.trim(), chalk.cyan, speed);
-          console.log();
-        }
-      }
-
-      // ヒントは期待コマンドが露出するため表示しない
-    }
-  }
-
-  private async displayTutorialEvent(): Promise<void> {
-    const tutorial = this.game.getTutorialMessage();
-    if (tutorial) {
-      // Display description with typewriter effect - handle multi-paragraph descriptions
-      console.log();
-      const paragraphs = tutorial.description.split('\n\n');
-      for (const paragraph of paragraphs) {
-        if (paragraph.trim()) {
-          const speed = this.isDevelopmentMode ? 5 : 25;
-          await this.typewriterEffect(paragraph.trim(), chalk.cyan, speed);
-          console.log();
-        }
-      }
-
-      // ヒントはUIから除外している
     }
   }
 

@@ -1,43 +1,51 @@
-import { GameState, GameEvent, Zone1Step, Zone2Step, GameProgressFlags } from '../types/game.js';
+import { GameState, GameEvent, GameProgressFlags } from '../types/game.js';
 import { VirtualFileSystem } from './filesystem.js';
 import { CommandParser } from './commands.js';
 import { SaveManager, SaveData } from './saveManager.js';
 import { messages } from '../i18n/messages.js';
 import { getLocale } from '../i18n/locale.js';
+import {
+  createInitialZone1Flags,
+  updateZone1Flags,
+  getZone1Hint,
+  TutorialUpdateContext
+} from './tutorial/zone1.js';
+import {
+  createInitialZone2Flags,
+  updateZone2Flags,
+  getZone2Hint
+} from './tutorial/zone2.js';
 import chalk from 'chalk';
 import * as readline from 'readline/promises';
+
+interface GameOptions {
+  showHintKeys?: boolean;
+}
 
 export class Game {
   private state: GameState;
   private filesystem: VirtualFileSystem;
   private commandParser: CommandParser;
   private events: GameEvent[];
-  private tutorialSteps: Zone1Step[];
-  private zone2Steps: Zone2Step[];
-  private currentTutorialStep: number;
-  private currentZone2Step: number;
-  private isTutorialMode: boolean;
-  private isInZone2Mode: boolean;
   private locale: 'ja' | 'en';
   private saveManager: SaveManager;
   private completedZones: string[];
   private eventFlags: GameProgressFlags;
 
-  constructor() {
+  constructor(options: GameOptions = {}) {
     // ゲーム依存と初期ステートをまとめて構築する
     this.locale = getLocale();
     this.filesystem = new VirtualFileSystem(this.locale);
     this.commandParser = new CommandParser(this.filesystem, this.locale);
+    this.commandParser.setTutorialProvider(() => this.getTutorialMessage());
+    this.commandParser.setTutorialDebug(Boolean(options.showHintKeys));
     this.saveManager = new SaveManager(this.locale);
     this.events = [];
-    this.tutorialSteps = this.createZone1Steps();
-    this.zone2Steps = this.createZone2Steps();
-    this.currentTutorialStep = 0;
-    this.currentZone2Step = 0;
-    this.isTutorialMode = true;
-    this.isInZone2Mode = false;
     this.completedZones = [];
-    this.eventFlags = { hasEnteredZone1: false };
+    this.eventFlags = {
+      zone1: createInitialZone1Flags(),
+      zone2: createInitialZone2Flags()
+    };
 
     this.state = {
       hp: 50,
@@ -56,163 +64,17 @@ export class Game {
     };
   }
 
-  private createZone1Steps(): Zone1Step[] {
-    // ゾーン1チュートリアルの進行ステップを生成する
-    const msg = messages[this.locale];
-    return [
-      {
-        id: 'welcome',
-        description: msg.zone1.welcome.description,
-        expectedCommand: 'ls',
-        hint: msg.zone1.welcome.hint
-      },
-      {
-        id: 'explore_detailed',
-        description: msg.zone1.exploreDetailed.description,
-        expectedCommand: 'cd zone1',
-        hint: msg.zone1.exploreDetailed.hint
-      },
-      {
-        id: 'confirm_location',
-        description: msg.zone1.confirmLocation.description,
-        expectedCommand: 'ls',
-        hint: msg.zone1.confirmLocation.hint
-      },
-      {
-        id: 'read_readme',
-        description: msg.zone1.readReadme.description,
-        expectedCommand: 'cat README.txt',
-        hint: msg.zone1.readReadme.hint
-      },
-      {
-        id: 'navigate_to_tmp',
-        description: msg.zone1.navigateToTmp.description,
-        expectedCommand: 'cd tmp',
-        hint: msg.zone1.navigateToTmp.hint
-      },
-      {
-        id: 'confirm_tmp_location',
-        description: msg.zone1.confirmTmpLocation.description,
-        expectedCommand: 'ls',
-        hint: msg.zone1.confirmTmpLocation.hint
-      },
-      {
-        id: 'return_to_zone1',
-        description: msg.zone1.returnToZone1.description,
-        expectedCommand: 'rm virus.exe',
-        hint: msg.zone1.returnToZone1.hint
-      },
-      {
-        id: 'navigate_to_logs',
-        description: msg.zone1.navigateToLogs.description,
-        expectedCommand: 'cd ..',
-        hint: msg.zone1.navigateToLogs.hint
-      },
-      {
-        id: 'confirm_back_to_zone1',
-        description: msg.zone1.confirmBackToZone1.description,
-        expectedCommand: 'ls',
-        hint: msg.zone1.confirmBackToZone1.hint
-      },
-      {
-        id: 'scan_for_hidden',
-        description: msg.zone1.scanForHidden.description,
-        expectedCommand: 'cd logs',
-        hint: msg.zone1.scanForHidden.hint
-      },
-      {
-        id: 'confirm_logs_location',
-        description: msg.zone1.confirmLogsLocation.description,
-        expectedCommand: 'ls',
-        hint: msg.zone1.confirmLogsLocation.hint
-      },
-      {
-        id: 'enter_hidden_dir',
-        description: msg.zone1.enterHiddenDir.description,
-        expectedCommand: 'ls -a',
-        hint: msg.zone1.enterHiddenDir.hint
-      },
-      {
-        id: 'remove_malware',
-        description: msg.zone1.removeMalware.description,
-        expectedCommand: 'cd .hidden',
-        hint: msg.zone1.removeMalware.hint
-      },
-      {
-        id: 'confirm_hidden_location',
-        description: msg.zone1.confirmHiddenLocation.description,
-        expectedCommand: 'ls',
-        hint: msg.zone1.confirmHiddenLocation.hint
-      },
-      {
-        id: 'check_processes',
-        description: msg.zone1.checkProcesses.description,
-        expectedCommand: 'rm malware.dat',
-        hint: msg.zone1.checkProcesses.hint
-      },
-      {
-        id: 'tutorial_complete',
-        description: msg.zone1.complete.description,
-        expectedCommand: 'cd /',
-        hint: msg.zone1.complete.hint
-      },
-      {
-        id: 'move_to_root',
-        description: msg.zone1.moveToRoot.description,
-        expectedCommand: 'ls',
-        hint: msg.zone1.moveToRoot.hint
-      },
-      {
-        id: 'confirm_root_location',
-        description: msg.zone1.confirmRootLocation.description,
-        expectedCommand: 'cd zone2',
-        hint: msg.zone1.confirmRootLocation.hint
-      }
-    ];
-  }
-
-  private createZone2Steps(): Zone2Step[] {
-    // ゾーン2チュートリアルの進行ステップを生成する
-    const msg = messages[this.locale];
-    return [
-      {
-        id: 'zone2_welcome',
-        description: msg.zone2.welcome.description,
-        expectedCommand: 'ls', // 利用可能なディレクトリを確認するために ls を期待する
-        hint: msg.zone2.welcome.hint
-      },
-      {
-        id: 'read_instructions',
-        description: msg.zone2.readInstructions.description,
-        expectedCommand: 'cat README.txt',
-        hint: msg.zone2.readInstructions.hint
-      },
-      {
-        id: 'follow_primes',
-        description: msg.zone2.followPrimes.description,
-        expectedCommand: 'cd 2',
-        hint: msg.zone2.followPrimes.hint
-      },
-      {
-        id: 'find_hidden',
-        description: msg.zone2.findHidden.description,
-        expectedCommand: 'ls -a',
-        hint: msg.zone2.findHidden.hint
-      },
-      {
-        id: 'eliminate_target',
-        description: msg.zone2.eliminateTarget.description,
-        expectedCommand: 'rm quantum_virus.exe',
-        hint: msg.zone2.eliminateTarget.hint
-      }
-    ];
-  }
-
   async processCommand(input: string): Promise<{output: string, shouldExit?: boolean, attackEffect?: 'medium' | 'high'}> {
     // プレイヤー入力を解釈し状態更新やチュートリアル進行を処理する
     if (this.state.isGameOver) {
       return {output: chalk.red('Game Over. Restart to play again.')};
     }
+
+    const trimmed = input.trim();
+    const parts = trimmed.length > 0 ? trimmed.split(/\s+/) : [];
+    const command = parts.length > 0 ? parts[0] : null;
+    const args = parts.slice(1);
+    const previousPath = this.state.currentPath;
 
     // コマンドの実行を試みる
     const result = await this.commandParser.execute(input, this.state);
@@ -229,36 +91,21 @@ export class Game {
     // 現在パスを仮想ファイルシステムから取得する
     this.state.currentPath = this.filesystem.pwd();
 
-    // ゲーム開始後に初めて zone1 に入ったかどうかを記録する
-    if (!this.eventFlags.hasEnteredZone1 && this.state.currentPath.startsWith('/zone1')) {
-      this.eventFlags.hasEnteredZone1 = true;
-    }
+    const tutorialContext: TutorialUpdateContext = {
+      command,
+      args,
+      success: result.success,
+      previousPath,
+      currentPath: this.state.currentPath
+    };
+
+    updateZone1Flags(this.eventFlags.zone1, tutorialContext);
+    updateZone2Flags(this.eventFlags.zone2, tutorialContext);
+    this.syncProgressFlags();
+    this.trackZoneProgress();
 
     // ターン経過時の定常処理を行う
     this.processTurn();
-
-    // チュートリアルの進捗を判定する
-    if (this.isTutorialMode) {
-      this.checkTutorialProgress(input);
-    } else if (this.isInZone2Mode) {
-      this.checkZone2Progress(input);
-    }
-
-    // ゾーン2へ初めて入ったタイミングを検知する
-    if (!this.isTutorialMode && !this.isInZone2Mode &&
-        this.state.currentPath.startsWith('/zone2') &&
-        !this.completedZones.includes('zone2')) {
-      this.isInZone2Mode = true;
-      this.currentZone2Step = 0;
-      const step = this.zone2Steps[this.currentZone2Step];
-      this.addEvent({
-        type: 'tutorial',
-        message: `\n${step.description}`,
-        severity: 'info',
-        timestamp: new Date()
-      });
-    }
-
 
     // ゲームオーバー条件をチェックする
     this.checkGameOver();
@@ -277,86 +124,81 @@ export class Game {
     }
   }
 
-  private checkTutorialProgress(input: string): void {
-    // ゾーン1チュートリアルの達成状況をコマンドから判断する
-    if (this.currentTutorialStep >= this.tutorialSteps.length) {
-      this.isTutorialMode = false;
-      return;
+  private syncProgressFlags(): void {
+    const currentPath = this.state.currentPath;
+
+    if (currentPath.startsWith('/zone1')) {
+      this.eventFlags.zone1.enteredZone1 = true;
+    }
+    if (currentPath === '/') {
+      this.eventFlags.zone1.returnedRoot = true;
+    }
+    if (currentPath.startsWith('/zone2')) {
+      this.eventFlags.zone1.enteredZone2 = true;
+      this.eventFlags.zone2.enteredZone2 = true;
     }
 
-    const currentStep = this.tutorialSteps[this.currentTutorialStep];
-    
-    // 入力コマンドが期待値と一致するか確認する
-    if (currentStep.expectedCommand && input.trim() === currentStep.expectedCommand) {
-      this.currentTutorialStep++;
-      
-      if (this.currentTutorialStep < this.tutorialSteps.length) {
-        const nextStep = this.tutorialSteps[this.currentTutorialStep];
-        this.addEvent({
-          type: 'tutorial',
-          message: `\n${nextStep.description}`,
-          severity: 'info',
-          timestamp: new Date()
-        });
-      } else {
-        this.isTutorialMode = false;
+    if (!this.eventFlags.zone1.removedVirus) {
+      const virus = this.filesystem.getFile('/zone1/tmp/virus.exe');
+      if (!virus) {
+        this.eventFlags.zone1.removedVirus = true;
+        this.eventFlags.zone1.enteredZone1 = true;
+      }
+    }
 
-        this.addEvent({
-          type: 'tutorial',
-          message: chalk.green.bold(`\n${messages[this.locale].game.tutorialComplete}`),
-          severity: 'success',
-          timestamp: new Date()
-        });
+    if (!this.eventFlags.zone1.removedMalware) {
+      const malware = this.filesystem.getFile('/zone1/logs/.hidden/malware.dat');
+      if (!malware) {
+        this.eventFlags.zone1.removedMalware = true;
+        this.eventFlags.zone1.enteredZone1 = true;
+      }
+    }
+
+    if (!this.eventFlags.zone2.removedQuantumVirus) {
+      const quantumVirus = this.filesystem.getFile('/zone2/2/3/5/.quantum/quantum_virus.exe');
+      if (!quantumVirus) {
+        this.eventFlags.zone2.removedQuantumVirus = true;
+        this.eventFlags.zone2.enteredZone2 = true;
+      }
+    }
+
+    if (!this.eventFlags.zone2.removedDataCorruptor) {
+      const dataCorruptor = this.filesystem.getFile('/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/data_corruptor.bin');
+      if (!dataCorruptor) {
+        this.eventFlags.zone2.removedDataCorruptor = true;
+        this.eventFlags.zone2.enteredZone2 = true;
+      }
+    }
+
+    if (!this.eventFlags.zone2.removedSystemLeech) {
+      const systemLeech = this.filesystem.getFile('/zone2/2/3/5/.quantum/D41a&/wQ43au/p127x/.quantum/lol/Zll/lBl/.quantum/system_leech.dll');
+      if (!systemLeech) {
+        this.eventFlags.zone2.removedSystemLeech = true;
+        this.eventFlags.zone2.enteredZone2 = true;
       }
     }
   }
 
-  private checkZone2Progress(input: string): void {
-    if (this.currentZone2Step >= this.zone2Steps.length) {
-      return;
+  private trackZoneProgress(): void {
+    if (!this.completedZones.includes('zone1') && this.eventFlags.zone1.removedMalware) {
+      this.completedZones.push('zone1');
+      this.addEvent({
+        type: 'tutorial',
+        message: chalk.green.bold(`\n${messages[this.locale].game.tutorialComplete}`),
+        severity: 'success',
+        timestamp: new Date()
+      });
     }
 
-    const currentStep = this.zone2Steps[this.currentZone2Step];
-
-    // ゾーン2ステップで期待するコマンドと一致するか確認する
-    if (currentStep.expectedCommand && input.trim() === currentStep.expectedCommand) {
-      this.currentZone2Step++;
-
-      if (this.currentZone2Step < this.zone2Steps.length) {
-        const nextStep = this.zone2Steps[this.currentZone2Step];
-        this.addEvent({
-          type: 'tutorial',
-          message: `\n${nextStep.description}`,
-          severity: 'info',
-          timestamp: new Date()
-        });
-      } else {
-        // ゾーン2をクリアとして扱う
-        this.completeZone2();
-      }
-    }
-
-    // 敵ファイル削除でのゾーン2クリアを明示的に検出する
-    if (this.filesystem.isZone2Completed() && !this.completedZones.includes('zone2')) {
-      this.completeZone2();
-    }
-  }
-
-  private completeZone2(): void {
-    // ゾーン2クリア時の状態更新と通知をまとめて行う
-    this.isInZone2Mode = false;
-    this.currentZone2Step = this.zone2Steps.length;
-
-    if (!this.completedZones.includes('zone2')) {
+    if (!this.completedZones.includes('zone2') && this.filesystem.isZone2Completed()) {
       this.completedZones.push('zone2');
+      this.addEvent({
+        type: 'tutorial',
+        message: chalk.green.bold(`\n${messages[this.locale].zone2.complete.description}`),
+        severity: 'success',
+        timestamp: new Date()
+      });
     }
-
-    this.addEvent({
-      type: 'tutorial',
-      message: chalk.green.bold(`\n${messages[this.locale].zone2.complete.description}`),
-      severity: 'success',
-      timestamp: new Date()
-    });
   }
 
   private checkGameOver(): void {
@@ -416,24 +258,18 @@ export class Game {
     return { ...this.state };
   }
 
-  getTutorialMessage(): { description: string; hint: string } | null {
-    // アクティブなチュートリアルメッセージとヒントを取得する
-    // ゾーン1チュートリアル
-    if (this.isTutorialMode && this.currentTutorialStep < this.tutorialSteps.length) {
-      const step = this.tutorialSteps[this.currentTutorialStep];
-      return {
-        description: step.description,
-        hint: step.hint || ''
-      };
+  getTutorialMessage(): { description: string; hint?: string } | null {
+    const zone1Hint = getZone1Hint(this.eventFlags.zone1, this.locale);
+    if (zone1Hint) {
+      return zone1Hint;
     }
 
-    // ゾーン2チュートリアル
-    if (this.isInZone2Mode && this.currentZone2Step < this.zone2Steps.length) {
-      const step = this.zone2Steps[this.currentZone2Step];
-      return {
-        description: step.description,
-        hint: step.hint || ''
-      };
+    const zone2Available = this.filesystem.isZone2Unlocked() || this.eventFlags.zone2.enteredZone2;
+    if (zone2Available) {
+      const zone2Hint = getZone2Hint(this.eventFlags.zone2, this.locale);
+      if (zone2Hint) {
+        return zone2Hint;
+      }
     }
 
     return null;
@@ -446,7 +282,7 @@ export class Game {
 
   isInTutorial(): boolean {
     // チュートリアル進行中かを判定する
-    return this.isTutorialMode || this.isInZone2Mode;
+    return !this.completedZones.includes('zone2');
   }
 
   setReadlineInterface(rl: readline.Interface): void {
@@ -493,12 +329,6 @@ export class Game {
       } as GameState;
     }
 
-    // チュートリアルの進捗情報を復元する
-    this.currentTutorialStep = saveData.tutorialStep || 0;
-    this.currentZone2Step = saveData.zone2Step || 0;
-    this.isTutorialMode = saveData.isTutorialMode !== undefined ? saveData.isTutorialMode : true;
-    this.isInZone2Mode = saveData.isInZone2Mode !== undefined ? saveData.isInZone2Mode : false;
-
     // クリア済みゾーンを復元する
     this.completedZones = saveData.completedZones || [];
 
@@ -521,29 +351,52 @@ export class Game {
     }
 
     // イベントフラグを復元する
-    const savedZone1Flag = saveData.eventFlags?.hasEnteredZone1;
-    const derivedZone1Flag = savedZone1Flag !== undefined
-      ? savedZone1Flag
-      : (this.completedZones.includes('zone1') || this.state.currentPath.startsWith('/zone1'));
+    const zone1Flags = createInitialZone1Flags();
+    const zone2Flags = createInitialZone2Flags();
+
+    if (saveData.eventFlags) {
+      const raw = saveData.eventFlags as any;
+      if (raw.zone1) {
+        Object.assign(zone1Flags, raw.zone1);
+      }
+      if (raw.zone2) {
+        Object.assign(zone2Flags, raw.zone2);
+      }
+      if (typeof raw.hasEnteredZone1 === 'boolean') {
+        zone1Flags.enteredZone1 = raw.hasEnteredZone1;
+      }
+    }
+
+    if (this.completedZones.includes('zone1')) {
+      zone1Flags.enteredZone1 = true;
+      zone1Flags.removedVirus = true;
+      zone1Flags.removedMalware = true;
+      zone1Flags.returnedRoot = true;
+      zone1Flags.enteredZone2 = zone1Flags.enteredZone2 || this.filesystem.isZone2Unlocked();
+    }
+
+    if (this.filesystem.isZone2Completed()) {
+      zone2Flags.enteredZone2 = true;
+      zone2Flags.removedQuantumVirus = true;
+      zone2Flags.removedDataCorruptor = true;
+      zone2Flags.removedSystemLeech = true;
+    }
 
     this.eventFlags = {
-      hasEnteredZone1: derivedZone1Flag
+      zone1: zone1Flags,
+      zone2: zone2Flags
     };
+
+    this.state.currentPath = this.filesystem.pwd();
+    this.syncProgressFlags();
+    this.trackZoneProgress();
   }
 
   async saveProgress(): Promise<boolean> {
-    // 現状をセーブファイルへ保存する
-    // チュートリアルが終わっていればゾーン1クリアを記録する
-    if (!this.isTutorialMode && !this.completedZones.includes('zone1')) {
-      this.completedZones.push('zone1');
-    }
+    this.trackZoneProgress();
 
     return await this.saveManager.save(
       this.state,
-      this.currentTutorialStep,
-      this.currentZone2Step,
-      this.isTutorialMode,
-      this.isInZone2Mode,
       this.completedZones,
       this.filesystem.getDeletedHostileFiles(),
       this.filesystem.isZone2Unlocked(),
@@ -556,41 +409,80 @@ export class Game {
     switch (zone) {
       case 'zone1':
         // ゾーン1開始時点へリセットする
-        this.isTutorialMode = true;
-        this.isInZone2Mode = false;
-        this.currentTutorialStep = 0;
-        this.currentZone2Step = 0;
         this.completedZones = [];
         this.filesystem.changeDirectory('/');
-        this.eventFlags.hasEnteredZone1 = false;
+        this.eventFlags.zone1 = createInitialZone1Flags();
+        this.eventFlags.zone2 = createInitialZone2Flags();
+        this.syncProgressFlags();
         break;
 
       case 'zone2':
         // ゾーン2開始状態をセットアップする
-        this.isTutorialMode = false;
-        this.isInZone2Mode = true;
-        this.currentTutorialStep = this.tutorialSteps.length;
-        this.currentZone2Step = 0;
         this.completedZones = ['zone1'];
         // ゾーン2を解放し敵ファイル削除状態を調整する
         this.filesystem.setDeletedHostileFiles(['virus.exe', 'malware.dat']);
         this.filesystem.unlockZone2();
         this.filesystem.changeDirectory('/zone2');
-        this.eventFlags.hasEnteredZone1 = true;
+        this.eventFlags.zone1 = {
+          ...createInitialZone1Flags(),
+          listedRoot: true,
+          enteredZone1: true,
+          listedZone1: true,
+          readReadme: true,
+          enteredTmp: true,
+          listedTmp: true,
+          removedVirus: true,
+          enteredLogs: true,
+          listedLogs: true,
+          revealedHidden: true,
+          enteredHidden: true,
+          listedHidden: true,
+          removedMalware: true,
+          returnedRoot: true,
+          enteredZone2: true
+        };
+        this.eventFlags.zone2 = createInitialZone2Flags();
+        this.eventFlags.zone2.enteredZone2 = true;
+        this.syncProgressFlags();
         break;
 
       case 'zone3':
         // ゾーン3開始想定の暫定セットアップを行う
-        this.isTutorialMode = false;
-        this.isInZone2Mode = false;
-        this.currentTutorialStep = this.tutorialSteps.length;
-        this.currentZone2Step = this.zone2Steps.length;
         this.completedZones = ['zone1', 'zone2'];
         // ゾーン2を解放し敵ファイル全削除扱いにする
         this.filesystem.setDeletedHostileFiles(['virus.exe', 'malware.dat', 'quantum_virus.exe']);
         this.filesystem.unlockZone2();
         this.filesystem.changeDirectory('/');
-        this.eventFlags.hasEnteredZone1 = true;
+        this.eventFlags.zone1 = {
+          ...createInitialZone1Flags(),
+          listedRoot: true,
+          enteredZone1: true,
+          listedZone1: true,
+          readReadme: true,
+          enteredTmp: true,
+          listedTmp: true,
+          removedVirus: true,
+          enteredLogs: true,
+          listedLogs: true,
+          revealedHidden: true,
+          enteredHidden: true,
+          listedHidden: true,
+          removedMalware: true,
+          returnedRoot: true,
+          enteredZone2: true
+        };
+        this.eventFlags.zone2 = {
+          ...createInitialZone2Flags(),
+          enteredZone2: true,
+          listedZone2Root: true,
+          readInstructions: true,
+          enteredPrimePath: true,
+          revealedQuantumHidden: true,
+          removedQuantumVirus: true,
+          removedDataCorruptor: true,
+          removedSystemLeech: true
+        };
+        this.syncProgressFlags();
         break;
 
       default:
