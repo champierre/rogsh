@@ -24,6 +24,7 @@ export class Game {
   private unlockedCommands: string[];
 
   constructor() {
+    // ゲーム依存と初期ステートをまとめて構築する
     this.locale = getLocale();
     this.filesystem = new VirtualFileSystem(this.locale);
     this.commandParser = new CommandParser(this.filesystem, this.locale);
@@ -56,6 +57,7 @@ export class Game {
   }
 
   private createZone1Steps(): Zone1Step[] {
+    // ゾーン1チュートリアルの進行ステップを生成する
     const msg = messages[this.locale];
     return [
       {
@@ -170,12 +172,13 @@ export class Game {
   }
 
   private createZone2Steps(): Zone2Step[] {
+    // ゾーン2チュートリアルの進行ステップを生成する
     const msg = messages[this.locale];
     return [
       {
         id: 'zone2_welcome',
         description: msg.zone2.welcome.description,
-        expectedCommand: 'ls', // Add expected command to see available directories
+        expectedCommand: 'ls', // 利用可能なディレクトリを確認するために ls を期待する
         hint: msg.zone2.welcome.hint
       },
       {
@@ -206,36 +209,37 @@ export class Game {
   }
 
   async processCommand(input: string): Promise<{output: string, shouldExit?: boolean, attackEffect?: 'medium' | 'high'}> {
+    // プレイヤー入力を解釈し状態更新やチュートリアル進行を処理する
     if (this.state.isGameOver) {
       return {output: chalk.red('Game Over. Restart to play again.')};
     }
 
-    // Execute command
+    // コマンドの実行を試みる
     const result = await this.commandParser.execute(input, this.state);
 
-    // Check if we should exit (zone2 reached)
+    // ゾーン2到達などで終了すべきか確認する
     if (result.shouldExit) {
       return {output: result.output, shouldExit: true, attackEffect: result.attackEffect};
     }
 
-    // Update game state
+    // コマンド実行後のステータスを更新する
     this.state.energy = Math.max(0, this.state.energy - result.energyCost);
     this.state.turnCount++;
 
-    // Update current path
+    // 現在パスを仮想ファイルシステムから取得する
     this.state.currentPath = this.filesystem.pwd();
 
-    // Process turn effects
+    // ターン経過時の定常処理を行う
     this.processTurn();
 
-    // Check tutorial progress
+    // チュートリアルの進捗を判定する
     if (this.isTutorialMode) {
       this.checkTutorialProgress(input);
     } else if (this.isInZone2Mode) {
       this.checkZone2Progress(input);
     }
 
-    // Check if entering zone2 for the first time (and zone2 is not completed)
+    // ゾーン2へ初めて入ったタイミングを検知する
     if (!this.isTutorialMode && !this.isInZone2Mode &&
         this.state.currentPath.startsWith('/zone2') &&
         !this.completedZones.includes('zone2')) {
@@ -251,23 +255,25 @@ export class Game {
     }
 
 
-    // Check game over conditions
+    // ゲームオーバー条件をチェックする
     this.checkGameOver();
 
     return {output: result.output, attackEffect: result.attackEffect};
   }
 
   private processTurn(): void {
-    // Regenerate energy
+    // ターン経過時の自動回復や脅威レベル調整を行う
+    // エネルギーを回復させる
     this.state.energy = Math.min(this.state.maxEnergy, this.state.energy + 2);
 
-    // Threat decay
+    // 脅威レベルを減衰させる
     if (this.state.threatLevel > 0) {
       this.state.threatLevel = Math.max(0, this.state.threatLevel - 0.5);
     }
   }
 
   private checkTutorialProgress(input: string): void {
+    // ゾーン1チュートリアルの達成状況をコマンドから判断する
     if (this.currentTutorialStep >= this.tutorialSteps.length) {
       this.isTutorialMode = false;
       return;
@@ -275,7 +281,7 @@ export class Game {
 
     const currentStep = this.tutorialSteps[this.currentTutorialStep];
     
-    // Check if command matches expected
+    // 入力コマンドが期待値と一致するか確認する
     if (currentStep.expectedCommand && input.trim() === currentStep.expectedCommand) {
       this.currentTutorialStep++;
       
@@ -307,7 +313,7 @@ export class Game {
 
     const currentStep = this.zone2Steps[this.currentZone2Step];
 
-    // Check if the command matches the expected command for this step
+    // ゾーン2ステップで期待するコマンドと一致するか確認する
     if (currentStep.expectedCommand && input.trim() === currentStep.expectedCommand) {
       this.currentZone2Step++;
 
@@ -320,18 +326,19 @@ export class Game {
           timestamp: new Date()
         });
       } else {
-        // Zone2 completed
+        // ゾーン2をクリアとして扱う
         this.completeZone2();
       }
     }
 
-    // Special handling for zone2 completion (when all hostile files are deleted)
+    // 敵ファイル削除でのゾーン2クリアを明示的に検出する
     if (this.filesystem.isZone2Completed() && !this.completedZones.includes('zone2')) {
       this.completeZone2();
     }
   }
 
   private completeZone2(): void {
+    // ゾーン2クリア時の状態更新と通知をまとめて行う
     this.isInZone2Mode = false;
     this.currentZone2Step = this.zone2Steps.length;
 
@@ -348,6 +355,7 @@ export class Game {
   }
 
   private checkGameOver(): void {
+    // 各種閾値からゲームオーバー判定を行いイベントを記録する
     const msg = messages[this.locale];
     
     if (this.state.hp <= 0) {
@@ -382,10 +390,12 @@ export class Game {
   }
 
   private addEvent(event: GameEvent): void {
+    // イベントログに新しいイベントを追加する
     this.events.push(event);
   }
 
   getPrompt(): string {
+    // ステータスをカラー表示したプロンプト文字列を返す
     const hp = chalk.green(`HP=${this.state.hp}`);
     const ep = chalk.yellow(`EP=${this.state.energy}`);
     const threat = this.state.threatLevel > 10 ? chalk.red(`THR=${this.state.threatLevel}`) :
@@ -397,11 +407,13 @@ export class Game {
   }
 
   getState(): GameState {
+    // 現在のゲームステートをコピーして返す
     return { ...this.state };
   }
 
   getTutorialMessage(): { description: string; hint: string } | null {
-    // Zone1 tutorial
+    // アクティブなチュートリアルメッセージとヒントを取得する
+    // ゾーン1チュートリアル
     if (this.isTutorialMode && this.currentTutorialStep < this.tutorialSteps.length) {
       const step = this.tutorialSteps[this.currentTutorialStep];
       return {
@@ -410,7 +422,7 @@ export class Game {
       };
     }
 
-    // Zone2 tutorial
+    // ゾーン2チュートリアル
     if (this.isInZone2Mode && this.currentZone2Step < this.zone2Steps.length) {
       const step = this.zone2Steps[this.currentZone2Step];
       return {
@@ -423,18 +435,22 @@ export class Game {
   }
 
   getLastEvent(): GameEvent | null {
+    // 直近に発生したイベントを返す
     return this.events.length > 0 ? this.events[this.events.length - 1] : null;
   }
 
   isInTutorial(): boolean {
+    // チュートリアル進行中かを判定する
     return this.isTutorialMode || this.isInZone2Mode;
   }
 
   setReadlineInterface(rl: readline.Interface): void {
+    // セーブマネージャーに readline インターフェースを共有する
     this.saveManager.setReadlineInterface(rl);
   }
 
   async loadFromSave(rl: readline.Interface): Promise<boolean> {
+    // 保存データの存在確認からロードまでを対話的に行う
     this.saveManager.setReadlineInterface(rl);
 
     const saveExists = await this.saveManager.saveExists();
@@ -462,7 +478,7 @@ export class Game {
   }
 
   private applyLoadedData(saveData: SaveData): void {
-    // Apply saved game state
+    // 保存されていたゲームステートを適用する
     if (saveData.gameState) {
       this.state = {
         ...this.state,
@@ -472,21 +488,21 @@ export class Game {
       } as GameState;
     }
 
-    // Apply tutorial progress
+    // チュートリアルの進捗情報を復元する
     this.currentTutorialStep = saveData.tutorialStep || 0;
     this.currentZone2Step = saveData.zone2Step || 0;
     this.isTutorialMode = saveData.isTutorialMode !== undefined ? saveData.isTutorialMode : true;
     this.isInZone2Mode = saveData.isInZone2Mode !== undefined ? saveData.isInZone2Mode : false;
 
-    // Apply completed zones and unlocked commands
+    // クリア済みゾーンと解放済みコマンドを復元する
     this.completedZones = saveData.completedZones || [];
     this.unlockedCommands = saveData.unlockedCommands || ['ls', 'cd', 'pwd', 'cat', 'rm', 'help', 'clear'];
 
-    // Restore filesystem state
+    // 仮想ファイルシステムの敵ファイル削除状況を復元する
     const deletedFiles = saveData.deletedHostileFiles || [];
     this.filesystem.setDeletedHostileFiles(deletedFiles);
 
-    // Explicitly unlock zone2 if needed (handle backward compatibility)
+    // 後方互換のため必要に応じてゾーン2を再ロック解除する
     const isZone2Unlocked = saveData.isZone2Unlocked !== undefined
       ? saveData.isZone2Unlocked
       : this.filesystem.areAllHostileFilesDeleted();
@@ -495,14 +511,15 @@ export class Game {
       this.filesystem.unlockZone2();
     }
 
-    // Update filesystem path if needed
+    // 保存ステートが持つカレントパスへ移動する
     if (saveData.gameState?.currentPath) {
       this.filesystem.changeDirectory(saveData.gameState.currentPath);
     }
   }
 
   async saveProgress(): Promise<boolean> {
-    // Mark zone1 as completed if tutorial is finished
+    // 現状をセーブファイルへ保存する
+    // チュートリアルが終わっていればゾーン1クリアを記録する
     if (!this.isTutorialMode && !this.completedZones.includes('zone1')) {
       this.completedZones.push('zone1');
     }
@@ -521,17 +538,20 @@ export class Game {
   }
 
   getCompletedZones(): string[] {
+    // クリア済みゾーンの一覧を返す
     return [...this.completedZones];
   }
 
   getUnlockedCommands(): string[] {
+    // 解放済みコマンド一覧を返す
     return [...this.unlockedCommands];
   }
 
   async setupDebugZone(zone: string): Promise<void> {
+    // 開発用に指定ゾーンの状態へセットアップする
     switch (zone) {
       case 'zone1':
-        // Reset to zone1 start
+        // ゾーン1開始時点へリセットする
         this.isTutorialMode = true;
         this.isInZone2Mode = false;
         this.currentTutorialStep = 0;
@@ -541,26 +561,26 @@ export class Game {
         break;
 
       case 'zone2':
-        // Set up for zone2 start
+        // ゾーン2開始状態をセットアップする
         this.isTutorialMode = false;
         this.isInZone2Mode = true;
         this.currentTutorialStep = this.tutorialSteps.length;
         this.currentZone2Step = 0;
         this.completedZones = ['zone1'];
-        // Unlock zone2 and set deleted files to allow access
+        // ゾーン2を解放し敵ファイル削除状態を調整する
         this.filesystem.setDeletedHostileFiles(['virus.exe', 'malware.dat']);
         this.filesystem.unlockZone2();
         this.filesystem.changeDirectory('/zone2');
         break;
 
       case 'zone3':
-        // Set up for zone3 start (future implementation)
+        // ゾーン3開始想定の暫定セットアップを行う
         this.isTutorialMode = false;
         this.isInZone2Mode = false;
         this.currentTutorialStep = this.tutorialSteps.length;
         this.currentZone2Step = this.zone2Steps.length;
         this.completedZones = ['zone1', 'zone2'];
-        // Unlock zone2 and set all hostile files as deleted
+        // ゾーン2を解放し敵ファイル全削除扱いにする
         this.filesystem.setDeletedHostileFiles(['virus.exe', 'malware.dat', 'quantum_virus.exe']);
         this.filesystem.unlockZone2();
         this.filesystem.changeDirectory('/');
@@ -572,16 +592,18 @@ export class Game {
         break;
     }
 
-    // Update current path in state
+    // 状態のカレントパスを最新化する
     this.state.currentPath = this.filesystem.pwd();
   }
 
   getAvailableCommands(): string[] {
+    // コマンドパーサーが扱えるコマンドを列挙する
     return this.commandParser.getAvailableCommands();
   }
 
   getFileCompletions(partial: string): string[] {
-    // Get current directory items
+    // ファイル名補完に使う候補を現在ディレクトリから集める
+    // カレントディレクトリの項目を取得する
     const items = this.filesystem.listDirectory();
     const matches: string[] = [];
 
