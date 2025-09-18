@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-TypeScript sources live in `src/`. `src/core` holds the runtime systems (command handling, game loop, filesystem, save management). `src/i18n` stores localized copy grouped by zone, and `src/types` centralizes shared interfaces. The active CLI entry point is `src/index-simple.ts`; `src/index.ts` preserves legacy logic. Build artifacts land in `dist/`, while `run-game.sh` wraps the compiled CLI for quick playtests.
+TypeScript sources live in `src/`. `src/core` holds the runtime systems (command handling, game loop, filesystem, save management). `src/i18n` stores localized copy grouped by zone, and `src/types` centralizes shared interfaces. The CLI entry point is `src/index.ts`. Build artifacts land in `dist/`, while `run-game.sh` wraps the compiled CLI for quick playtests.
 
 ## Build, Test, and Development Commands
 - `npm run dev` starts the TypeScript CLI in watch mode; use `dev:zone1`, `dev:zone2`, or `dev:zone3` to jump directly to later zones.

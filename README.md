@@ -19,7 +19,7 @@ npm run dev
 npm start
 
 # Run directly with skip option
-node dist/index-simple.js --skip-intro
+node dist/index.js --skip-intro
 
 # Build for production
 npm run build
