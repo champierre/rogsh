@@ -129,6 +129,7 @@ export class Game {
 
     if (currentPath.startsWith('/zone1')) {
       this.eventFlags.zone1.enteredZone1 = true;
+      this.eventFlags.zone1.lastZone1Directory = currentPath;
     }
     if (currentPath === '/') {
       this.eventFlags.zone1.returnedRoot = true;

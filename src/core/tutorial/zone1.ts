@@ -24,7 +24,8 @@ export const createInitialZone1Flags = (): Zone1ProgressFlags => ({
   listedHidden: false,
   removedMalware: false,
   returnedRoot: false,
-  enteredZone2: false
+  enteredZone2: false,
+  lastZone1Directory: ''
 });
 
 const hasAllOption = (args: string[]): boolean =>
@@ -37,6 +38,12 @@ const hasAllOption = (args: string[]): boolean =>
 
 export const updateZone1Flags = (flags: Zone1ProgressFlags, ctx: TutorialUpdateContext): void => {
   const { command, args, success, currentPath } = ctx;
+
+  if (currentPath.startsWith('/zone1')) {
+    flags.enteredZone1 = true;
+    flags.lastZone1Directory = currentPath;
+  }
+
   if (!command || !success) {
     // Even on failed commands, update passive path-based flags
     if (currentPath === '/') {
@@ -53,6 +60,7 @@ export const updateZone1Flags = (flags: Zone1ProgressFlags, ctx: TutorialUpdateC
   if (lowerCommand === 'cd') {
     if (currentPath.startsWith('/zone1')) {
       flags.enteredZone1 = true;
+      flags.lastZone1Directory = currentPath;
     }
     if (currentPath === '/zone1/tmp') {
       flags.enteredTmp = true;
@@ -128,6 +136,10 @@ export const updateZone1Flags = (flags: Zone1ProgressFlags, ctx: TutorialUpdateC
 export const getZone1Hint = (flags: Zone1ProgressFlags, locale: 'ja' | 'en') => {
   const msg = messages[locale].zone1;
 
+  if (flags.lastZone1Directory == null) {
+    flags.lastZone1Directory = '';
+  }
+
   if (!flags.enteredZone1) {
     if (!flags.listedRoot) {
       return { description: msg.welcome, key: 'zone1.welcome' };
@@ -140,6 +152,9 @@ export const getZone1Hint = (flags: Zone1ProgressFlags, locale: 'ja' | 'en') => 
   }
 
   if (!flags.readReadme && !flags.removedVirus) {
+    if (flags.lastZone1Directory !== '/zone1') {
+      return { description: msg.returnToZone1Readme, key: 'zone1.returnToZone1Readme' };
+    }
     return { description: msg.readReadme, key: 'zone1.readReadme' };
   }
 

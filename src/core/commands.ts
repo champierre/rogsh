@@ -22,6 +22,17 @@ export class CommandParser {
   private locale: 'ja' | 'en';
   private tutorialProvider: (() => TutorialHintInfo | null) | null;
   private showHintKeys: boolean;
+
+  private formatWithMarkup(text: string, colorFn: (input: string) => string): string {
+    const segments = text.split(/(\*\*[^*]+\*\*)/g);
+    return segments.map(segment => {
+      if (segment.startsWith('**') && segment.endsWith('**')) {
+        const inner = segment.slice(2, -2);
+        return colorFn(chalk.bold(inner));
+      }
+      return colorFn(segment);
+    }).join('');
+  }
   constructor(filesystem: VirtualFileSystem, locale: 'ja' | 'en' = 'en') {
     this.filesystem = filesystem;
     this.locale = locale;
@@ -362,7 +373,7 @@ export class CommandParser {
 
     if (tutorial) {
       const description = tutorial.description.trim();
-      let output = chalk.cyan(description);
+      let output = this.formatWithMarkup(description, chalk.cyan);
       if (this.showHintKeys && tutorial.key) {
         output += `\n\n${chalk.gray(`[hint key: ${tutorial.key}]`)}`;
       }
@@ -376,7 +387,7 @@ export class CommandParser {
     const fallback = msg.help.noHints;
 
     return {
-      output: chalk.gray(fallback),
+      output: this.formatWithMarkup(fallback, chalk.gray),
       success: true,
       energyCost: 0
     };
