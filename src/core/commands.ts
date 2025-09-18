@@ -95,7 +95,7 @@ export class CommandParser {
 
       if (longFormat) {
         if (item.type === 'directory') {
-          output += chalk.blue(`drwxr-xr-x  agent cluster     - ${item.name}/\n`);
+          output += `drwxr-xr-x  agent cluster     - ${item.name}/\n`;
         } else {
           const file = item as any;
           const perms = this.formatPermissions(file.permissions);
@@ -108,7 +108,7 @@ export class CommandParser {
         }
       } else {
         if (item.type === 'directory') {
-          output += chalk.blue(`${item.name}/  `);
+          output += `${item.name}/  `;
         } else {
           const file = item as any;
           const color = getFileColor(file);

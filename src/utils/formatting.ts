@@ -46,16 +46,18 @@ export function formatGreenWithBold(text: string): string {
 
 /**
  * Gets appropriate color for a file based on its properties
+ * Only colors corrupted/threat files, others remain uncolored
  */
 export function getFileColor(file: any): (input: string) => string {
+  // Only color threat/corrupted files in red
   if (file.isCorrupted) return chalk.red;
   if (file.name === 'data_corruptor.bin') return chalk.red;
   if (file.name === 'virus.exe') return chalk.red;
   if (file.name === 'malware.dat') return chalk.red;
   if (file.name === 'quantum_virus.exe') return chalk.red;
   if (file.name === 'system_leech.dll') return chalk.red;
-  if (file.name.endsWith('.sh')) return chalk.green;
-  if (file.name === 'README.txt') return chalk.yellow;
-  if (file.isHidden) return chalk.gray;
-  return chalk.white;
+
+  // All other files (including error.log, system.log, README.txt, .sh files, etc.)
+  // remain uncolored - return identity function for no color
+  return (text: string) => text;
 }
