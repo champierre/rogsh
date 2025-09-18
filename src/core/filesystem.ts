@@ -329,8 +329,12 @@ Remove immediately to secure Zone 1.`,
       // Absolute path
       dir = this.root;
       const dirPath = parts.filter(p => p).join('/');
-      if (dirPath && !this.navigateToDirectory(dirPath, dir)) {
-        return null;
+      if (dirPath) {
+        const targetDir = this.navigateToDirectory(dirPath, dir);
+        if (!targetDir) {
+          return null;
+        }
+        dir = targetDir;
       }
     } else if (parts.length > 0) {
       // Relative path with directory
