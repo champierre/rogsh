@@ -2,74 +2,68 @@
 
 Unix command-line learning roguelike game
 
-## Overview
+## Quick Start
 
-rogsh is an educational roguelike game that teaches Unix command-line skills through dungeon exploration. Players navigate a virtual filesystem-based dungeon using real Unix commands, battling corrupted processes and solving system problems.
-
-## Installation
+**Play immediately without installation:**
 
 ```bash
-# Install dependencies
-npm install
+npx rogsh
+```
 
-# Run in development mode (with intro animation skipped)
-npm run dev
+## Overview
 
-# Run with full intro animation
-npm start
+rogsh is an educational roguelike game that teaches Unix command-line skills through an immersive cyberpunk adventure. Navigate a virtual filesystem as Agent-7, using real Unix commands to eliminate corrupted files and restore system stability.
 
-# Run directly with skip option
-node dist/index.js --skip-intro
+![](rogsh.gif)
 
-# Build for production
-npm run build
+## Features
+
+- **Learn Unix commands** through hands-on gameplay
+- **Immersive storyline** set in a cyberpunk future
+- **Progressive tutorial** with guided hints
+- **Multiple zones** with increasing complexity
+- **Japanese and English** language support
+- **No installation required** - play instantly with npx
+
+## Installation (Optional)
+
+If you prefer to install locally:
+
+```bash
+npm install -g rogsh
+rogsh
 ```
 
 ## How to Play
 
 ### Basic Commands
 
-- `ls` - List directory contents
+- `ls` - List directory contents (use `ls -a` to show hidden files)
 - `cd <dir>` - Change directory
 - `pwd` - Print working directory
 - `cat <file>` - Display file contents
-- `ps` - List processes
-- `kill <pid>` - Terminate process
-- `help` - Show available commands
-- `man <command>` - Show command manual
+- `rm <file>` - Remove files (eliminate threats)
+- `help` - Show hints and available commands
+- `exit` or `quit` - Exit the game
 
 ### Game Mechanics
 
-- Each Unix command costs Energy Points (EP)
-- Monitor your HP (System Integrity) and Threat Level
-- Kill hostile processes to reduce threat
-- Explore directories to find resources and complete objectives
-- Follow the tutorial to learn the basics
+- Use Unix commands to navigate the filesystem
+- Find and eliminate corrupted files (shown in red)
+- Follow the tutorial hints to progress through zones
+- Explore thoroughly - some files are hidden
+- Read README.txt files for important information
 
 ## Game Status Display
 
 ```
-rogsh:[HP=50 EP=40 THR=7 /srv/cluster/zone1]$
+rogsh:[HP=100 EP=50 THR=3 /zone1]$
 ```
 
 - **HP**: System Integrity (health)
-- **EP**: Energy Points (action points)
-- **THR**: Threat Level (danger level)
+- **EP**: Energy Points (remaining actions)
+- **THR**: Threat Level (corruption intensity)
 - **Path**: Current location in the filesystem
-
-## Enemy Types
-
-- **ZombieProcess**: Low HP, leaves threat if not killed
-- **LogLeech**: Consumes disk space through log inflation
-- **ForkSprite**: Spawns child processes over time
-
-## Tips
-
-- Conserve energy by using efficient commands
-- Kill high-threat processes first
-- Explore thoroughly to find hidden files and resources
-- Read log files for clues about system problems
-- Keep threat level below 20 to avoid game over
 
 ## Development
 
