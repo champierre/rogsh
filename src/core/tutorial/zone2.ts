@@ -1,5 +1,4 @@
 import { Zone2ProgressFlags } from '../../types/game.js';
-import { messages } from '../../i18n/messages.js';
 
 import type { TutorialUpdateContext } from './zone1.js';
 
@@ -107,76 +106,74 @@ export const updateZone2Flags = (flags: Zone2ProgressFlags, ctx: TutorialUpdateC
   }
 };
 
-export const getZone2Hint = (flags: Zone2ProgressFlags, locale: 'ja' | 'en') => {
+export const getZone2Hint = (flags: Zone2ProgressFlags): string | null => {
   if (!flags.enteredZone2) {
     return null;
   }
 
-  const msg = messages[locale].zone2;
-
   // Step 1: List files first
   if (!flags.listedZone2Root) {
-    return { description: msg.welcome, key: 'zone2.welcome' };
+    return 'welcome';
   }
 
   // Step 2: Read README
   if (!flags.readInstructions) {
-    return { description: msg.readInstructions, key: 'zone2.readInstructions' };
+    return 'readInstructions';
   }
 
   // Step 3: Enter first prime directory
   if (!flags.enteredDir2) {
-    return { description: msg.followPrimes, key: 'zone2.followPrimes' };
+    return 'followPrimes';
   }
 
   // Step 4: Continue to next prime
   if (!flags.enteredDir3) {
-    return { description: msg.nextPrime3, key: 'zone2.nextPrime3' };
+    return 'nextPrime3';
   }
 
   // Step 5: Continue to next prime
   if (!flags.enteredDir5) {
-    return { description: msg.nextPrime5, key: 'zone2.nextPrime5' };
+    return 'nextPrime5';
   }
 
   // Step 6: List directory 5
   if (!flags.listedDir5) {
-    return { description: msg.explorePrime5, key: 'zone2.explorePrime5' };
+    return 'explorePrime5';
   }
 
   // Step 7: Find hidden directory
   if (!flags.revealedQuantumHidden) {
-    return { description: msg.findHidden, key: 'zone2.findHidden' };
+    return 'findHidden';
   }
 
   // Step 8: Enter hidden directory
   if (!flags.enteredHidden) {
-    return { description: msg.enterHidden, key: 'zone2.enterHidden' };
+    return 'enterHidden';
   }
 
   // Step 9: List hidden directory contents
   if (!flags.listedHidden) {
-    return { description: msg.exploreHidden, key: 'zone2.exploreHidden' };
+    return 'exploreHidden';
   }
 
   // Step 10: First virus elimination
   if (!flags.removedQuantumVirus) {
-    return { description: msg.eliminateTarget, key: 'zone2.eliminateTarget' };
+    return 'eliminateTarget';
   }
 
   // Step 11: Explore corrupted directories
   if (!flags.exploredCorrupted) {
-    return { description: msg.exploreCorrupted, key: 'zone2.exploreCorrupted' };
+    return 'exploreCorrupted';
   }
 
   // Step 12: Find and remove remaining threats
   if (!flags.removedDataCorruptor) {
-    return { description: msg.findMoreThreats, key: 'zone2.findMoreThreats' };
+    return 'findMoreThreats';
   }
 
   // Step 13: Final threat
   if (!flags.removedSystemLeech) {
-    return { description: msg.finalThreat, key: 'zone2.finalThreat' };
+    return 'finalThreat';
   }
 
   return null;

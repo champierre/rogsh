@@ -1,7 +1,7 @@
 import { VirtualFileSystem } from './filesystem.js';
 import { GameState } from '../types/game.js';
 import { messages } from '../i18n/messages.js';
-import { formatWithMarkup, getFileColor } from '../utils/formatting.js';
+import { formatWithMarkup, getFileColor, addHintKey } from '../utils/formatting.js';
 import chalk from 'chalk';
 
 export interface CommandResult {
@@ -41,7 +41,7 @@ export class CommandParser {
     const args = parts.slice(1);
 
     if (!this.availableCommands.has(command)) {
-      const msg = messages[this.locale];
+      const msg = messages[this.locale as 'ja'];
       return {
         output: chalk.red(`${msg.commands.notFound}: ${command}. Type 'help' for available commands.`),
         success: false,
@@ -243,10 +243,8 @@ export class CommandParser {
         if (this.filesystem.areAllHostileFilesDeleted()) {
           if (this.locale === 'ja') {
             output += chalk.cyan(`\n\n[システムアラート] 全ての敵対ファイルを排除完了！Zone 2ゲートウェイが起動しました！`);
-            output += chalk.cyan(`\n\n「cd /」でルートディレクトリに移動してください。`);
           } else {
             output += chalk.cyan(`\n\n[SYSTEM ALERT] All hostile files eliminated! Zone 2 gateway activated!`);
-            output += chalk.cyan(`\n\nUse "cd /" to return to root directory.`);
           }
         }
 
@@ -337,7 +335,7 @@ export class CommandParser {
   }
 
   private help(): CommandResult {
-    const msg = messages[this.locale];
+    const msg = messages[this.locale as 'ja'];
     const tutorial = this.tutorialProvider ? this.tutorialProvider() : null;
 
     if (tutorial) {
@@ -345,9 +343,7 @@ export class CommandParser {
       const base = (value: string) => chalk.cyan(value);
       const emphasis = (value: string) => chalk.cyan.bold(value);
       let output = formatWithMarkup(description, base, emphasis);
-      if (this.showHintKeys && tutorial.key) {
-        output += `\n\n${chalk.gray(`[hint key: ${tutorial.key}]`)}`;
-      }
+      output = addHintKey(output, tutorial.key, this.showHintKeys);
       return {
         output,
         success: true,

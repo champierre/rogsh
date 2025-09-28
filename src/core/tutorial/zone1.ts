@@ -1,5 +1,4 @@
 import { Zone1ProgressFlags } from '../../types/game.js';
-import { messages } from '../../i18n/messages.js';
 
 export interface TutorialUpdateContext {
   command: string | null;
@@ -23,7 +22,6 @@ export const createInitialZone1Flags = (): Zone1ProgressFlags => ({
   enteredHidden: false,
   listedHidden: false,
   removedMalware: false,
-  returnedRoot: false,
   enteredZone2: false,
   lastZone1Directory: ''
 });
@@ -45,10 +43,6 @@ export const updateZone1Flags = (flags: Zone1ProgressFlags, ctx: TutorialUpdateC
   }
 
   if (!command || !success) {
-    // Even on failed commands, update passive path-based flags
-    if (currentPath === '/') {
-      flags.returnedRoot = true;
-    }
     if (currentPath.startsWith('/zone2')) {
       flags.enteredZone2 = true;
     }
@@ -58,9 +52,10 @@ export const updateZone1Flags = (flags: Zone1ProgressFlags, ctx: TutorialUpdateC
   const lowerCommand = command.toLowerCase();
 
   if (lowerCommand === 'cd') {
+    flags.lastZone1Directory = currentPath;
+
     if (currentPath.startsWith('/zone1')) {
       flags.enteredZone1 = true;
-      flags.lastZone1Directory = currentPath;
     }
     if (currentPath === '/zone1/tmp') {
       flags.enteredTmp = true;
@@ -70,10 +65,6 @@ export const updateZone1Flags = (flags: Zone1ProgressFlags, ctx: TutorialUpdateC
     }
     if (currentPath === '/zone1/logs/.hidden') {
       flags.enteredHidden = true;
-      flags.revealedHidden = true;
-    }
-    if (currentPath === '/') {
-      flags.returnedRoot = true;
     }
     if (currentPath.startsWith('/zone2')) {
       flags.enteredZone2 = true;
@@ -120,88 +111,111 @@ export const updateZone1Flags = (flags: Zone1ProgressFlags, ctx: TutorialUpdateC
     }
     if (target === 'malware.dat') {
       flags.removedMalware = true;
-      flags.revealedHidden = true;
     }
   }
 
-  // Passive updates after handling command specifics
-  if (currentPath === '/') {
-    flags.returnedRoot = true;
-  }
   if (currentPath.startsWith('/zone2')) {
     flags.enteredZone2 = true;
   }
 };
 
-export const getZone1Hint = (flags: Zone1ProgressFlags, locale: 'ja' | 'en') => {
-  const msg = messages[locale].zone1;
-
+export const getZone1Hint = (flags: Zone1ProgressFlags): string | null => {
   if (flags.lastZone1Directory == null) {
     flags.lastZone1Directory = '';
   }
 
   if (!flags.enteredZone1) {
     if (!flags.listedRoot) {
-      return { description: msg.welcome, key: 'zone1.welcome' };
+      return 'lsAtRoot';
     }
-    return { description: msg.exploreDetailed, key: 'zone1.exploreDetailed' };
+    return 'cdZone1FromRoot';
   }
 
-  if (!flags.listedZone1 && !flags.enteredTmp && !flags.removedVirus) {
-    return { description: msg.confirmLocation, key: 'zone1.confirmLocation' };
+  if (!flags.listedZone1) {
+    if (flags.lastZone1Directory === '/zone1') {
+      return 'lsAtZone1';
+    }
+    return 'cdZone1';
   }
 
-  if (!flags.readReadme && !flags.removedVirus) {
-    if (flags.lastZone1Directory !== '/zone1') {
-      return { description: msg.returnToZone1Readme, key: 'zone1.returnToZone1Readme' };
+  if (!flags.readReadme) {
+    if (flags.lastZone1Directory === '/zone1') {
+      return 'catReadme';
     }
-    return { description: msg.readReadme, key: 'zone1.readReadme' };
+    return 'cdZone1AndCatReadme';
+  }
+
+  if (!flags.enteredTmp) {
+    if (flags.lastZone1Directory === '/zone1') {
+      return 'cdTmpFromZone1';
+    }
+    return 'cdTmp';
+  }
+
+  if (!flags.listedTmp) {
+    if (flags.lastZone1Directory === '/zone1/tmp') {
+      return 'lsAtTmp';
+    }
+    return 'cdTmp';
   }
 
   if (!flags.removedVirus) {
-    const inTmp = flags.lastZone1Directory === '/zone1/tmp';
-    if (!flags.enteredTmp) {
-      return { description: msg.navigateToTmp, key: 'zone1.navigateToTmp' };
+    if (flags.lastZone1Directory === '/zone1/tmp') {
+      return 'rmVirus';
     }
-    if (inTmp && !flags.listedTmp) {
-      return { description: msg.confirmTmpLocation, key: 'zone1.confirmTmpLocation' };
-    }
-    if (inTmp) {
-      return { description: msg.returnToZone1, key: 'zone1.returnToZone1' };
-    }
-    return { description: msg.navigateToTmp, key: 'zone1.navigateToTmp' };
+    return 'cdTmp';
   }
 
   if (!flags.enteredLogs) {
-    return { description: msg.scanForHidden, key: 'zone1.scanForHidden' };
+    if (flags.lastZone1Directory === '/zone1/tmp') {
+      return 'cdZone1AfterVirusRemoved';
+    }
+    if (flags.lastZone1Directory === '/zone1') {
+      return 'cdLogsFromZone1';
+    }
+    return 'cdLogs';
   }
 
   if (!flags.listedLogs) {
-    return { description: msg.confirmLogsLocation, key: 'zone1.confirmLogsLocation' };
+    if (flags.lastZone1Directory === '/zone1/logs') {
+      return 'lsAtLogs';
+    }
+    return 'cdLogs';
   }
 
   if (!flags.revealedHidden) {
-    return { description: msg.enterHiddenDir, key: 'zone1.enterHiddenDir' };
+    if (flags.lastZone1Directory === '/zone1/logs') {
+      return 'lsAllAtLogs';
+    }
+    return 'cdLogs';
   }
 
   if (!flags.enteredHidden) {
-    return { description: msg.removeMalware, key: 'zone1.removeMalware' };
+    if (flags.lastZone1Directory === '/zone1/logs') {
+      return 'cdHiddenFromLogs';
+    }
+    return 'cdHidden';
   }
 
   if (!flags.listedHidden) {
-    return { description: msg.confirmHiddenLocation, key: 'zone1.confirmHiddenLocation' };
+    if (flags.lastZone1Directory === '/zone1/logs/.hidden') {
+      return 'lsAtHidden';
+    }
+    return 'cdHidden';
   }
 
   if (!flags.removedMalware) {
-    return { description: msg.checkProcesses, key: 'zone1.checkProcesses' };
+    if (flags.lastZone1Directory === '/zone1/logs/.hidden') {
+      return 'rmMalware';
+    }
+    return 'cdHidden';
   }
 
-  if (!flags.returnedRoot) {
-    return { description: msg.complete, key: 'zone1.complete' };
-  }
-
-  if (!flags.enteredZone2) {
-    return { description: msg.confirmRootLocation, key: 'zone1.confirmRootLocation' };
+  if (!flags.enteredZone2) {    
+    if (flags.lastZone1Directory === '/') {
+      return 'cdZone2';
+    }
+    return 'cdRootAfterMalwareRemoved';
   }
 
   return null;

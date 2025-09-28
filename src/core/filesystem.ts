@@ -161,7 +161,7 @@ TO BE CONTINUED...`;
     this.zone2.files.set('README.txt', this.createFile(
       'README.txt',
       'file',
-      messages[this.locale].zones.zone2readme
+      messages[this.locale as 'ja'].zones.zone2readme
     ));
 
     // Add enemy files in hidden directory
@@ -194,7 +194,7 @@ Immediate removal required to prevent cascade failure.`,
     zone1.files.set('README.txt', this.createFile(
       'README.txt',
       'file',
-      messages[this.locale].zones.readme
+      messages[this.locale as 'ja'].zones.readme
     ));
     
     

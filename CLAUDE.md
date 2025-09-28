@@ -71,3 +71,11 @@ The game aims to teach:
 - Process management (ps, kill, top)
 - Text processing (grep, find, awk, sed)
 - System administration concepts through gameplay metaphors
+
+## Development Guidelines
+
+**IMPORTANT: 最小限の実装を心がけること**
+- 指示されたこと以外の修正や機能追加を行わない
+- 最低限の実装だけを行う
+- 追加の改善や最適化は明示的に要求されない限り避ける
+- バグ修正や型エラーの解決は指示された変更を実現するために必要な場合のみ行う

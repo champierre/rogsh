@@ -10,27 +10,27 @@ export interface Messages {
     exitHint: string;
   };
   zone1: {
-    welcome: string;
-    exploreDetailed: string;
-    confirmLocation: string;
-    readReadme: string;
-    returnToZone1Readme: string;
-    navigateToTmp: string;
-    confirmTmpLocation: string;
-    returnToZone1: string;
-    navigateToLogs: string;
-    confirmBackToZone1: string;
-    scanForHidden: string;
-    confirmLogsLocation: string;
-    enterHiddenDir: string;
-    removeMalware: string;
-    confirmHiddenLocation: string;
-    checkProcesses: string;
-    deleteFinalMalware: string;
-    exploreLogs: string;
-    complete: string;
-    moveToRoot: string;
-    confirmRootLocation: string;
+    lsAtRoot: string;
+    cdZone1FromRoot: string;
+    cdZone1: string;
+    lsAtZone1: string;
+    catReadme: string;
+    cdZone1AndCatReadme: string;
+    cdTmpFromZone1: string;
+    cdTmp: string;
+    lsAtTmp: string;
+    rmVirus: string;
+    cdZone1AfterVirusRemoved: string;
+    cdLogs: string;
+    cdLogsFromZone1: string;
+    lsAtLogs: string;
+    lsAllAtLogs: string;
+    cdHiddenFromLogs: string;
+    cdHidden: string;
+    lsAtHidden: string;
+    rmMalware: string;
+    cdRootAfterMalwareRemoved: string;
+    cdZone2: string;
   };
   zone2: {
     welcome: string;
@@ -104,151 +104,7 @@ export interface Messages {
   };
 }
 
-export const messages: { en: Messages; ja: Messages } = {
-  en: {
-    welcome: {
-      title: `Unix Command Learning Roguelike v${getVersion()}`,
-      subtitle: '═══ SYSTEM INITIALIZATION ═══',
-      description1: 'CLASSIFIED BRIEFING - CLEARANCE LEVEL: OMEGA\n\nThe year is 2087. The Ω(Omega)-Cluster, humanity\'s most advanced quantum computing network, has suffered a catastrophic system breach. Corrupted processes are spreading like a digital plague, threatening to collapse the entire infrastructure that keeps our civilization running.\n\nYou are Agent-7 (Agent Seven), an elite maintenance operative trained in ancient Unix protocols - skills thought obsolete until now.',
-      description2: '[MISSION BRIEFING]\nCorrupted entities have infiltrated the filesystem layers. Your neural interface has been calibrated to translate system commands into direct environmental manipulation. Every Unix command you execute will reshape reality within the digital realm.\n\n[HUD INTERFACE] Your neural HUD (Heads-Up Display) projects critical survival metrics directly into your field of vision:\n• HP: System Integrity (health)\n• EP: CPU Quota (energy for commands)\n• THR: Threat Level (corruption intensity)\n• Current digital location path\n\n[WARNING] Higher threat levels spawn more dangerous entities and destabilize the environment. Monitor your HUD constantly and eliminate corrupted processes to reduce the threat.\n\nTime is running out. The corruption spreads with each passing cycle.',
-      helpHint: '[NEURAL LINK] Neural link established. Type **help** to show hints.',
-      exitHint: '[EMERGENCY] Emergency extraction: Type **exit** or **quit** to abort mission.'
-    },
-    zone1: {
-      welcome: 'You are a maintenance agent in the Ω(Omega)-Cluster. Your mission is to clean corrupted processes and restore system stability.\n\nFirst, let\'s explore your current location. Type **ls** (list) to see all files and directories here.',
-      exploreDetailed: 'Good! You can see Zone 1. This is the training area.\n\nUse **cd zone1** (change directory) to enter Zone 1.',
-      confirmLocation: 'You\'ve entered Zone 1! After moving to a directory, check the files within that directory to understand the situation. Type **ls** to see what files and directories are available in this zone.',
-      readReadme: 'Excellent! You found the README.txt file. This file contains mission details. Use **cat README.txt** (concatenate/display) to read the mission briefing.',
-      returnToZone1Readme: 'Return to zone1 using the absolute path **cd /zone1** and review README.txt before proceeding deeper.',
-      navigateToTmp: 'Perfect! You\'ve read the mission details. According to README.txt, virus.exe is in the tmp directory. Use **cd tmp** (change directory) to move to the tmp directory.',
-      confirmTmpLocation: 'You\'ve entered the tmp directory! After moving to a directory, check the files within that directory to understand the situation. Use **ls** to see the contents of this directory and find the virus.exe file.',
-      returnToZone1: 'Perfect! You found the virus.exe file. This is the hostile file. Use **rm virus.exe** (remove) to eliminate this file.',
-      navigateToLogs: 'Excellent! First target eliminated. Now return to zone1 directory. Use **cd ..** (where .. means parent directory) to go back up one level.',
-      confirmBackToZone1: 'You\'re back in zone1! After moving to a directory, check the files within that directory to understand the situation. Use **ls** to see available directories. You should see the logs directory.',
-      scanForHidden: 'Good! Now navigate to the logs directory where the second enemy file is hidden. Use **cd logs**.',
-      confirmLogsLocation: 'You\'ve entered the logs directory! After moving to a directory, check the files within that directory to understand the situation. Use **ls** to see the contents of this directory.',
-      enterHiddenDir: 'You\'ve checked the logs directory contents. However, the target is concealed. Use **ls -a** to reveal hidden files and directories (those starting with a dot).',
-      removeMalware: 'Excellent! You found the hidden directory ".hidden". Navigate into it to locate the final target. Use **cd .hidden**.',
-      confirmHiddenLocation: 'You\'ve entered the hidden directory! After moving to a directory, check the files within that directory to understand the situation. Use **ls** to see what\'s in this directory.',
-      checkProcesses: 'Perfect! You found the malware.dat file. This is the final target. Use **rm malware.dat** to eliminate the final hostile file and complete your mission.',
-      deleteFinalMalware: 'Perfect! You\'re now in the hidden directory. Use **rm malware.dat** to eliminate the final hostile file and complete your mission.',
-      exploreLogs: 'Good work! Now navigate to the logs directory. Use **cd logs** to change directory.',
-      complete: 'Excellent! You\'ve mastered the basics:\n- Navigation (ls, cd)\n- File reading (cat)\n- File removal (rm)\n\nYou\'re ready to continue exploring the Ω(Omega)-Cluster!',
-      moveToRoot: 'You\'re back at the root directory! First, let\'s check the current situation.',
-      confirmRootLocation: 'Perfect! The zone2 directory has been unlocked. It\'s time to enter zone2.'
-    },
-    zone2: {
-      welcome: 'You\'ve entered Zone 2 - The Quantum Layer.\n\nFirst, use **ls** to examine the directory structure.',
-      readInstructions: 'Good! You can see README.txt.\n\nUse **cat README.txt** to read the mission briefing for Zone 2.',
-      followPrimes: 'The README mentions prime numbers are the key.\n\nNotice the numbered directories? Start with **cd 2** (2 is the first prime).',
-      nextPrime3: 'Excellent! You\'re in directory 2.\n\nContinue following the prime path with **cd 3** (3 is the next prime).',
-      nextPrime5: 'Perfect! Now in directory 3.\n\nContinue with **cd 5** (5 is the next prime after 3).',
-      explorePrime5: 'You\'ve reached directory 5!\n\nUse **ls** to see what\'s here.',
-      findHidden: 'The directory seems empty, but quantum anomalies are often hidden.\n\nUse **ls -a** to reveal hidden files and directories.',
-      enterHidden: 'Excellent! You found the .hidden directory.\n\nEnter it with **cd .hidden**',
-      exploreHidden: 'You\'re inside the hidden quantum space.\n\nUse **ls** to see what threats lurk here.',
-      eliminateTarget: 'Quantum virus detected!\n\nEliminate it with **rm quantum_virus.exe**',
-      exploreCorrupted: 'The virus removal revealed corrupted directories!\n\nExplore them using **ls** and **cd** to find remaining threats.',
-      findMoreThreats: 'There are more threats hidden in the corrupted directories.\n\nSearch through the maze-like structure to find and eliminate them.',
-      finalThreat: 'Almost done! One final threat remains.\n\nFind and eliminate system_leech.dll to complete Zone 2.',
-      complete: 'Zone 2 secured. Quantum containment restored.'
-    },
-    commands: {
-      notFound: 'Command not found',
-      notImplemented: 'Command not implemented',
-      error: 'Error executing',
-      missingOperand: 'missing operand',
-      noSuchFile: 'No such file',
-      noSuchDirectory: 'No such directory',
-      isDirectory: 'Is a directory',
-      invalidProcessId: 'invalid process id',
-      noSuchProcess: 'No such process',
-      processTerminated: 'terminated. Threat',
-      fileNotExecutable: 'Made executable',
-      invalidMode: 'invalid mode',
-      noMatches: 'no matches for',
-      directoryEmpty: 'Directory is empty'
-    },
-    game: {
-      gameOver: 'GAME OVER',
-      finalStats: 'Final Statistics:',
-      turnsSurvived: 'Turns Survived',
-      knowledgeGained: 'Knowledge Gained',
-      finalThreatLevel: 'Final Threat Level',
-      depthReached: 'Depth Reached',
-      thankYou: 'Thank you for playing rogsh!',
-      exitMessage: 'Exiting rogsh. Goodbye!',
-      systemPanic: 'SYSTEM PANIC: Integrity critical. Game Over.',
-      diskFull: 'DISK FULL: System unresponsive. Game Over.',
-      threatCritical: 'THREAT CRITICAL: System compromised. Game Over.',
-      tutorialComplete: '[SUCCESS] Tutorial Complete! You are now free to explore.'
-    },
-    help: {
-      title: 'Available Commands:',
-      navigation: 'Navigation:',
-      fileOperations: 'File Operations:',
-      processManagement: 'Process Management:',
-      helpSection: 'Help:',
-      systemStatus: 'System Status:',
-      hudExplanation: 'HUD Display: Your neural interface projects vital stats - HP (System Integrity), EP (CPU Quota), THR (Threat Level), and current location. Monitor these carefully to survive the digital realm.',
-      threatLevel: 'THR (Threat Level): Indicates system corruption intensity. Higher levels mean more dangerous entities and unstable environment. Reduce threat by eliminating corrupted processes and cleaning infected files.',
-      noHints: 'No mission hints available right now. Explore the system and experiment.',
-      commands: {
-        ls: 'List directory contents (use -a to show hidden files/directories)',
-        cd: 'Change directory (use "cd .." to go up one level, ".." = parent directory)',
-        pwd: 'Print working directory',
-        cat: 'Display file contents (read and show entire file)',
-        rm: 'Remove/delete files',
-        help: 'Show this help',
-        clear: 'Clear screen'
-      }
-    },
-    zones: {
-      readme: `MISSION BRIEFING - ZONE 1
-=====================
-
-Agent-7, enemy files have been detected in our system:
-
-TARGET LOCATIONS:
-- /srv/cluster/zone1/tmp/virus.exe
-- /srv/cluster/zone1/logs/[HIDDEN LOCATION]/malware.dat
-
-MISSION OBJECTIVE:
-Eliminate these hostile files using the 'rm' command.
-
-Navigation Commands:
-- ls: List files and directories
-- ls -a: List ALL files and directories (including hidden)
-- cd: Change directory (use 'cd ..' to go up)
-- cat: Display file contents
-- rm: Remove/delete files
-
-INTEL: Second target is concealed. Use advanced scanning.
-
-Complete your mission to secure Zone 1.`,
-      zone2readme: `QUANTUM BREACH CONTAINMENT PROTOCOL
-===================================
-
-Agent-7, the quantum layer has been compromised.
-
-ENCRYPTED DIRECTIVE [CLEARANCE: OMEGA]:
-"When numbers dance in digital space,
-Seek those untouched by division's embrace.
-Where pure integers stand alone and true,
-The path to salvation reveals to you.
-
-Follow the sacred sequence deep,
-Until no children directories you keep.
-In shadows hidden from casual sight,
-Quantum corruption awaits your might."
-
-WARNING: Navigation requires mathematical intuition.
-Standard protocols insufficient.
-Think beyond the obvious.
-
-[END TRANSMISSION]`
-    }
-  },
+export const messages: { ja: Messages } = {
   ja: {
     welcome: {
       title: `ROGSH v${getVersion()}`,
@@ -259,27 +115,27 @@ Think beyond the obvious.
       exitHint: '緊急脱出：ミッション中止は **exit** または **quit**。'
     },
     zone1: {
-      welcome: 'あなたはΩ（オメガ）クラスタのルートディレクトリにいます。\n\nまず、現在地のディレクトリを確認しましょう。**ls**（list：リスト）と入力して、利用可能なゾーンを表示してください。',
-      exploreDetailed: 'よくできました！Zone 1が見えます。これは訓練エリアです。\n\n**cd zone1**（change directory：ディレクトリ変更）と入力してZone 1に入りましょう。',
-      confirmLocation: 'Zone 1に入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。**ls**と入力して、このゾーンにあるファイルとディレクトリを表示してください。',
-      readReadme: '素晴らしい！README.txtファイルが見つかりました。このファイルにはミッションの詳細が記載されています。**cat README.txt**（concatenate/display：連結・表示）を使用してミッションの詳細を確認しましょう。',
-      returnToZone1Readme: '**cd /zone1**（/zone1 は絶対パス）でゾーン1の入口に戻り、README.txtで状況を確認してください。',
-      navigateToTmp: '完璧です！ミッション詳細を確認しました。README.txtに書かれている通り、virus.exeがtmpディレクトリにあります。**cd tmp**（change directory：ディレクトリ変更）でtmpディレクトリに移動しましょう。',
-      confirmTmpLocation: 'tmpディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。**ls**でこのディレクトリの内容を確認してみましょう。virus.exeファイルがあるかどうか見つけてください。',
-      returnToZone1: '完璧です！virus.exeファイルが見つかりました。これが敵対ファイルです。**rm virus.exe**（remove：削除）を使用してこのファイルを排除してください。',
-      navigateToLogs: '優秀です！第一ターゲットを排除しました。zone1ディレクトリに戻りましょう。**cd ..**（..は親ディレクトリ）を使用して一つ上のレベルに戻ってください。',
-      confirmBackToZone1: 'zone1に戻りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。**ls**で利用可能なディレクトリを確認してください。logsディレクトリが見えるはずです。',
-      scanForHidden: 'よくできました！次に第二の敵ファイルが隠されているlogsディレクトリに移動してください。**cd logs**を使用してください。',
-      confirmLogsLocation: 'logsディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。**ls**で内容を確認してみてください。',
-      enterHiddenDir: 'logsディレクトリの内容を確認しました。しかし、ターゲットは隠蔽されています。**ls -a**を使用して隠しファイルとディレクトリ（ドットで始まるもの）を表示してください。',
-      removeMalware: '素晴らしい！隠しディレクトリ「.hidden」を発見しました。その中に移動して最終ターゲットを見つけてください。**cd .hidden**を使用してください。',
-      confirmHiddenLocation: '隠しディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。**ls**でこのディレクトリに何があるか確認してください。',
-      checkProcesses: '完璧です！malware.datファイルが見つかりました。これが最終ターゲットです。**rm malware.dat**を使用して最終の敵対ファイルを排除し、ミッションを完了してください。',
-      deleteFinalMalware: '完璧です！隠しディレクトリにいます。**rm malware.dat**を使用して最終の敵対ファイルを排除し、ミッションを完了してください。',
-      exploreLogs: 'よくできました！次にlogsディレクトリに移動しましょう。**cd logs**を使用してディレクトリを変更してください。',
-      complete: '素晴らしい！基本を習得しました：\n- ナビゲーション（ls、cd）\n- ファイル読み取り（cat）\n- ファイル削除（rm）\n\nΩ（オメガ）クラスタの探索を続ける準備ができました！',
-      moveToRoot: 'ルートディレクトリに戻りました！まず現在の状況を確認しましょう。',
-      confirmRootLocation: '完璧です！zone2ディレクトリが開放されています。いよいよzone2に進入する時です。'
+      lsAtRoot: 'あなたはΩ（オメガ）クラスタのルートディレクトリにいます。\n\nまず、現在の場所から移動できるディレクトリを確認しましょう。**ls**（list：リスト）と入力してください。',
+      cdZone1FromRoot: 'Zone 1に移動できます。\n\n**cd zone1**（change directory：ディレクトリ変更）と入力してZone 1に入りましょう。',
+      cdZone1: '**cd /zone1**（change directory：ディレクトリ変更）と入力してZone 1に移動しましょう。',
+      lsAtZone1: 'Zone 1に入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。**ls**と入力して、このゾーンにあるファイルとディレクトリを表示してください。',
+      catReadme: 'README.txtファイルが見つかりました。このファイルにはミッションの詳細が記載されています。**cat README.txt**（concatenate/display：連結・表示）を使用してミッションの詳細を確認しましょう。',
+      cdZone1AndCatReadme: '**cd /zone1**（/zone1 は絶対パス）でゾーン1の入口に戻り、README.txtでミッションの詳細を確認してください。',
+      cdTmpFromZone1: '完璧です！ミッション詳細を確認しました。README.txtに書かれている通り、virus.exeがtmpディレクトリにあります。**cd tmp**（change directory：ディレクトリ変更）でtmpディレクトリに移動しましょう。',
+      cdTmp: 'README.txtに書かれている通り、virus.exeがtmpディレクトリにあります。**cd /zone1/tmp**（change directory：ディレクトリ変更）でtmpディレクトリに移動しましょう。',
+      lsAtTmp: 'tmpディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。**ls**でこのディレクトリの内容を確認してみましょう。virus.exeファイルがあるかどうか見つけてください。',
+      rmVirus: '完璧です！virus.exeファイルが見つかりました。これが敵対ファイルです。**rm virus.exe**（remove：削除）を使用してこのファイルを排除してください。',
+      cdZone1AfterVirusRemoved: '優秀です！第一ターゲットを排除しました。zone1ディレクトリに戻りましょう。**cd ..**（..は親ディレクトリ）を使用して一つ上のレベルに戻ってください。',
+      cdLogs: '第二の敵ファイルが隠されているlogsディレクトリに移動してください。**cd /zone1/logs**を使用してください。',
+      cdLogsFromZone1: '第二の敵ファイルが隠されているlogsディレクトリに移動してください。**cd logs**を使用してください。',
+      lsAtLogs: 'logsディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。**ls**で内容を確認してみてください。',
+      lsAllAtLogs: 'logsディレクトリの内容を確認しました。しかし、ターゲットは隠蔽されています。**ls -a**を使用して隠しファイルとディレクトリ（ドットで始まるもの）を表示してください。',
+      cdHiddenFromLogs: '素晴らしい！隠しディレクトリ「.hidden」を発見しました。その中に移動して最終ターゲットを見つけてください。**cd .hidden**を使用してください。',
+      cdHidden: '**cd /zone1/logs/.hidden**で隠しディレクトリ「.hidden」に移動してください。',
+      lsAtHidden: '隠しディレクトリに入りました！移動後はそのディレクトリ下にあるファイルを確認して状況を確認しましょう。**ls**でこのディレクトリに何があるか確認してください。',
+      rmMalware: '完璧です！malware.datファイルが見つかりました。これが最終ターゲットです。**rm malware.dat**を使用して最終の敵対ファイルを排除し、ミッションを完了してください。',
+      cdRootAfterMalwareRemoved: '素晴らしい。zone1のミッションをクリアしました。**cd /**で最初のスタート地点(ルートディレクトリ)に戻りましょう。',
+      cdZone2: 'おめでとうございます！zone1のミッションをクリアしたため、zone2ディレクトリが開放されています。**cd zone2**でzone2に進入する時です。'
     },
     zone2: {
       welcome: 'ゾーン2 - 量子層へようこそ。\n\nまず **ls** でディレクトリ構造を確認してください。',

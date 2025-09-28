@@ -55,7 +55,6 @@ export interface Zone1ProgressFlags {
   enteredHidden: boolean;
   listedHidden: boolean;
   removedMalware: boolean;
-  returnedRoot: boolean;
   enteredZone2: boolean;
   lastZone1Directory: string;
 }

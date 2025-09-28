@@ -83,6 +83,13 @@ class rogsh {
   }
 
   private async runGameLoop(): Promise<void> {
+    // Show initial hint for zone1
+    const initialHint = this.game.getZone1HintFormatted();
+    if (initialHint) {
+      console.log(initialHint);
+      console.log();
+    }
+
     while (this.isRunning) {
       try {
         // Display prompt and get input
@@ -163,7 +170,7 @@ class rogsh {
 ╚═══════════════════════════════════════════════════════╝
 `));
     
-    const msg = messages[this.locale];
+    const msg = messages[this.locale as 'ja'];
     console.log(chalk.cyan(`${msg.welcome.title}\n`));
     
     // Wait for Enter before starting the briefing
@@ -290,7 +297,7 @@ class rogsh {
 
   private displayGameOver(): void {
     const state = this.game.getState();
-    const msg = messages[this.locale];
+    const msg = messages[this.locale as 'ja'];
     
     console.log(chalk.red.bold('\n════════════════════════════════'));
     console.log(chalk.red.bold(`           ${msg.game.gameOver}            `));
@@ -333,7 +340,7 @@ class rogsh {
       await this.game.saveProgress();
     }
 
-    const msg = messages[this.locale];
+    const msg = messages[this.locale as 'ja'];
     console.log(chalk.cyan(`\n${msg.game.exitMessage}\n`));
     this.isRunning = false;
     this.rl.close();
@@ -344,7 +351,7 @@ class rogsh {
 
 // Handle Ctrl+C
 process.on('SIGINT', () => {
-  const msg = messages[getLocale()];
+  const msg = messages[getLocale() as 'ja'];
   console.log(chalk.cyan(`\n\n${msg.game.exitMessage}\n`));
   process.exit(0);
 });

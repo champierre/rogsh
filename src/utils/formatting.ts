@@ -45,6 +45,16 @@ export function formatGreenWithBold(text: string): string {
 }
 
 /**
+ * Adds hint key to output if showKey is true
+ */
+export function addHintKey(output: string, key: string | undefined, showKey: boolean): string {
+  if (showKey && key) {
+    return output + `\n\n${chalk.gray(`[hint key: ${key}]`)}`;
+  }
+  return output;
+}
+
+/**
  * Gets appropriate color for a file based on its properties
  * Only colors corrupted/threat files, others remain uncolored
  */

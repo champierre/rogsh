@@ -4,7 +4,7 @@ import { CommandParser } from './commands.js';
 import { SaveManager, SaveData } from './saveManager.js';
 import { messages } from '../i18n/messages.js';
 import { getLocale } from '../i18n/locale.js';
-import { formatWithMarkup } from '../utils/formatting.js';
+import { formatWithMarkup, addHintKey } from '../utils/formatting.js';
 import {
   createInitialZone1Flags,
   updateZone1Flags,
@@ -32,6 +32,7 @@ export class Game {
   private saveManager: SaveManager;
   private completedZones: string[];
   private eventFlags: GameProgressFlags;
+  private showHintKeys: boolean;
 
   constructor(options: GameOptions = {}) {
     // ゲーム依存と初期ステートをまとめて構築する
@@ -39,7 +40,8 @@ export class Game {
     this.filesystem = new VirtualFileSystem(this.locale);
     this.commandParser = new CommandParser(this.filesystem, this.locale);
     this.commandParser.setTutorialProvider(() => this.getTutorialMessage());
-    this.commandParser.setTutorialDebug(Boolean(options.showHintKeys));
+    this.showHintKeys = options.showHintKeys || false;
+    this.commandParser.setTutorialDebug(this.showHintKeys);
     this.saveManager = new SaveManager(this.locale);
     this.events = [];
     this.completedZones = [];
@@ -132,9 +134,7 @@ export class Game {
       this.eventFlags.zone1.enteredZone1 = true;
       this.eventFlags.zone1.lastZone1Directory = currentPath;
     }
-    if (currentPath === '/') {
-      this.eventFlags.zone1.returnedRoot = true;
-    }
+
     if (currentPath.startsWith('/zone2')) {
       this.eventFlags.zone1.enteredZone2 = true;
       this.eventFlags.zone2.enteredZone2 = true;
@@ -186,7 +186,7 @@ export class Game {
       this.completedZones.push('zone1');
       this.addEvent({
         type: 'tutorial',
-        message: chalk.green.bold(`\n${messages[this.locale].game.tutorialComplete}`),
+        message: chalk.green.bold(`\n${messages[this.locale as 'ja'].game.tutorialComplete}`),
         severity: 'success',
         timestamp: new Date()
       });
@@ -196,7 +196,7 @@ export class Game {
       this.completedZones.push('zone2');
       this.addEvent({
         type: 'tutorial',
-        message: chalk.green.bold(`\n${messages[this.locale].zone2.complete}`),
+        message: chalk.green.bold(`\n${messages[this.locale as 'ja'].zone2.complete}`),
         severity: 'success',
         timestamp: new Date()
       });
@@ -205,7 +205,7 @@ export class Game {
 
   private checkGameOver(): void {
     // 各種閾値からゲームオーバー判定を行いイベントを記録する
-    const msg = messages[this.locale];
+    const msg = messages[this.locale as 'ja'];
     
     if (this.state.hp <= 0) {
       this.state.isGameOver = true;
@@ -264,22 +264,31 @@ export class Game {
     return this.state.currentPath === '/' || this.state.currentPath.startsWith('/zone1');
   }
 
+  private formatHintWithKey(description: string, fullKey: string): string {
+    let output = formatWithMarkup(
+      description,
+      (text: string) => chalk.cyan(text),
+      (text: string) => chalk.cyan.bold(text)
+    );
+
+    return addHintKey(output, fullKey, this.showHintKeys);
+  }
+
   getZone1HintFormatted(): string | null {
     // zone1にいる場合のみヒントを返す
     if (!this.isInZone1()) {
       return null;
     }
 
-    const hint = getZone1Hint(this.eventFlags.zone1, this.locale);
-    if (!hint) {
+    const hintKey = getZone1Hint(this.eventFlags.zone1);
+    if (!hintKey) {
       return null;
     }
 
-    return formatWithMarkup(
-      hint.description,
-      (text: string) => chalk.cyan(text),
-      (text: string) => chalk.cyan.bold(text)
-    );
+    const msg = messages[this.locale as 'ja'].zone1;
+    const description = (msg as any)[hintKey];
+
+    return this.formatHintWithKey(description, `zone1.${hintKey}`);
   }
 
   getZone2HelpNotification(): string | null {
@@ -303,17 +312,27 @@ export class Game {
     );
   }
 
-  getTutorialMessage(): { description: string; hint?: string } | null {
-    const zone1Hint = getZone1Hint(this.eventFlags.zone1, this.locale);
-    if (zone1Hint) {
-      return zone1Hint;
+  getTutorialMessage(): { description: string; key?: string } | null {
+    const zone1HintKey = getZone1Hint(this.eventFlags.zone1);
+    if (zone1HintKey) {
+      const msg = messages[this.locale as 'ja'].zone1;
+      let description = (msg as any)[zone1HintKey];
+
+      return {
+        description,
+        key: `zone1.${zone1HintKey}`
+      };
     }
 
     const zone2Available = this.filesystem.isZone2Unlocked() || this.eventFlags.zone2.enteredZone2;
     if (zone2Available) {
-      const zone2Hint = getZone2Hint(this.eventFlags.zone2, this.locale);
-      if (zone2Hint) {
-        return zone2Hint;
+      const zone2HintKey = getZone2Hint(this.eventFlags.zone2);
+      if (zone2HintKey) {
+        const msg = messages[this.locale as 'ja'].zone2;
+        return {
+          description: (msg as any)[zone2HintKey],
+          key: `zone2.${zone2HintKey}`
+        };
       }
     }
 
@@ -416,7 +435,6 @@ export class Game {
       zone1Flags.enteredZone1 = true;
       zone1Flags.removedVirus = true;
       zone1Flags.removedMalware = true;
-      zone1Flags.returnedRoot = true;
       zone1Flags.enteredZone2 = zone1Flags.enteredZone2 || this.filesystem.isZone2Unlocked();
     }
 
@@ -483,7 +501,6 @@ export class Game {
           enteredHidden: true,
           listedHidden: true,
           removedMalware: true,
-          returnedRoot: true,
           enteredZone2: true
         };
         this.eventFlags.zone2 = createInitialZone2Flags();
@@ -513,7 +530,6 @@ export class Game {
           enteredHidden: true,
           listedHidden: true,
           removedMalware: true,
-          returnedRoot: true,
           enteredZone2: true
         };
         this.eventFlags.zone2 = {
